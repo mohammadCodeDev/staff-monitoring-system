@@ -6,6 +6,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class User extends Authenticatable
 {
@@ -47,5 +49,32 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Get the role associated with the user.
+     * A User belongs to one Role.
+     */
+    public function role(): BelongsTo
+    {
+        return $this->belongsTo(Role::class);
+    }
+
+    /**
+     * Get the groups managed by the user.
+     * A User (as a manager) can manage many Groups.
+     */
+    public function managedGroups(): HasMany
+    {
+        return $this->hasMany(Group::class, 'manager_id');
+    }
+
+    /**
+     * Get the attendance records created by this user (guard).
+     * A User (as a guard) can create many Attendance records.
+     */
+    public function recordedAttendances(): HasMany
+    {
+        return $this->hasMany(Attendance::class, 'guard_id');
     }
 }
