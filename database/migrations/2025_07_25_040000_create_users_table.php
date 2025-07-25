@@ -12,20 +12,19 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
-            $table->rememberToken();
-            $table->timestamps();
-        });
+        $table->id();
+        $table->string('first_name'); // User's first name
+        $table->string('last_name'); // User's last name
+        $table->string('userName')->unique(); // A unique username for login
+        
+        // We replaced 'email' with 'phoneNumber'
+        $table->string('phoneNumber')->unique(); // The user's phone number, must be unique
 
-        Schema::create('password_reset_tokens', function (Blueprint $table) {
-            $table->string('email')->primary();
-            $table->string('token');
-            $table->timestamp('created_at')->nullable();
-        });
+        $table->string('password'); // Laravel handles hashing automatically.
+        $table->foreignId('role_id')->constrained('roles')->onDelete('cascade');
+        $table->rememberToken();
+        $table->timestamps();
+    });
 
         Schema::create('sessions', function (Blueprint $table) {
             $table->string('id')->primary();
