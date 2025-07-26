@@ -16,13 +16,23 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <script>
-        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            document.documentElement.classList.add('dark');
-        } else {
-            // Set default to light mode if nothing is set
-            document.documentElement.classList.remove('dark');
-        }
-    </script>
+            const theme = localStorage.getItem('theme');
+
+            if (theme === 'dark') {
+                document.documentElement.classList.add('dark');
+            } else if (theme === 'light') {
+                document.documentElement.classList.remove('dark');
+            } else if (theme === 'system') {
+                if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                    document.documentElement.classList.add('dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                }
+            } else {
+                // If no theme is set in localStorage, default to light mode.
+                document.documentElement.classList.remove('dark');
+            }
+        </script>
 
 </head>
 

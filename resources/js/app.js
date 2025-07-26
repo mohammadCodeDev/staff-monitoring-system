@@ -9,7 +9,7 @@ document.addEventListener('alpine:initializing', () => {
     Alpine.data('themeSwitcher', () => ({
         // Set the default theme by reading from localStorage. Default to 'light'.
         theme: localStorage.getItem('theme') || 'light',
-        
+
         // Function to apply the theme
         applyTheme() {
             if (this.theme === 'light') {
@@ -37,13 +37,20 @@ document.addEventListener('alpine:initializing', () => {
 
         // Initialize the component
         init() {
+            // Apply the theme on initial load
             this.applyTheme();
-            // Watch for changes in the system's color scheme
-            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+            
+            // This is the updated logic to listen for OS theme changes.
+            // It's more explicit and reliable.
+            const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+
+            const handleThemeChange = () => {
                 if (this.theme === 'system') {
                     this.applyTheme();
                 }
-            });
+            };
+
+            mediaQuery.addEventListener('change', handleThemeChange);
         }
     }));
 });
