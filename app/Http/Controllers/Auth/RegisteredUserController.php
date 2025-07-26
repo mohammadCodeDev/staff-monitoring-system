@@ -33,8 +33,8 @@ class RegisteredUserController extends Controller
             'first_name' => ['required', 'string', 'max:255'],
             'last_name' => ['required', 'string', 'max:255'],
             //userName and phoneNumber are unique in the 'users' table.
-            'userName' => ['required', 'string', 'max:255', 'unique:'.User::class],
-            'phoneNumber' => ['required', 'string', 'max:255', 'unique:'.User::class],
+            'userName' => ['required', 'string', 'max:255', 'unique:' . User::class],
+            'phoneNumber' => ['required', 'string', 'max:255', 'unique:' . User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
