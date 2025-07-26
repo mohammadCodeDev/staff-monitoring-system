@@ -26,11 +26,10 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
+        // The fill() method automatically maps the validated data to the user model.
         $request->user()->fill($request->validated());
 
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
-        }
+        // The check for a dirty email is no longer necessary and has been removed.
 
         $request->user()->save();
 
