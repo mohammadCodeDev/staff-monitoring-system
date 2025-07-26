@@ -1,0 +1,12 @@
+{
+    "Dashboard": "داشبورد",
+    "Settings": "تنظیمات",
+    "Profile": "پروفایل",
+    "Log Out": "خروج",
+    "You're logged in!": "شما با موفقیت وارد شدید!",
+    "Theme Settings": "تنظیمات تم",
+    "Choose how the application looks. \"System\" will match your operating system preference.": "انتخاب کنید که برنامه چگونه به نظر برسد. حالت \"سیستم\" با اولویت سیستم عامل شما مطابقت خواهد داشت.",
+    "Light": "روشن",
+    "Dark": "تاریک",
+    "System": "سیستم"
+}
