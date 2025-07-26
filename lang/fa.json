@@ -26,5 +26,21 @@
     "Are you sure you want to delete your account?": "آیا از حذف حساب کاربری خود اطمینان دارید؟",
     "Once your account is deleted, all of its resources and data will be permanently deleted. Please enter your password to confirm you would like to permanently delete your account.": "پس از حذف حساب شما، تمام منابع و داده‌های آن برای همیشه حذف خواهند شد. لطفاً برای تأیید اینکه می‌خواهید حساب خود را برای همیشه حذف کنید، رمز عبور خود را وارد نمایید.",
     "Password": "رمز عبور",
-    "Cancel": "انصراف"
+    "Cancel": "انصراف",
+    "Welcome to the Attendance Monitoring System": "به سامانه نظارت بر ورود و خروج خوش آمدید",
+    "This system is designed to efficiently track and manage the entry and exit of university staff and faculty. Guards can register attendance events, and authorized personnel can monitor these records based on their roles and permissions.": "این سامانه برای ردیابی و مدیریت کارآمد ورود و خروج کارمندان و اساتید دانشگاه طراحی شده است. نگهبانان می‌توانند رویدادهای حضور و غیاب را ثبت کنند و پرسنل مجاز می‌توانند بر اساس نقش و دسترسی خود، این سوابق را نظارت کنند.",
+    "Log in": "ورود",
+    "Register": "ثبت‌نام",
+    "Phone Number": "شماره موبایل",
+    "Remember me": "مرا به خاطر بسپار",
+    "Not registered?": "ثبت‌نام نکرده‌اید؟",
+    "Forgot your password?": "رمز عبور خود را فراموش کرده‌اید؟",
+    "First Name": "نام",
+    "Last Name": "نام خانوادگی",
+    "Username": "نام کاربری",
+    "Already registered?": "قبلاً ثبت‌نام کرده‌اید؟",
+    "Reset Password": "بازیابی رمز عبور",
+    "Thanks for signing up! Before getting started, could you verify your phone number by clicking on the link we just sent to you? If you didn't receive the message, we will gladly send you another.": "ممنون از ثبت‌نام شما! قبل از شروع، لطفاً با کلیک بر روی لینکی که برایتان ارسال کردیم، شماره موبایل خود را تأیید کنید. اگر پیامی دریافت نکردید، با کمال میل یکی دیگر برایتان ارسال خواهیم کرد.",
+    "A new verification link has been sent to the phone number you provided during registration.": "یک لینک تأیید جدید به شماره موبایلی که هنگام ثبت‌نام وارد کردید، ارسال شد.",
+    "Resend Verification Code": "ارسال مجدد کد تأیید"
 }
