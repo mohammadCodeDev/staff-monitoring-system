@@ -8,5 +8,10 @@
     "Choose how the application looks. \"System\" will match your operating system preference.": "Choose how the application looks. \"System\" will match your operating system preference.",
     "Light": "Light",
     "Dark": "Dark",
-    "System": "System"
+    "System": "System",  
+    "Language Settings": "Language Settings",
+    "Select your preferred language for the application.": "Select your preferred language for the application.",
+    "Persian": "Persian",
+    "English": "English",
+    "Language updated.": "Language updated."
 }

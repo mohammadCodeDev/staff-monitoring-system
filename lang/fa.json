@@ -8,5 +8,10 @@
     "Choose how the application looks. \"System\" will match your operating system preference.": "انتخاب کنید که برنامه چگونه به نظر برسد. حالت \"سیستم\" با اولویت سیستم عامل شما مطابقت خواهد داشت.",
     "Light": "روشن",
     "Dark": "تاریک",
-    "System": "سیستم"
+    "System": "سیستم",
+    "Language Settings": "تنظیمات زبان",
+    "Select your preferred language for the application.": "زبان مورد نظر خود را برای برنامه انتخاب کنید.",
+    "Persian": "فارسی",
+    "English": "انگلیسی",
+    "Language updated.": "زبان با موفقیت به‌روز شد."
 }
