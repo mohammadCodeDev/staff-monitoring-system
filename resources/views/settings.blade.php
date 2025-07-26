@@ -55,14 +55,20 @@
                         <div class="mt-2 space-y-2">
                             <div>
                                 <label class="inline-flex items-center">
-                                    <input type="radio" name="locale" value="fa" onchange="this.form.submit()" {{ session('locale', config('app.locale')) == 'fa' ? 'checked' : '' }} class="form-radio text-indigo-600">
+                                    <input type="radio" name="locale" value="fa" onchange="this.form.submit()" {{ Auth::user()->locale == 'fa' ? 'checked' : '' }} class="form-radio text-indigo-600">
                                     <span class="ml-2">{{ __('Persian') }}</span>
                                 </label>
                             </div>
                             <div>
                                 <label class="inline-flex items-center">
-                                    <input type="radio" name="locale" value="en" onchange="this.form.submit()" {{ session('locale', config('app.locale')) == 'en' ? 'checked' : '' }} class="form-radio text-indigo-600">
+                                    <input type="radio" name="locale" value="en" onchange="this.form.submit()" {{ Auth::user()->locale == 'en' ? 'checked' : '' }} class="form-radio text-indigo-600">
                                     <span class="ml-2">{{ __('English') }}</span>
+                                </label>
+                            </div>
+                            <div>
+                                <label class="inline-flex items-center">
+                                    <input type="radio" name="locale" value="system" onchange="this.form.submit()" {{ Auth::user()->locale == 'system' ? 'checked' : '' }} class="form-radio text-indigo-600">
+                                    <span class="ml-2">{{ __('System') }}</span>
                                 </label>
                             </div>
                         </div>

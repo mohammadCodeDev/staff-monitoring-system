@@ -42,5 +42,7 @@
     "Reset Password": "بازیابی رمز عبور",
     "Thanks for signing up! Before getting started, could you verify your phone number by clicking on the link we just sent to you? If you didn't receive the message, we will gladly send you another.": "ممنون از ثبت‌نام شما! قبل از شروع، لطفاً با کلیک بر روی لینکی که برایتان ارسال کردیم، شماره موبایل خود را تأیید کنید. اگر پیامی دریافت نکردید، با کمال میل یکی دیگر برایتان ارسال خواهیم کرد.",
     "A new verification link has been sent to the phone number you provided during registration.": "یک لینک تأیید جدید به شماره موبایلی که هنگام ثبت‌نام وارد کردید، ارسال شد.",
-    "Resend Verification Code": "ارسال مجدد کد تأیید"
+    "Resend Verification Code": "ارسال مجدد کد تأیید",
+    "Back to Welcome Page": "بازگشت به صفحه خوش آمد",
+    "System Admin": "مدیر سامانه"
 }

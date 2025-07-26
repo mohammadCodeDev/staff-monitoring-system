@@ -49,6 +49,7 @@ class RegisteredUserController extends Controller
             // e.g., Role::where('role_name', 'guard')->first()->id.
             // Here, we are assuming '2' is the ID for a default role like 'Guard'.
             'role_id' => 2,
+            'locale' => app()->getLocale(),
         ]);
 
         event(new Registered($user));

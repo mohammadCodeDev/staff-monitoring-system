@@ -14,15 +14,21 @@ class SettingsController extends Controller
      */
     public function updateLocale(Request $request): RedirectResponse
     {
-        // Validate that the selected locale is one of the allowed values.
+        // Validate the incoming locale
         $request->validate([
             'locale' => ['required', 'string', 'in:en,fa,system'],
         ]);
 
-        // Store the selected locale in the user's session.
+        // Get the authenticated user
+        $user = $request->user();
+
+        // Update the user's locale in the database
+        $user->locale = $request->locale;
+        $user->save();
+
+        // Also update the session immediately for the response
         Session::put('locale', $request->locale);
 
-        // Redirect the user back to the settings page with a success message.
         return Redirect::route('settings')->with('status', 'locale-updated');
     }
 }

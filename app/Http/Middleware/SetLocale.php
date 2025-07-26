@@ -17,29 +17,31 @@ class SetLocale
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // The order of priority for setting the locale is:
-        // 1. Check the session for a 'locale' value.
-        // 2. If not in session, check the browser's Accept-Language header.
-        // 3. If none of the above, use the default from config/app.php.
+        $user = $request->user();
+        $localePreference = null;
 
-        $locale = null;
-
-        if (Session::has('locale')) {
-            $locale = Session::get('locale');
-        } else {
-            // Get the browser's preferred language.
-            $browserLocale = $request->getPreferredLanguage(['en', 'fa']);
-            if ($browserLocale) {
-                $locale = $browserLocale;
-                // Store it in the session for subsequent requests.
-                Session::put('locale', $locale);
-            }
+        // Priority 1: Get locale from the authenticated user's profile.
+        if ($user && $user->locale) {
+            $localePreference = $user->locale;
+        }
+        // Priority 2: If no user or user has no preference, check the session.
+        elseif (Session::has('locale')) {
+            $localePreference = Session::get('locale');
         }
 
-        // If a valid locale was determined, set it for the application.
-        if ($locale) {
-            App::setLocale($locale);
+        // Determine the final locale to set.
+        $localeToSet = config('app.fallback_locale'); // Default to fallback locale
+
+        if ($localePreference === 'system') {
+            // Resolve 'system' to the browser's preferred language.
+            $localeToSet = $request->getPreferredLanguage(['en', 'fa']) ?? config('app.fallback_locale');
+        } elseif (in_array($localePreference, ['en', 'fa'])) {
+            // Use the specific preference if it's 'en' or 'fa'.
+            $localeToSet = $localePreference;
         }
+
+        // Apply the final locale.
+        App::setLocale($localeToSet);
 
         return $next($request);
     }
