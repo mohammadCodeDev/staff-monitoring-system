@@ -13,5 +13,18 @@
     "Select your preferred language for the application.": "زبان مورد نظر خود را برای برنامه انتخاب کنید.",
     "Persian": "فارسی",
     "English": "انگلیسی",
-    "Language updated.": "زبان با موفقیت به‌روز شد."
+    "Language updated.": "زبان با موفقیت به‌روز شد.",
+    "Update Password": "به‌روزرسانی رمز عبور",
+    "Ensure your account is using a long, random password to stay secure.": "اطمینان حاصل کنید که حساب شما برای امن ماندن از یک رمز عبور طولانی و تصادفی استفاده می‌کند.",
+    "Current Password": "رمز عبور فعلی",
+    "New Password": "رمز عبور جدید",
+    "Confirm Password": "تکرار رمز عبور",
+    "Save": "ذخیره",
+    "Saved.": "ذخیره شد.",
+    "Delete Account": "حذف حساب کاربری",
+    "Once your account is deleted, all of its resources and data will be permanently deleted. Before deleting your account, please download any data or information that you wish to retain.": "پس از حذف حساب شما، تمام منابع و داده‌های آن برای همیشه حذف خواهند شد. قبل از حذف حساب خود، لطفاً هرگونه داده یا اطلاعاتی را که می‌خواهید حفظ کنید، دانلود نمایید.",
+    "Are you sure you want to delete your account?": "آیا از حذف حساب کاربری خود اطمینان دارید؟",
+    "Once your account is deleted, all of its resources and data will be permanently deleted. Please enter your password to confirm you would like to permanently delete your account.": "پس از حذف حساب شما، تمام منابع و داده‌های آن برای همیشه حذف خواهند شد. لطفاً برای تأیید اینکه می‌خواهید حساب خود را برای همیشه حذف کنید، رمز عبور خود را وارد نمایید.",
+    "Password": "رمز عبور",
+    "Cancel": "انصراف"
 }
