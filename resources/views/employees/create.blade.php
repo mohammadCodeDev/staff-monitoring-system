@@ -1,67 +1,55 @@
-{{-- This view can extend a master layout if you have one --}}
-{{-- For example: @extends('layouts.app') --}}
-{{-- @section('content') --}}
+<x-app-layout>
+    {{-- This slot defines the header content, which is the page title. --}}
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+            {{ __('Add New Employee/Professor') }}
+        </h2>
+    </x-slot>
 
-<!DOCTYPE html>
-{{-- We set the language and direction based on the current app locale --}}
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" dir="{{ app()->getLocale() == 'fa' ? 'rtl' : 'ltr' }}">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ __('Add New Employee/Professor') }}</title>
-    {{-- Basic styling --}}
-    <style>
-        body { font-family: sans-serif; padding: 2rem; }
-        .form-group { margin-bottom: 1rem; }
-        label { display: block; margin-bottom: 0.5rem; }
-        input, select { width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px; }
-        .btn { padding: 0.75rem 1.5rem; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
-        .error { color: red; font-size: 0.875em; margin-top: 0.25rem; }
-        html[dir="rtl"] .error { text-align: right; }
-    </style>
-</head>
-<body>
+    <div class="py-12">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6 text-gray-900 dark:text-gray-100">
 
-    <h1>{{ __('Add New Employee/Professor') }}</h1>
+                    {{-- The form for creating a new employee, styled with Tailwind CSS classes. --}}
+                    <form action="{{ route('employees.store') }}" method="POST" class="space-y-6">
+                        @csrf {{-- CSRF protection token --}}
 
-    <form action="{{ route('employees.store') }}" method="POST">
-        @csrf
+                        {{-- First Name Input --}}
+                        <div>
+                            <x-input-label for="first_name" :value="__('First Name')" />
+                            <x-text-input id="first_name" name="first_name" type="text" class="mt-1 block w-full" :value="old('first_name')" required autofocus />
+                            <x-input-error class="mt-2" :messages="$errors->get('first_name')" />
+                        </div>
 
-        <div class="form-group">
-            <label for="first_name">{{ __('First Name') }}</label>
-            <input type="text" id="first_name" name="first_name" value="{{ old('first_name') }}" required>
-            @error('first_name')
-                <div class="error">{{ $message }}</div>
-            @enderror
+                        {{-- Last Name Input --}}
+                        <div>
+                            <x-input-label for="last_name" :value="__('Last Name')" />
+                            <x-text-input id="last_name" name="last_name" type="text" class="mt-1 block w-full" :value="old('last_name')" required />
+                            <x-input-error class="mt-2" :messages="$errors->get('last_name')" />
+                        </div>
+
+                        {{-- Department Selection --}}
+                        <div>
+                            <x-input-label for="department_id" :value="__('Department')" />
+                            <select id="department_id" name="department_id" class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm" required>
+                                <option value="">{{ __('Select a Department') }}</option>
+                                @foreach ($departments as $department)
+                                <option value="{{ $department->id }}" {{ old('department_id') == $department->id ? 'selected' : '' }}>
+                                    {{ $department->name }}
+                                </option>
+                                @endforeach
+                            </select>
+                            <x-input-error class="mt-2" :messages="$errors->get('department_id')" />
+                        </div>
+
+                        {{-- Submit Button --}}
+                        <div class="flex items-center gap-4">
+                            <x-primary-button>{{ __('Save Employee') }}</x-primary-button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
-
-        <div class="form-group">
-            <label for="last_name">{{ __('Last Name') }}</label>
-            <input type="text" id="last_name" name="last_name" value="{{ old('last_name') }}" required>
-            @error('last_name')
-                <div class="error">{{ $message }}</div>
-            @enderror
-        </div>
-
-        <div class="form-group">
-            <label for="department_id">{{ __('Department') }}</label>
-            <select id="department_id" name="department_id" required>
-                <option value="">{{ __('Select a Department') }}</option>
-                @foreach ($departments as $department)
-                    <option value="{{ $department->id }}" {{ old('department_id') == $department->id ? 'selected' : '' }}>
-                        {{ $department->name }}
-                    </option>
-                @endforeach
-            </select>
-            @error('department_id')
-                <div class="error">{{ $message }}</div>
-            @enderror
-        </div>
-
-        <button type="submit" class="btn">{{ __('Save Employee') }}</button>
-    </form>
-
-</body>
-</html>
-
-{{-- @endsection --}}
+    </div>
+</x-app-layout>
