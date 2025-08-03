@@ -68,5 +68,11 @@
     "Employee updated successfully.": "کارمند با موفقیت به‌روزرسانی شد.",
     "Deactivate": "غیرفعال کردن",
     "Are you sure you want to deactivate this employee?": "آیا از غیرفعال کردن این کارمند اطمینان دارید؟",
-    "Employee deactivated successfully.": "کارمند با موفقیت غیرفعال شد."
+    "Employee deactivated successfully.": "کارمند با موفقیت غیرفعال شد.",
+    "Reactivate": "فعال‌سازی مجدد",
+    "Are you sure you want to reactivate this employee?": "آیا از فعال‌سازی مجدد این کارمند اطمینان دارید؟",
+    "Employee reactivated successfully.": "کارمند با موفقیت فعال شد.",
+    "Delete": "حذف",
+    "Are you sure you want to permanently delete this employee? This action cannot be undone.": "آیا از حذف دائمی این کارمند اطمینان دارید؟ این عملیات قابل بازگشت نیست.",
+    "Employee deleted successfully.": "کارمند با موفقیت حذف شد."
 }

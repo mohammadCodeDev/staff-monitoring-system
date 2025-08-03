@@ -31,8 +31,11 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth', 'role:System Admin'])->group(function () {
     Route::resource('employees', EmployeeController::class);
 
-    // This new route will handle the deactivation request
+    // route to handle the deactivation request
     Route::patch('employees/{employee}/deactivate', [EmployeeController::class, 'deactivate'])->name('employees.deactivate');
+
+    // route to handle the reactivation request
+    Route::patch('employees/{employee}/reactivate', [EmployeeController::class, 'reactivate'])->name('employees.reactivate');
 });
 
 require __DIR__ . '/auth.php';

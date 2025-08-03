@@ -100,11 +100,12 @@ class EmployeeController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Employee $employee)
     {
-        //
+        $employee->delete();
+        return redirect()->route('employees.index')
+            ->with('success', __('Employee deleted successfully.'));
     }
-
     /**
      * Deactivate the specified employee.
      */
@@ -116,5 +117,15 @@ class EmployeeController extends Controller
         // Redirect back to the list with a success message
         return redirect()->route('employees.index')
             ->with('success', __('Employee deactivated successfully.'));
+    }
+
+    /**
+     * Reactivate the specified employee.
+     */
+    public function reactivate(Employee $employee)
+    {
+        $employee->update(['is_active' => true]);
+        return redirect()->route('employees.index')
+            ->with('success', __('Employee reactivated successfully.'));
     }
 }
