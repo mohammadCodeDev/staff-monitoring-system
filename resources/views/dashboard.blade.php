@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('Dashboard') }} - {{ Auth::user()->userName }} ({{ Auth::user()->role->role_name }})
+            {{ __('Dashboard') }} - {{ Auth::user()->userName }} ({{ __(Auth::user()->role->role_name) }})
         </h2>
     </x-slot>
 
@@ -24,7 +24,7 @@
 
     <!-- Admin Actions Section -->
     <!-- This section is only visible to users with the 'System Admin' role -->
-    @if(Auth::user()->role->role_name == 'System Admin')
+    @if(Auth::user()->role->role_name == 'Roles.System Admin')
     <div class="py-6 pt-0">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">

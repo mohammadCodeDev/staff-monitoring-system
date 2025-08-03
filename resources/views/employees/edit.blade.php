@@ -36,10 +36,10 @@
                             <x-input-label for="department_id" :value="__('Department')" />
                             <select id="department_id" name="department_id" class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm" required>
                                 @foreach ($departments as $department)
-                                    {{-- The employee's current department is pre-selected --}}
-                                    <option value="{{ $department->id }}" @selected(old('department_id', $employee->department_id) == $department->id)>
-                                        {{ $department->name }}
-                                    </option>
+                                {{-- The employee's current department is pre-selected --}}
+                                <option value="{{ $department->id }}" @selected(old('department_id', $employee->department_id) == $department->id)>
+                                    {{ __($department->name) }}
+                                </option>
                                 @endforeach
                             </select>
                             <x-input-error class="mt-2" :messages="$errors->get('department_id')" />

@@ -21,12 +21,12 @@ class RoleSeeder extends Seeder
 
         // Define the roles based on the project description
         $roles = [
-            ['role_name' => 'System Admin'],          // ID: 1
-            ['role_name' => 'Guard'],                 // ID: 2
-            ['role_name' => 'System Observer'],       // ID: 3
-            ['role_name' => 'University President'],  // ID: 4
-            ['role_name' => 'Faculty Head'],          // ID: 5
-            ['role_name' => 'Group Manager'],         // ID: 6
+            ['role_name' => 'Roles.System Admin'],          // ID: 1
+            ['role_name' => 'Roles.Guard'],                 // ID: 2
+            ['role_name' => 'Roles.System Observer'],       // ID: 3
+            ['role_name' => 'Roles.University President'],  // ID: 4
+            ['role_name' => 'Roles.Faculty Head'],          // ID: 5
+            ['role_name' => 'Roles.Group Manager'],         // ID: 6
         ];
 
         // Insert the roles into the database

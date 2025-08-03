@@ -34,7 +34,7 @@
                                 <tr>
                                     <td class="px-6 py-4 whitespace-nowrap">{{ $employee->fullName }}</td>
 
-                                    <td class="px-6 py-4 whitespace-nowrap">{{ $employee->department->name }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">{{ __($employee->department->name) }}</td>
 
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         @if($employee->is_active)

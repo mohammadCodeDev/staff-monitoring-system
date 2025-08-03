@@ -44,7 +44,6 @@
     "A new verification link has been sent to the phone number you provided during registration.": "A new verification link has been sent to the phone number you provided during registration.",
     "Resend Verification Code": "Resend Verification Code",
     "Back to Welcome Page": "Back to Welcome Page",
-    "System Admin": "System Admin",
     "Profile Information": "Profile Information",
     "Update your account's profile information.": "Update your account's profile information.",
     "Role": "Role",
@@ -74,5 +73,17 @@
     "Employee reactivated successfully.": "Employee reactivated successfully.",
     "Delete": "Delete",
     "Are you sure you want to permanently delete this employee? This action cannot be undone.": "Are you sure you want to permanently delete this employee? This action cannot be undone.",
-    "Employee deleted successfully.": "Employee deleted successfully."
+    "Employee deleted successfully.": "Employee deleted successfully.",
+    "These credentials do not match our records.": "These credentials do not match our records.",
+    "departments.computer_engineering": "Computer Engineering",
+    "departments.electrical_engineering": "Electrical Engineering",
+    "departments.mechanical_engineering": "Mechanical Engineering",
+    "departments.civil_engineering": "Civil Engineering",
+    "departments.university_management": "University Management",
+    "Roles.System Admin": "System Admin",
+    "Roles.Guard": "Guard",
+    "Roles.System Observer": "System Observer",
+    "Roles.University President": "University President",
+    "Roles.Faculty Head": "Faculty Head",
+    "Roles.Group Manager": "Group Manager"
 }
