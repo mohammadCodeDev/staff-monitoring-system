@@ -85,5 +85,10 @@
     "Roles.System Observer": "ناظر سیستم",
     "Roles.University President": "رئیس دانشگاه",
     "Roles.Faculty Head": "رئیس دانشکده",
-    "Roles.Group Manager": "مدیر گروه"
+    "Roles.Group Manager": "مدیر گروه",
+    "Search": "جستجو",
+    "Search Employee": "جستجوی کارمند",
+    "Actions": "اقدامات",
+    "Enter name or department...": "نام یا بخش را وارد کنید ...",
+    "Employee/Professor created successfully!": "کارمند/استاد با موفقیت ایجاد شد!"
 }

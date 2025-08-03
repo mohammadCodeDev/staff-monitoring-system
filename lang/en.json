@@ -85,5 +85,10 @@
     "Roles.System Observer": "System Observer",
     "Roles.University President": "University President",
     "Roles.Faculty Head": "Faculty Head",
-    "Roles.Group Manager": "Group Manager"
+    "Roles.Group Manager": "Group Manager",
+    "Search": "Search",
+    "Search Employee": "Search Employee",
+    "Actions": "Actions",
+    "Enter name or department...": "Enter name or department...",
+    "Employee/Professor created successfully!": "Employee/Professor created successfully!"
 }

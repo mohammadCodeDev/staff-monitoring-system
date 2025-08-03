@@ -11,14 +11,32 @@ class EmployeeController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        // Fetch all employees from the database.
-        // 'with('department')' prevents the N+1 query problem by loading the department relationship eagerly.
-        // 'latest()' orders the results to show the most recently created employees first.
-        $employees = Employee::with('department')->latest()->get();
+        // Start with a query builder instance
+        $query = Employee::query();
 
-        // Return the view and pass the employees data to it.
+        // Check if a search term is provided in the request
+        if ($request->has('search') && $request->input('search') != '') {
+            $searchTerm = $request->input('search');
+
+            // Add conditions to the query to search in multiple fields
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('first_name', 'like', "%{$searchTerm}%")
+                    ->orWhere('last_name', 'like', "%{$searchTerm}%")
+                    // Search within the related department's name
+                    ->orWhereHas('department', function ($subQ) use ($searchTerm) {
+                        // Note: This part might not work perfectly with translated keys.
+                        // For a more robust search, a dedicated search package or different DB structure would be needed.
+                        $subQ->where('name', 'like', "%{$searchTerm}%");
+                    });
+            });
+        }
+
+        // Eager load the department relationship and get the results
+        $employees = $query->with('department')->latest()->get();
+
+        // Return the view and pass the employees data to it
         return view('employees.index', ['employees' => $employees]);
     }
 
