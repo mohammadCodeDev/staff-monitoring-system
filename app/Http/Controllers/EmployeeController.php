@@ -33,7 +33,20 @@ class EmployeeController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        // 1. Validate the data coming from the form
+        $validatedData = $request->validate([
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'department_id' => 'required|exists:departments,id', // Ensures the selected department is valid
+        ]);
+
+        // 2. Create a new employee record using the validated data
+        Employee::create($validatedData);
+
+        // 3. Redirect the user to the employee list page with a success message
+        // We will create the index (list) page in the next step.
+        return redirect()->route('employees.index')
+            ->with('success', 'Employee/Professor created successfully!');
     }
 
     /**

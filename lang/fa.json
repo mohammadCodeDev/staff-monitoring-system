@@ -47,5 +47,11 @@
     "System Admin": "مدیر سامانه",
     "Profile Information": "اطلاعات نمایه",
     "Update your account's profile information.": "اطلاعات پروفایل حساب کاربری خود را به‌روزرسانی کنید.",
-    "Role": "نقش"
+    "Role": "نقش",
+    "Add New Employee/Professor": "افزودن کارمند/استاد جدید",
+    "Department": "دپارتمان",
+    "Select a Department": "یک دپارتمان انتخاب کنید",
+    "Save Employee": "ذخیره کارمند",
+    "Admin Actions": "اقدامات مدیر",
+    "Add New Employee": "افزودن کارمند جدید"
 }

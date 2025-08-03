@@ -28,7 +28,7 @@ Route::middleware('auth')->group(function () {
 });
 
 // Routes for managing employees, accessible only by authenticated users.
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'role:System Admin'])->group(function () {
     Route::resource('employees', EmployeeController::class);
 });
 

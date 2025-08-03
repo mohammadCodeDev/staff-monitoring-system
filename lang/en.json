@@ -47,5 +47,11 @@
     "System Admin": "System Admin",
     "Profile Information": "Profile Information",
     "Update your account's profile information.": "Update your account's profile information.",
-    "Role": "Role"
+    "Role": "Role",
+    "Add New Employee/Professor": "Add New Employee/Professor",
+    "Department": "Department",
+    "Select a Department": "Select a Department",
+    "Save Employee": "Save Employee",
+    "Admin Actions": "Admin Actions",
+    "Add New Employee": "Add New Employee"
 }
