@@ -62,5 +62,8 @@
     "Inactive": "Inactive",
     "Edit": "Edit",
     "No employees found.": "No employees found.",
-    "Success!": "Success!"
+    "Success!": "Success!",
+    "Edit Employee": "Edit Employee",
+    "Update Employee": "Update Employee",
+    "Employee updated successfully.": "Employee updated successfully."
 }

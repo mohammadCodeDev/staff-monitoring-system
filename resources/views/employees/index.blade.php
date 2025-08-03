@@ -11,10 +11,10 @@
 
             {{-- Success Message --}}
             @if(session('success'))
-                <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
-                    <strong class="font-bold">{{ __('Success!') }}</strong>
-                    <span class="block sm:inline">{{ session('success') }}</span>
-                </div>
+            <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
+                <strong class="font-bold">{{ __('Success!') }}</strong>
+                <span class="block sm:inline">{{ session('success') }}</span>
+            </div>
             @endif
 
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
@@ -31,25 +31,30 @@
                             </thead>
                             <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                                 @forelse ($employees as $employee)
-                                    <tr>
-                                        <td class="px-6 py-4 whitespace-nowrap">{{ $employee->fullName }}</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">{{ $employee->department->name }}</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            @if($employee->is_active)
-                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">{{ __('Active') }}</span>
-                                            @else
-                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">{{ __('Inactive') }}</span>
-                                            @endif
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            {{-- Action buttons for edit/delete will go here later --}}
-                                            <a href="#" class="text-indigo-600 hover:text-indigo-900">{{ __('Edit') }}</a>
-                                        </td>
-                                    </tr>
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap">{{ $employee->fullName }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">{{ $employee->department->name }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        @if($employee->is_active)
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">{{ __('Active') }}</span>
+                                        @else
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">{{ __('Inactive') }}</span>
+                                        @endif
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                        {{-- Action buttons for edit/delete will go here later --}}
+                                        <a href="#" class="text-indigo-600 hover:text-indigo-900">{{ __('Edit') }}</a>
+                                    </td>
+
+                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                        {{-- This link now points to the correct edit route for each employee --}}
+                                        <a href="{{ route('employees.edit', $employee->id) }}" class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-200">{{ __('Edit') }}</a>
+                                    </td>
+                                </tr>
                                 @empty
-                                    <tr>
-                                        <td colspan="4" class="px-6 py-4 whitespace-nowrap text-center text-gray-500">{{ __('No employees found.') }}</td>
-                                    </tr>
+                                <tr>
+                                    <td colspan="4" class="px-6 py-4 whitespace-nowrap text-center text-gray-500">{{ __('No employees found.') }}</td>
+                                </tr>
                                 @endforelse
                             </tbody>
                         </table>

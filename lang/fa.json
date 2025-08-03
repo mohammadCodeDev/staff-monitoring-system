@@ -62,5 +62,8 @@
     "Inactive": "غیرفعال",
     "Edit": "ویرایش",
     "No employees found.": "هیچ کارمندی یافت نشد.",
-    "Success!": "موفقیت!"
+    "Success!": "موفقیت!",
+    "Edit Employee": "ویرایش کارمند",
+    "Update Employee": "به‌روزرسانی کارمند",
+    "Employee updated successfully.": "کارمند با موفقیت به‌روزرسانی شد."
 }

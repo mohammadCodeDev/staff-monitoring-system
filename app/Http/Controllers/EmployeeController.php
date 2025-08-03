@@ -65,18 +65,36 @@ class EmployeeController extends Controller
 
     /**
      * Show the form for editing the specified resource.
+     * Laravel's Route-Model Binding automatically finds the employee.
      */
-    public function edit(string $id)
+    public function edit(Employee $employee)
     {
-        //
+        // We need the list of all departments for the dropdown menu
+        $departments = Department::all();
+
+        // Return the edit view, passing the specific employee and all departments
+        return view('employees.edit', compact('employee', 'departments'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Employee $employee)
     {
-        //
+        // 1. Validate the incoming data
+        $validatedData = $request->validate([
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'department_id' => 'required|exists:departments,id',
+            'is_active' => 'required|boolean', // Validate the status
+        ]);
+
+        // 2. Update the employee's record with the validated data
+        $employee->update($validatedData);
+
+        // 3. Redirect back to the employee list with a success message
+        return redirect()->route('employees.index')
+            ->with('success', __('Employee updated successfully.'));
     }
 
     /**
