@@ -18,29 +18,28 @@ class SetLocale
     public function handle(Request $request, Closure $next): Response
     {
         $user = $request->user();
-        $localePreference = null;
+        // Start with the application's default fallback locale.
+        $localeToSet = config('app.fallback_locale');
 
-        // Priority 1: Get locale from the authenticated user's profile.
-        if ($user && $user->locale) {
-            $localePreference = $user->locale;
+        if ($user) {
+            // --- LOGIC FOR AUTHENTICATED USERS ---
+            // If the user is logged in, use their saved preference.
+            $preference = $user->locale;
+
+            if ($preference === 'system') {
+                // Resolve 'system' preference to the browser's language.
+                $localeToSet = $request->getPreferredLanguage(['en', 'fa']) ?? config('app.fallback_locale');
+            } elseif (in_array($preference, ['en', 'fa'])) {
+                // Use the specific preference if it's 'en' or 'fa'.
+                $localeToSet = $preference;
+            }
+        } else {
+            // --- LOGIC FOR GUEST USERS ---
+            // If the user is not logged in, always default to Persian.
+            $localeToSet = 'fa';
         }
-        // Priority 2: If no user or user has no preference, check the session.
-        elseif (Session::has('locale')) {
-            $localePreference = Session::get('locale');
-        }
 
-        // Determine the final locale to set.
-        $localeToSet = config('app.fallback_locale'); // Default to fallback locale
-
-        if ($localePreference === 'system') {
-            // Resolve 'system' to the browser's preferred language.
-            $localeToSet = $request->getPreferredLanguage(['en', 'fa']) ?? config('app.fallback_locale');
-        } elseif (in_array($localePreference, ['en', 'fa'])) {
-            // Use the specific preference if it's 'en' or 'fa'.
-            $localeToSet = $localePreference;
-        }
-
-        // Apply the final locale.
+        // Apply the final determined locale for the request.
         App::setLocale($localeToSet);
 
         return $next($request);

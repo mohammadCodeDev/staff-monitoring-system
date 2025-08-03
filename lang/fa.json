@@ -44,5 +44,8 @@
     "A new verification link has been sent to the phone number you provided during registration.": "یک لینک تأیید جدید به شماره موبایلی که هنگام ثبت‌نام وارد کردید، ارسال شد.",
     "Resend Verification Code": "ارسال مجدد کد تأیید",
     "Back to Welcome Page": "بازگشت به صفحه خوش آمد",
-    "System Admin": "مدیر سامانه"
+    "System Admin": "مدیر سامانه",
+    "Profile Information": "اطلاعات نمایه",
+    "Update your account's profile information.": "اطلاعات پروفایل حساب کاربری خود را به‌روزرسانی کنید.",
+    "Role": "نقش"
 }
