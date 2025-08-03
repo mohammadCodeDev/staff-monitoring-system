@@ -30,15 +30,21 @@
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900 dark:text-gray-100">
                     <h3 class="font-semibold text-lg mb-4">{{ __('Admin Actions') }}</h3>
-                    <a href="{{ route('employees.create') }}" class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-500 focus:outline-none focus:border-blue-700 focus:ring focus:ring-blue-200 active:bg-blue-600 disabled:opacity-25 transition">
-                        {{ __('Add New Employee') }}
-                    </a>
+                    <div class="flex space-x-4">
+                        <a href="{{ route('employees.create') }}" class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-500 focus:outline-none focus:border-blue-700 focus:ring focus:ring-blue-200 active:bg-blue-600 disabled:opacity-25 transition">
+                            {{ __('Add New Employee') }}
+                        </a>
+                        
+                        <a href="{{ route('employees.index') }}" class="inline-flex items-center px-4 py-2 bg-gray-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-500 focus:outline-none focus:border-gray-700 focus:ring focus:ring-gray-200 active:bg-gray-600 disabled:opacity-25 transition">
+                            {{ __('View All Employees') }}
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
     @endif
-    
+
     <!--
     <div class="py-12 pt-0">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">

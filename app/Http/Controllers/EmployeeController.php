@@ -13,7 +13,13 @@ class EmployeeController extends Controller
      */
     public function index()
     {
-        //
+        // Fetch all employees from the database.
+        // 'with('department')' prevents the N+1 query problem by loading the department relationship eagerly.
+        // 'latest()' orders the results to show the most recently created employees first.
+        $employees = Employee::with('department')->latest()->get();
+
+        // Return the view and pass the employees data to it.
+        return view('employees.index', ['employees' => $employees]);
     }
 
     /**

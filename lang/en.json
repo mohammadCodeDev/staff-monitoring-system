@@ -53,5 +53,14 @@
     "Select a Department": "Select a Department",
     "Save Employee": "Save Employee",
     "Admin Actions": "Admin Actions",
-    "Add New Employee": "Add New Employee"
+    "Add New Employee": "Add New Employee",
+    "View All Employees": "View All Employees",
+    "Employee List": "Employee List",
+    "Full Name": "Full Name",
+    "Status": "Status",
+    "Active": "Active",
+    "Inactive": "Inactive",
+    "Edit": "Edit",
+    "No employees found.": "No employees found.",
+    "Success!": "Success!"
 }

@@ -53,5 +53,14 @@
     "Select a Department": "یک دپارتمان انتخاب کنید",
     "Save Employee": "ذخیره کارمند",
     "Admin Actions": "اقدامات مدیر",
-    "Add New Employee": "افزودن کارمند جدید"
+    "Add New Employee": "افزودن کارمند جدید", 
+    "View All Employees": "مشاهده همه کارمندان",
+    "Employee List": "لیست کارمندان",
+    "Full Name": "نام کامل",
+    "Status": "وضعیت",
+    "Active": "فعال",
+    "Inactive": "غیرفعال",
+    "Edit": "ویرایش",
+    "No employees found.": "هیچ کارمندی یافت نشد.",
+    "Success!": "موفقیت!"
 }
