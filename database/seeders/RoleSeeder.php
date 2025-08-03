@@ -27,6 +27,7 @@ class RoleSeeder extends Seeder
             ['role_name' => 'Roles.University President'],  // ID: 4
             ['role_name' => 'Roles.Faculty Head'],          // ID: 5
             ['role_name' => 'Roles.Group Manager'],         // ID: 6
+            ['role_name' => 'Roles.No Role'],               // ID: 7
         ];
 
         // Insert the roles into the database

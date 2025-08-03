@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\Role; // <-- 1. Import the Role model
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -38,17 +39,22 @@ class RegisteredUserController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
+        // 2. Find the default role from the database
+        $defaultRole = Role::where('role_name', 'No Role')->first();
+
+        // If the role doesn't exist, handle the error gracefully
+        if (!$defaultRole) {
+            // You can log an error or redirect with a message
+            return back()->withErrors(['role_error' => 'Default role not found. Please contact support.']);
+        }
+
         $user = User::create([
             'first_name' => $request->first_name,
             'last_name' => $request->last_name,
             'userName' => $request->userName,
             'phoneNumber' => $request->phoneNumber,
             'password' => Hash::make($request->password),
-            // IMPORTANT: Assign a default role_id for new users.
-            // You should fetch this ID dynamically from the roles table based on the role name,
-            // e.g., Role::where('role_name', 'guard')->first()->id.
-            // Here, we are assuming '2' is the ID for a default role like 'Guard'.
-            'role_id' => 2,
+            'role_id' => $defaultRole->id, // <-- 3. Assign the default role's ID
             'locale' => app()->getLocale(),
         ]);
 
