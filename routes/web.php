@@ -4,6 +4,7 @@ use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SettingsController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\UserManagementController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -36,6 +37,11 @@ Route::middleware(['auth', 'role:Roles.System Admin'])->group(function () {
 
     // route to handle the reactivation request
     Route::patch('employees/{employee}/reactivate', [EmployeeController::class, 'reactivate'])->name('employees.reactivate');
+});
+
+Route::middleware(['auth', 'role:Roles.System Admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/users', [UserManagementController::class, 'index'])->name('users.index');
+    Route::patch('/users/{user}/role', [UserManagementController::class, 'updateRole'])->name('users.updateRole');
 });
 
 require __DIR__ . '/auth.php';

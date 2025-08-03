@@ -90,5 +90,13 @@
     "Search Employee": "Search Employee",
     "Actions": "Actions",
     "Enter name or department...": "Enter name or department...",
-    "Employee/Professor created successfully!": "Employee/Professor created successfully!"
+    "Employee/Professor created successfully!": "Employee/Professor created successfully!",
+     "Manage User Roles": "Manage User Roles",
+    "User": "User",
+    "Current Role": "Current Role",
+    "Change Role": "Change Role",
+    "Update Role": "Update Role",
+    "User role updated successfully.": "User role updated successfully.",
+    "A System Admin must exist. Cannot change the last admin's role.": "A System Admin must exist. Cannot change the last admin's role.",
+    "You cannot change your own role.": "You cannot change your own role."
 }

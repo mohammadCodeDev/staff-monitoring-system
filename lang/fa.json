@@ -90,5 +90,13 @@
     "Search Employee": "جستجوی کارمند",
     "Actions": "اقدامات",
     "Enter name or department...": "نام یا بخش را وارد کنید ...",
-    "Employee/Professor created successfully!": "کارمند/استاد با موفقیت ایجاد شد!"
+    "Employee/Professor created successfully!": "کارمند/استاد با موفقیت ایجاد شد!",
+    "Manage User Roles": "مدیریت نقش‌های کاربری",
+    "User": "کاربر",
+    "Current Role": "نقش فعلی",
+    "Change Role": "تغییر نقش",
+    "Update Role": "به‌روزرسانی نقش",
+    "User role updated successfully.": "نقش کاربر با موفقیت به‌روزرسانی شد.",
+    "A System Admin must exist. Cannot change the last admin's role.": "باید یک مدیر سامانه وجود داشته باشد. امکان تغییر نقش آخرین مدیر وجود ندارد.",
+    "You cannot change your own role.": "شما نمی‌توانید نقش خود را تغییر دهید."
 }
