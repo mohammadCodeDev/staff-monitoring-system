@@ -30,6 +30,9 @@ Route::middleware('auth')->group(function () {
 // Routes for managing employees, accessible only by authenticated users.
 Route::middleware(['auth', 'role:System Admin'])->group(function () {
     Route::resource('employees', EmployeeController::class);
+
+    // This new route will handle the deactivation request
+    Route::patch('employees/{employee}/deactivate', [EmployeeController::class, 'deactivate'])->name('employees.deactivate');
 });
 
 require __DIR__ . '/auth.php';

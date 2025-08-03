@@ -65,5 +65,8 @@
     "Success!": "موفقیت!",
     "Edit Employee": "ویرایش کارمند",
     "Update Employee": "به‌روزرسانی کارمند",
-    "Employee updated successfully.": "کارمند با موفقیت به‌روزرسانی شد."
+    "Employee updated successfully.": "کارمند با موفقیت به‌روزرسانی شد.",
+    "Deactivate": "غیرفعال کردن",
+    "Are you sure you want to deactivate this employee?": "آیا از غیرفعال کردن این کارمند اطمینان دارید؟",
+    "Employee deactivated successfully.": "کارمند با موفقیت غیرفعال شد."
 }

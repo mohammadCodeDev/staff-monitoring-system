@@ -65,5 +65,8 @@
     "Success!": "Success!",
     "Edit Employee": "Edit Employee",
     "Update Employee": "Update Employee",
-    "Employee updated successfully.": "Employee updated successfully."
+    "Employee updated successfully.": "Employee updated successfully.",
+    "Deactivate": "Deactivate",
+    "Are you sure you want to deactivate this employee?": "Are you sure you want to deactivate this employee?",
+    "Employee deactivated successfully.": "Employee deactivated successfully."
 }

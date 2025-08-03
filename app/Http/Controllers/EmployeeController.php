@@ -104,4 +104,17 @@ class EmployeeController extends Controller
     {
         //
     }
+
+    /**
+     * Deactivate the specified employee.
+     */
+    public function deactivate(Employee $employee)
+    {
+        // Set the is_active flag to false
+        $employee->update(['is_active' => false]);
+
+        // Redirect back to the list with a success message
+        return redirect()->route('employees.index')
+            ->with('success', __('Employee deactivated successfully.'));
+    }
 }
