@@ -17,17 +17,12 @@ class EmployeeController extends Controller
         $query = Employee::query();
 
         // Check if a search term is provided in the request
-        if ($request->has('search') && $request->input('search') != '') {
+        if ($request->filled('search')) {
             $searchTerm = $request->input('search');
-
-            // Add conditions to the query to search in multiple fields
             $query->where(function ($q) use ($searchTerm) {
                 $q->where('first_name', 'like', "%{$searchTerm}%")
                     ->orWhere('last_name', 'like', "%{$searchTerm}%")
-                    // Search within the related department's name
                     ->orWhereHas('department', function ($subQ) use ($searchTerm) {
-                        // Note: This part might not work perfectly with translated keys.
-                        // For a more robust search, a dedicated search package or different DB structure would be needed.
                         $subQ->where('name', 'like', "%{$searchTerm}%");
                     });
             });
@@ -36,8 +31,13 @@ class EmployeeController extends Controller
         // Eager load the department relationship and get the results
         $employees = $query->with('department')->latest()->get();
 
-        // Return the view and pass the employees data to it
-        return view('employees.index', ['employees' => $employees]);
+        // If the request is an AJAX request, return only the table rows partial.
+        if ($request->ajax()) {
+            return view('employees.partials._employee-rows', compact('employees'))->render();
+        }
+
+        // Otherwise, return the full page view.
+        return view('employees.index', compact('employees'));
     }
 
     /**
