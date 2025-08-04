@@ -104,5 +104,14 @@
     "Email Password Reset Link": "لینک بازنشانی رمز عبور ایمیل",
     "auth.failed": "احراز هویت ناموفق",
     "Roles.No Role": "بدون نقش",
-    "Username or Phone Number": "نام کاربری یا شماره تلفن"
+    "Username or Phone Number": "نام کاربری یا شماره تلفن",
+    "Attendance Monitoring": "نظارت بر ورود و خروج",
+    "View Attendance Log": "مشاهده گزارش تردد",
+    "Employee": "کارمند/استاد",
+    "Event Type": "نوع رویداد",
+    "Timestamp": "زمان ثبت",
+    "Recorded By (Guard)": "ثبت توسط (نگهبان)",
+    "Entry": "ورود",
+    "Exit": "خروج",
+    "No attendance records found.": "هیچ رکورد ترددی یافت نشد."
 }

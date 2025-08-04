@@ -104,5 +104,14 @@
     "Email Password Reset Link": "Email Password Reset Link",
     "auth.failed": "auth failed",
     "Roles.No Role": "No Role",
-     "Username or Phone Number": "Username or Phone Number"
+     "Username or Phone Number": "Username or Phone Number",
+     "Attendance Monitoring": "Attendance Monitoring",
+    "View Attendance Log": "View Attendance Log",
+    "Employee": "Employee",
+    "Event Type": "Event Type",
+    "Timestamp": "Timestamp",
+    "Recorded By (Guard)": "Recorded By (Guard)",
+    "Entry": "Entry",
+    "Exit": "Exit",
+    "No attendance records found.": "No attendance records found."
 }

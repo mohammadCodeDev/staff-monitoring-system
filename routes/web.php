@@ -5,6 +5,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SettingsController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserManagementController;
+use App\Http\Controllers\AttendanceController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -43,5 +44,10 @@ Route::middleware(['auth', 'role:Roles.System Admin'])->prefix('admin')->name('a
     Route::get('/users', [UserManagementController::class, 'index'])->name('users.index');
     Route::patch('/users/{user}/role', [UserManagementController::class, 'updateRole'])->name('users.updateRole');
 });
+
+// Route for the attendance monitoring page
+Route::get('/attendances', [AttendanceController::class, 'index'])
+    ->middleware(['auth', 'role:Roles.System Admin,Roles.System Observer,Roles.University President,Roles.Faculty Head,Roles.Group Manager'])
+    ->name('attendances.index');
 
 require __DIR__ . '/auth.php';
