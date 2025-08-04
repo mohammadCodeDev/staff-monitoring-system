@@ -32,19 +32,19 @@
                     <h3 class="font-semibold text-lg mb-4">{{ __('Admin Actions') }}</h3>
                     <div class="flex space-x-4">
 
-                        <a href="{{ route('employees.create') }}" class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-500 focus:outline-none focus:border-blue-700 focus:ring focus:ring-blue-200 active:bg-blue-600 disabled:opacity-25 transition">
+                        <a href="{{ route('employees.create') }}" class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-full font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-500 focus:outline-none focus:border-blue-700 focus:ring focus:ring-blue-200 active:bg-blue-600 disabled:opacity-25 transition">
                             {{ __('Add New Employee') }}
                         </a>
 
-                        <a href="{{ route('employees.index') }}" class="inline-flex items-center px-4 py-2 bg-gray-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-500 focus:outline-none focus:border-gray-700 focus:ring focus:ring-gray-200 active:bg-gray-600 disabled:opacity-25 transition">
+                        <a href="{{ route('employees.index') }}" class="inline-flex items-center px-4 py-2 bg-gray-600 border border-transparent rounded-full font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-500 focus:outline-none focus:border-gray-700 focus:ring focus:ring-gray-200 active:bg-gray-600 disabled:opacity-25 transition">
                             {{ __('View All Employees') }}
                         </a>
 
-                        <a href="{{ route('admin.users.index') }}" class="inline-flex items-center px-4 py-2 bg-purple-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-purple-500 ...">
+                        <a href="{{ route('admin.users.index') }}" class="inline-flex items-center px-4 py-2 bg-purple-600 border border-transparent rounded-full font-semibold text-xs text-white uppercase tracking-widest hover:bg-purple-500 focus:outline-none focus:border-purple-700 focus:ring focus:ring-purple-200 active:bg-purple-600 disabled:opacity-25 transition">
                             {{ __('Manage User Roles') }}
                         </a>
-
-                        <a href="{{ route('attendances.index') }}" class="inline-flex items-center px-4 py-2 bg-teal-600 border ...">
+                        
+                        <a href="{{ route('attendances.index') }}" class="inline-flex items-center px-4 py-2 bg-teal-600 border border-transparent rounded-full font-semibold text-xs text-white uppercase tracking-widest hover:bg-teal-500 focus:outline-none focus:border-teal-700 focus:ring focus:ring-teal-200 active:bg-teal-600 disabled:opacity-25 transition">
                             {{ __('Attendance Monitoring') }}
                         </a>
 
