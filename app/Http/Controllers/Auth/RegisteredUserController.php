@@ -40,7 +40,7 @@ class RegisteredUserController extends Controller
         ]);
 
         // 2. Find the default role from the database
-        $defaultRole = Role::where('role_name', 'No Role')->firstOrFail();
+        $defaultRole = Role::where('role_name', 'Roles.No Role')->firstOrFail();
 
         $user = User::create([
             'first_name' => $request->first_name,

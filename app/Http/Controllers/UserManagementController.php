@@ -33,8 +33,8 @@ class UserManagementController extends Controller
         ]);
 
         $newRoleId = $request->input('role_id');
-        $adminRole = Role::where('role_name', 'System Admin')->first();
-        $observerRole = Role::where('role_name', 'System Observer')->first();
+        $adminRole = Role::where('role_name', 'Roles.System Admin')->first();
+        $observerRole = Role::where('role_name', 'Roles.System Observer')->first();
 
         if ($newRoleId == $adminRole->id) {
             DB::transaction(function () use ($user, $adminRole, $observerRole) {
