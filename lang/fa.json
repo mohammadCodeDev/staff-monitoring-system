@@ -119,5 +119,15 @@
     "Event Time (Manual Entry)": "زمان رویداد (ورود دستی)",
     "Leave blank for current time": "برای ثبت زمان فعلی، خالی بگذارید",
     "Log Event": "ثبت رویداد",
-    "Attendance recorded successfully.": "تردد با موفقیت ثبت شد."
+    "Attendance recorded successfully.": "تردد با موفقیت ثبت شد.",
+    "Manage Departments": "مدیریت دانشکده‌ها",
+    "Department Name": "نام دانشکده",
+    "Create Department": "ایجاد دانشکده جدید",
+    "Edit Department": "ویرایش دانشکده",
+    "Add Department": "افزودن دانشکده",
+    "Update Department": "به‌روزرسانی دانشکده",
+    "Department created successfully.": "دانشکده با موفقیت ایجاد شد.",
+    "Department updated successfully.": "دانشکده با موفقیت به‌روزرسانی شد.",
+    "Department deleted successfully.": "دانشکده با موفقیت حذف شد.",
+    "Are you sure you want to delete this department?": "آیا از حذف این دانشکده اطمینان دارید؟"
 }

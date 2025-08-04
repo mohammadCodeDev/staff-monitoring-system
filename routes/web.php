@@ -6,6 +6,8 @@ use App\Http\Controllers\SettingsController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserManagementController;
 use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\DepartmentController;
+
 
 Route::get('/', function () {
     return view('welcome');
@@ -13,7 +15,7 @@ Route::get('/', function () {
 
 Route::get('/dashboard', function () {
     return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+})->middleware(['auth'])->name('dashboard');
 
 //the settings page
 Route::get('/settings', function () {
@@ -38,6 +40,9 @@ Route::middleware(['auth', 'role:Roles.System Admin'])->group(function () {
 
     // route to handle the reactivation request
     Route::patch('employees/{employee}/reactivate', [EmployeeController::class, 'reactivate'])->name('employees.reactivate');
+
+    // Add the new resource route for departments here
+    Route::resource('departments', DepartmentController::class);
 });
 
 Route::middleware(['auth', 'role:Roles.System Admin'])->prefix('admin')->name('admin.')->group(function () {
