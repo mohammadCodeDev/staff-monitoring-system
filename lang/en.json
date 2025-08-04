@@ -98,5 +98,9 @@
     "Update Role": "Update Role",
     "User role updated successfully.": "User role updated successfully.",
     "A System Admin must exist. Cannot change the last admin's role.": "A System Admin must exist. Cannot change the last admin's role.",
-    "You cannot change your own role.": "You cannot change your own role."
+    "You cannot change your own role.": "You cannot change your own role.",
+    "Forgot your password? No problem. Just let us know your email address and we will email you a password reset link that will allow you to choose a new one.": "Forgot your password? No problem. Just let us know your email address and we will email you a password reset link that will allow you to choose a new one.",
+    "Email": "Email",
+    "Email Password Reset Link": "Email Password Reset Link",
+    "auth.failed": "auth failed"
 }

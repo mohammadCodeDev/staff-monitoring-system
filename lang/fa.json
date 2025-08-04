@@ -98,5 +98,9 @@
     "Update Role": "به‌روزرسانی نقش",
     "User role updated successfully.": "نقش کاربر با موفقیت به‌روزرسانی شد.",
     "A System Admin must exist. Cannot change the last admin's role.": "باید یک مدیر سامانه وجود داشته باشد. امکان تغییر نقش آخرین مدیر وجود ندارد.",
-    "You cannot change your own role.": "شما نمی‌توانید نقش خود را تغییر دهید."
+    "You cannot change your own role.": "شما نمی‌توانید نقش خود را تغییر دهید.",
+    "Email": "ایمیل",
+    "Forgot your password? No problem. Just let us know your email address and we will email you a password reset link that will allow you to choose a new one.": "رمز عبور خود را فراموش کرده‌اید؟ مشکلی نیست. فقط آدرس ایمیل خود را به ما اطلاع دهید تا یک لینک بازنشانی رمز عبور برای شما ایمیل کنیم که به شما امکان می‌دهد رمز عبور جدیدی انتخاب کنید.",
+    "Email Password Reset Link": "لینک بازنشانی رمز عبور ایمیل",
+    "auth.failed": "احراز هویت ناموفق"
 }

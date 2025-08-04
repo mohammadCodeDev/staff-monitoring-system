@@ -14,6 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // This line registers your SetLocale middleware for all web requests.
         $middleware->web(append: [
             \App\Http\Middleware\SetLocale::class,
+            \App\Http\Middleware\ForceGuestLocale::class,
         ]);
 
         // This is where we register our new RoleMiddleware alias.

@@ -40,13 +40,7 @@ class RegisteredUserController extends Controller
         ]);
 
         // 2. Find the default role from the database
-        $defaultRole = Role::where('role_name', 'No Role')->first();
-
-        // If the role doesn't exist, handle the error gracefully
-        if (!$defaultRole) {
-            // You can log an error or redirect with a message
-            return back()->withErrors(['role_error' => 'Default role not found. Please contact support.']);
-        }
+        $defaultRole = Role::where('role_name', 'No Role')->firstOrFail();
 
         $user = User::create([
             'first_name' => $request->first_name,
@@ -55,7 +49,8 @@ class RegisteredUserController extends Controller
             'phoneNumber' => $request->phoneNumber,
             'password' => Hash::make($request->password),
             'role_id' => $defaultRole->id, // <-- 3. Assign the default role's ID
-            'locale' => app()->getLocale(),
+            'locale' => 'fa', // Default language set to Persian
+            'theme' => 'light', // Default theme set to light
         ]);
 
         event(new Registered($user));
