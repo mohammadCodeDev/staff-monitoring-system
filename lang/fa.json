@@ -113,5 +113,11 @@
     "Recorded By (Guard)": "ثبت توسط (نگهبان)",
     "Entry": "ورود",
     "Exit": "خروج",
-    "No attendance records found.": "هیچ رکورد ترددی یافت نشد."
+    "No attendance records found.": "هیچ رکورد ترددی یافت نشد.",
+    "Log Attendance": "ثبت تردد",
+    "Select Employee": "کارمند/استاد را انتخاب کنید",
+    "Event Time (Manual Entry)": "زمان رویداد (ورود دستی)",
+    "Leave blank for current time": "برای ثبت زمان فعلی، خالی بگذارید",
+    "Log Event": "ثبت رویداد",
+    "Attendance recorded successfully.": "تردد با موفقیت ثبت شد."
 }

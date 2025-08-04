@@ -43,9 +43,13 @@
                         <a href="{{ route('admin.users.index') }}" class="inline-flex items-center px-4 py-2 bg-purple-600 border border-transparent rounded-full font-semibold text-xs text-white uppercase tracking-widest hover:bg-purple-500 focus:outline-none focus:border-purple-700 focus:ring focus:ring-purple-200 active:bg-purple-600 disabled:opacity-25 transition">
                             {{ __('Manage User Roles') }}
                         </a>
-                        
+
                         <a href="{{ route('attendances.index') }}" class="inline-flex items-center px-4 py-2 bg-teal-600 border border-transparent rounded-full font-semibold text-xs text-white uppercase tracking-widest hover:bg-teal-500 focus:outline-none focus:border-teal-700 focus:ring focus:ring-teal-200 active:bg-teal-600 disabled:opacity-25 transition">
                             {{ __('Attendance Monitoring') }}
+                        </a>
+
+                        <a href="{{ route('attendances.create') }}" class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-full font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-500 focus:outline-none focus:border-teal-700 focus:ring focus:ring-teal-200 active:bg-teal-600 disabled:opacity-25 transition">
+                            {{ __('Log Attendance') }}
                         </a>
 
                     </div>
@@ -55,7 +59,7 @@
     </div>
     @endif
 
-    <!-- Other Roles' Action Section -->
+    <!-- Other Roles' Action Section for View Attendance Log -->
     @php
     $monitoringRoles = ['Roles.System Observer', 'Roles.University President', 'Roles.Faculty Head', 'Roles.Group Manager'];
     @endphp
@@ -69,6 +73,24 @@
                     <div class="flex flex-wrap gap-4">
                         <a href="{{ route('attendances.index') }}" class="inline-flex items-center px-4 py-2 bg-teal-600 border ...">
                             {{ __('View Attendance Log') }}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+
+    <!-- Guard Actions Section -->
+    @if(Auth::user()->role->role_name == 'Roles.Guard')
+    <div class="py-6 pt-0">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6 text-gray-900 dark:text-gray-100">
+                    <h3 class="font-semibold text-lg mb-4">{{ __('Guard Actions') }}</h3>
+                    <div class="flex flex-wrap gap-4">
+                        <a href="{{ route('attendances.create') }}" class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-full font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-500 ...">
+                            {{ __('Log Attendance') }}
                         </a>
                     </div>
                 </div>

@@ -113,5 +113,11 @@
     "Recorded By (Guard)": "Recorded By (Guard)",
     "Entry": "Entry",
     "Exit": "Exit",
-    "No attendance records found.": "No attendance records found."
+    "No attendance records found.": "No attendance records found.",
+    "Log Attendance": "Log Attendance",
+    "Select Employee": "Select Employee",
+    "Event Time (Manual Entry)": "Event Time (Manual Entry)",
+    "Leave blank for current time": "Leave blank for current time",
+    "Log Event": "Log Event",
+    "Attendance recorded successfully.": "Attendance recorded successfully."
 }

@@ -45,6 +45,15 @@ Route::middleware(['auth', 'role:Roles.System Admin'])->prefix('admin')->name('a
     Route::patch('/users/{user}/role', [UserManagementController::class, 'updateRole'])->name('users.updateRole');
 });
 
+// Routes for creating attendance records
+Route::get('/attendances/create', [AttendanceController::class, 'create'])
+    ->middleware(['auth', 'role:Roles.System Admin,Roles.Guard'])
+    ->name('attendances.create');
+
+Route::post('/attendances', [AttendanceController::class, 'store'])
+    ->middleware(['auth', 'role:Roles.System Admin,Roles.Guard'])
+    ->name('attendances.store');
+
 // Route for the attendance monitoring page
 Route::get('/attendances', [AttendanceController::class, 'index'])
     ->middleware(['auth', 'role:Roles.System Admin,Roles.System Observer,Roles.University President,Roles.Faculty Head,Roles.Group Manager'])
