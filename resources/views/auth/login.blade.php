@@ -5,11 +5,11 @@
     <form method="POST" action="{{ route('login') }}">
         @csrf
 
-        <!-- phone Number -->
+        <!-- phone Number or Username -->
         <div>
-            <x-input-label for="phoneNumber" :value="__('Phone Number')" />
-            <x-text-input id="phoneNumber" class="block mt-1 w-full" type="text" name="phoneNumber" :value="old('phoneNumber')" required autofocus autocomplete="tel" />
-            <x-input-error :messages="$errors->get('phoneNumber')" class="mt-2" />
+            <x-input-label for="login" :value="__('Username or Phone Number')" />
+            <x-text-input id="login" class="block mt-1 w-full" type="text" name="login" :value="old('login')" required autofocus autocomplete="username" />
+            <x-input-error :messages="$errors->get('login')" class="mt-2" />
         </div>
 
         <!-- Password -->

@@ -103,5 +103,6 @@
     "Forgot your password? No problem. Just let us know your email address and we will email you a password reset link that will allow you to choose a new one.": "رمز عبور خود را فراموش کرده‌اید؟ مشکلی نیست. فقط آدرس ایمیل خود را به ما اطلاع دهید تا یک لینک بازنشانی رمز عبور برای شما ایمیل کنیم که به شما امکان می‌دهد رمز عبور جدیدی انتخاب کنید.",
     "Email Password Reset Link": "لینک بازنشانی رمز عبور ایمیل",
     "auth.failed": "احراز هویت ناموفق",
-    "Roles.No Role": "بدون نقش"
+    "Roles.No Role": "بدون نقش",
+    "Username or Phone Number": "نام کاربری یا شماره تلفن"
 }

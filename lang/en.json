@@ -103,5 +103,6 @@
     "Email": "Email",
     "Email Password Reset Link": "Email Password Reset Link",
     "auth.failed": "auth failed",
-    "Roles.No Role": "No Role"
+    "Roles.No Role": "No Role",
+     "Username or Phone Number": "Username or Phone Number"
 }
