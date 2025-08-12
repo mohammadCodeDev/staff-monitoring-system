@@ -49,7 +49,7 @@
         <!-- Role -->
         <div>
             <x-input-label for="role" :value="__('Role')" />
-            <x-text-input id="role" name="role" type="text" class="mt-1 block w-full bg-gray-100 dark:bg-gray-900" :value="$user->role->role_name" disabled readonly />
+            <x-text-input id="role" name="role" type="text" class="mt-1 block w-full bg-gray-100 dark:bg-gray-900" :value="__($user->role->role_name)" disabled readonly />
         </div>
 
 

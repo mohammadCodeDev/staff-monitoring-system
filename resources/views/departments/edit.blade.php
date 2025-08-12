@@ -1,9 +1,15 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{-- Using getTranslation to show a specific language in the title --}}
-            {{ __('Edit Department') . ': ' . $department->getTranslation('name', app()->getLocale()) }}
-        </h2>
+        <div class="flex justify-between items-center">
+            <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+                {{-- Using getTranslation to show a specific language in the title --}}
+                {{ __('Edit Department') . ': ' . $department->getTranslation('name', app()->getLocale()) }}
+            </h2>
+
+            <a href="{{ route('departments.index') }}" class="inline-flex items-center px-4 py-2 bg-gray-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-500 focus:outline-none focus:border-gray-700 focus:ring focus:ring-gray-200 active:bg-gray-600 disabled:opacity-25 transition">
+                {{ __('Manage Departments') }}
+            </a>
+        </div>
     </x-slot>
 
     <div class="py-12">
