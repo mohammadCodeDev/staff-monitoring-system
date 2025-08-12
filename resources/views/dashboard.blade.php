@@ -56,6 +56,10 @@
                             {{ __('Manage Departments') }}
                         </a>
 
+                        <a href="{{ route('groups.index') }}" class="inline-flex items-center px-4 py-2 bg-pink-600 border border-transparent rounded-full font-semibold text-xs text-white uppercase tracking-widest hover:bg-pink-500 focus:outline-none focus:border-teal-700 focus:ring focus:ring-teal-200 active:bg-teal-600 disabled:opacity-25 transition">
+                            {{ __('Manage Groups') }}
+                        </a>
+
                     </div>
                 </div>
             </div>

@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
             DepartmentSeeder::class,
         ]);
 
+        $this->call(GroupSeeder::class);
         //for adding other seeders here in the future
     }
 }

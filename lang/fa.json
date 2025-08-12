@@ -130,5 +130,17 @@
     "Department updated successfully.": "دانشکده با موفقیت به‌روزرسانی شد.",
     "Department deleted successfully.": "دانشکده با موفقیت حذف شد.",
     "Are you sure you want to delete this department?": "آیا از حذف این دانشکده اطمینان دارید؟",
-    "Select a Manager": "یک مدیر انتخاب کنید"
+    "Select a Manager": "یک مدیر انتخاب کنید",
+    "Manage Groups": "مدیریت گروه‌های آموزشی",
+    "Add Group": "افزودن گروه",
+    "Group Name": "نام گروه",
+    "Group created successfully.": "گروه با موفقیت ایجاد شد.",
+    "Group updated successfully.": "گروه با موفقیت به‌روزرسانی شد.",
+    "Group deleted successfully.": "گروه با موفقیت حذف شد.",
+    "Are you sure you want to delete this group?": "آیا از حذف این گروه اطمینان دارید؟",
+    "Select a Group Manager": "یک مدیر گروه انتخاب کنید",
+    "No groups found.": "هیچ گروهی یافت نشد.",
+    "Edit Group": "ویرایش گروه",
+    "Update Group": "به‌روزرسانی گروه",
+    "Create Group": "ساخت گروه آموزشی"
 }

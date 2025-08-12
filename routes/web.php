@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserManagementController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\DepartmentController;
+use App\Http\Controllers\GroupController;
 
 
 Route::get('/', function () {
@@ -43,6 +44,8 @@ Route::middleware(['auth', 'role:Roles.System Admin'])->group(function () {
 
     // Add the new resource route for departments here
     Route::resource('departments', DepartmentController::class);
+
+    Route::resource('groups', GroupController::class);
 });
 
 Route::middleware(['auth', 'role:Roles.System Admin'])->prefix('admin')->name('admin.')->group(function () {

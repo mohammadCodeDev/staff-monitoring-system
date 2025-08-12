@@ -18,16 +18,40 @@ class DepartmentSeeder extends Seeder
             return;
         }
 
-        // Define the departments
-        $departments = [
-            ['name' => 'departments.computer_engineering'],
-            ['name' => 'departments.electrical_engineering'],
-            ['name' => 'departments.mechanical_engineering'],
-            ['name' => 'departments.civil_engineering'],
-            ['name' => 'departments.university_management'],
-        ];
+        // Using create() method for each department to handle translatable names properly
+        Department::create([
+            'name' => [
+                'en' => 'Computer Engineering',
+                'fa' => 'مهندسی کامپیوتر'
+            ]
+        ]);
 
-        // Insert the departments into the database
-        Department::insert($departments);
+        Department::create([
+            'name' => [
+                'en' => 'Electrical Engineering',
+                'fa' => 'مهندسی برق'
+            ]
+        ]);
+
+        Department::create([
+            'name' => [
+                'en' => 'Mechanical Engineering',
+                'fa' => 'مهندسی مکانیک'
+            ]
+        ]);
+
+        Department::create([
+            'name' => [
+                'en' => 'Civil Engineering',
+                'fa' => 'مهندسی عمران'
+            ]
+        ]);
+
+        Department::create([
+            'name' => [
+                'en' => 'University Management',
+                'fa' => 'مدیریت دانشگاه'
+            ]
+        ]);
     }
 }
