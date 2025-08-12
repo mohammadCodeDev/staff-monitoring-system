@@ -86,4 +86,9 @@ class GroupController extends Controller
         $group->delete();
         return redirect()->route('groups.index')->with('success', __('Group deleted successfully.'));
     }
+
+    public function getGroupsByDepartment(Department $department)
+    {
+        return response()->json($department->groups);
+    }
 }

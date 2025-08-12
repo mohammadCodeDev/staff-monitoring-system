@@ -21,6 +21,7 @@ class Employee extends Model
         'first_name',
         'last_name',
         'department_id',
+        'group_id',
         'is_active',
     ];
 
@@ -40,6 +41,14 @@ class Employee extends Model
     public function department(): BelongsTo
     {
         return $this->belongsTo(Department::class);
+    }
+
+    /**
+     * Get the group that the employee belongs to.
+     */
+    public function group(): BelongsTo
+    {
+        return $this->belongsTo(Group::class);
     }
 
     /**

@@ -13,7 +13,36 @@
         </div>
     </x-slot>
 
-    <div class="py-12">
+    <div class="py-12" x-data="{
+        selectedDepartment: '{{ old('department_id', $employee->department_id ?? '') }}',
+        selectedGroup: '{{ old('group_id', $employee->group_id ?? '') }}',
+        groups: [],
+        isLoading: false,
+        fetchGroups() {
+            // If no department is selected, clear both the group options and the selected group.
+            if (!this.selectedDepartment) {
+                this.groups = [];
+                this.selectedGroup = ''; // <-- This is the crucial line you need to add/ensure is present.
+                return;
+            }
+
+            this.isLoading = true;
+            fetch(`/api/departments/${this.selectedDepartment}/groups`)
+                .then(res => res.json())
+                .then(data => {
+                    this.groups = data;
+                    this.isLoading = false;
+                    // Important: Check if the current selected group is valid for the new department
+                    const groupIds = this.groups.map(g => g.id);
+                    if (!groupIds.includes(parseInt(this.selectedGroup))) {
+                        this.selectedGroup = '';
+                    }
+            });
+        },
+        init() {
+            if(this.selectedDepartment) this.fetchGroups();
+        }
+    }">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900 dark:text-gray-100">
@@ -41,7 +70,9 @@
                         {{-- Department --}}
                         <div>
                             <x-input-label for="department_id" :value="__('Department')" />
-                            <select id="department_id" name="department_id" class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm" required>
+                            <select id="department_id" name="department_id" x-model="selectedDepartment" @change="fetchGroups()" class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">
+                                {{-- placeholder option --}}
+                                <option value="">{{ __('Select a Department') }}</option>
                                 @foreach ($departments as $department)
                                 {{-- The employee's current department is pre-selected --}}
                                 <option value="{{ $department->id }}" @selected(old('department_id', $employee->department_id) == $department->id)>
@@ -50,6 +81,20 @@
                                 @endforeach
                             </select>
                             <x-input-error class="mt-2" :messages="$errors->get('department_id')" />
+                        </div>
+
+                        {{-- Group Selection (Dynamic) --}}
+                        <div>
+                            <x-input-label for="group_id" :value="__('Group Name')" />
+                            <select id="group_id" name="group_id" x-model="selectedGroup" :disabled="isLoading || !selectedDepartment" class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">
+                                <option value="">{{ __('Select a Group') }}</option>
+                                <template x-if="isLoading">
+                                    <option disabled>{{ __('Loading...') }}</option>
+                                </template>
+                                <template x-for="group in groups" :key="group.id">
+                                    <option :value="group.id" x-text="group.name.{{ app()->getLocale() }}"></option>
+                                </template>
+                            </select>
                         </div>
 
                         {{-- Status (Active/Inactive) --}}

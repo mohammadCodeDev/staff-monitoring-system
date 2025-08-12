@@ -13,7 +13,29 @@
         </div>
     </x-slot>
 
-    <div class="py-12">
+    <div class="py-12" x-data="{
+        selectedDepartment: '{{ old('department_id', '') }}',
+        selectedGroup: '{{ old('group_id', '') }}',
+        groups: [],
+        isLoading: false,
+        fetchGroups() {
+            if (!this.selectedDepartment) {
+                this.groups = [];
+                this.selectedGroup = '';
+                return;
+            }
+            this.isLoading = true;
+            fetch(`/api/departments/${this.selectedDepartment}/groups`)
+                .then(res => res.json())
+                .then(data => {
+                    this.groups = data;
+                    this.isLoading = false;
+                });
+        },
+        init() {
+            if(this.selectedDepartment) this.fetchGroups();
+        }
+    }">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900 dark:text-gray-100">
@@ -39,15 +61,25 @@
                         {{-- Department Selection --}}
                         <div>
                             <x-input-label for="department_id" :value="__('Department')" />
-                            <select id="department_id" name="department_id" class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm" required>
+                            <select id="department_id" name="department_id" x-model="selectedDepartment" @change="fetchGroups()" class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">
                                 <option value="">{{ __('Select a Department') }}</option>
                                 @foreach ($departments as $department)
-                                <option value="{{ $department->id }}" {{ old('department_id') == $department->id ? 'selected' : '' }}>
-                                    {{ __($department->name) }}
-                                </option>
+                                <option value="{{ $department->id }}">{{ __($department->name) }}</option>
                                 @endforeach
                             </select>
                             <x-input-error class="mt-2" :messages="$errors->get('department_id')" />
+                        </div>
+
+                        {{-- Group Selection (Dynamic) --}}
+                        <div>
+                            <x-input-label for="group_id" :value="__('Group Name')" />
+                            <select id="group_id" name="group_id" x-model="selectedGroup" :disabled="isLoading || !selectedDepartment" class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">
+                                <option value="">{{ __('Select a Group') }}</option>
+                                <template x-if="isLoading"><option disabled>{{ __('Loading...') }}</option></template>
+                                <template x-for="group in groups" :key="group.id">
+                                    <option :value="group.id" x-text="group.name.{{ app()->getLocale() }}"></option>
+                                </template>
+                            </select>
                         </div>
 
                         {{-- Submit Button --}}

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Department;
 use App\Models\Employee;
+use App\Models\Group;
 use Illuminate\Http\Request;
 
 class EmployeeController extends Controller
@@ -22,8 +23,12 @@ class EmployeeController extends Controller
             $query->where(function ($q) use ($searchTerm) {
                 $q->where('first_name', 'like', "%{$searchTerm}%")
                     ->orWhere('last_name', 'like', "%{$searchTerm}%")
+                    // Search in both English and Persian translations of the department name
                     ->orWhereHas('department', function ($subQ) use ($searchTerm) {
-                        // Search in both English and Persian translations of the department name
+                        $subQ->where('name->en', 'like', "%{$searchTerm}%")
+                            ->orWhere('name->fa', 'like', "%{$searchTerm}%");
+                    })
+                    ->orWhereHas('group', function ($subQ) use ($searchTerm) { // <-- Search by group
                         $subQ->where('name->en', 'like', "%{$searchTerm}%")
                             ->orWhere('name->fa', 'like', "%{$searchTerm}%");
                     });
@@ -50,8 +55,8 @@ class EmployeeController extends Controller
         // Fetch all departments to display in the form's dropdown menu
         $departments = Department::all();
 
-        // Return the view and pass the departments data to it
-        return view('employees.create', ['departments' => $departments]);
+        // We don't pass groups here, they will be fetched via API
+        return view('employees.create', compact('departments'));
     }
 
     /**
@@ -64,6 +69,8 @@ class EmployeeController extends Controller
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
             'department_id' => 'required|exists:departments,id', // Ensures the selected department is valid
+            'department_id' => 'nullable|exists:departments,id', // <-- Make nullable
+            'group_id' => 'nullable|exists:groups,id',           // <-- Add group_id
         ]);
 
         // 2. Create a new employee record using the validated data
@@ -72,7 +79,7 @@ class EmployeeController extends Controller
         // 3. Redirect the user to the employee list page with a success message
         // We will create the index (list) page in the next step.
         return redirect()->route('employees.index')
-            ->with('success', 'Employee/Professor created successfully!');
+            ->with('success', __('Employee/Professor created successfully!'));
     }
 
     /**
@@ -106,6 +113,8 @@ class EmployeeController extends Controller
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
             'department_id' => 'required|exists:departments,id',
+            'department_id' => 'nullable|exists:departments,id', // <-- Make nullable
+            'group_id' => 'nullable|exists:groups,id',           // <-- Add group_id
             'is_active' => 'required|boolean', // Validate the status
         ]);
 
