@@ -20,6 +20,7 @@ class Department extends Model
 
     protected $fillable = [
         'name',
+        'manager_id',
     ];
 
     /**
@@ -38,5 +39,13 @@ class Department extends Model
     public function groups(): HasMany
     {
         return $this->hasMany(Group::class);
+    }
+
+    /**
+     * Get the user that manages the department.
+     */
+    public function manager()
+    {
+        return $this->belongsTo(User::class, 'manager_id');
     }
 }

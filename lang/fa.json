@@ -129,5 +129,6 @@
     "Department created successfully.": "دانشکده با موفقیت ایجاد شد.",
     "Department updated successfully.": "دانشکده با موفقیت به‌روزرسانی شد.",
     "Department deleted successfully.": "دانشکده با موفقیت حذف شد.",
-    "Are you sure you want to delete this department?": "آیا از حذف این دانشکده اطمینان دارید؟"
+    "Are you sure you want to delete this department?": "آیا از حذف این دانشکده اطمینان دارید؟",
+    "Select a Manager": "یک مدیر انتخاب کنید"
 }

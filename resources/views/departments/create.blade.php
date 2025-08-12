@@ -17,16 +17,32 @@
                 <div class="p-6 text-gray-900 dark:text-gray-100">
                     <form action="{{ route('departments.store') }}" method="POST">
                         @csrf
+
+                        {{-- Persian Name --}}
+                        <div class="mt-4">
+                            <x-input-label for="name_fa" :value="__('Department Name') . ' (فارسی)'" />
+                            <x-text-input id="name_fa" name="name[fa]" type="text" class="mt-1 block w-full" :value="old('name.fa')" required />
+                        </div>
+
                         {{-- English Name --}}
                         <div class="mt-4">
                             <x-input-label for="name_en" :value="__('Department Name') . ' (English)'" />
                             <x-text-input id="name_en" name="name[en]" type="text" class="mt-1 block w-full" :value="old('name.en')" required />
                         </div>
 
-                        {{-- Persian Name --}}
+                        {{-- Manager Selection Dropdown --}}
                         <div class="mt-4">
-                            <x-input-label for="name_fa" :value="__('Department Name') . ' (فارسی)'" />
-                            <x-text-input id="name_fa" name="name[fa]" type="text" class="mt-1 block w-full" :value="old('name.fa')" required />
+                            <x-input-label for="manager_id" :value="__('Roles.Faculty Head')" />
+                            <select name="manager_id" id="manager_id" class="block mt-1 w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">
+                                <option value="">{{ __('Select a Manager') }}</option>
+                                @if(isset($managers))
+                                @foreach($managers as $manager)
+                                <option value="{{ $manager->id }}" @selected(old('manager_id', $department->manager_id ?? null) == $manager->id)>
+                                    {{ $manager->first_name }} {{ $manager->last_name }}
+                                </option>
+                                @endforeach
+                                @endif
+                            </select>
                         </div>
 
                         <div class="flex items-center gap-4 mt-4">

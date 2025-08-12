@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use App\Models\Department;
 use Illuminate\Http\Request;
 
@@ -12,7 +13,8 @@ class DepartmentController extends Controller
      */
     public function index()
     {
-        $departments = Department::latest()->get();
+        // Eager load the manager to prevent N+1 query problem
+        $departments = Department::with('manager')->latest()->get();
         return view('departments.index', compact('departments'));
     }
 
@@ -21,7 +23,12 @@ class DepartmentController extends Controller
      */
     public function create()
     {
-        return view('departments.create');
+        // Fetch all users who have the 'Faculty Head' role to be potential managers
+        $managers = User::whereHas('role', function ($query) {
+            $query->where('role_name', 'Roles.Faculty Head');
+        })->get();
+
+        return view('departments.create', compact('managers'));
     }
 
     /**
@@ -33,10 +40,14 @@ class DepartmentController extends Controller
         $validated = $request->validate([
             'name.en' => 'required|string|max:255|unique:departments,name->en',
             'name.fa' => 'required|string|max:255|unique:departments,name->fa',
+            'manager_id' => 'nullable|exists:users,id' // Validate the manager
         ]);
 
         // The spatie package handles the array to JSON conversion automatically
-        Department::create(['name' => $validated['name']]);
+        Department::create([
+            'name' => $validated['name'],
+            'manager_id' => $request->manager_id,
+        ]);
 
         return redirect()->route('departments.index')->with('success', __('Department created successfully.'));
     }
@@ -54,7 +65,12 @@ class DepartmentController extends Controller
      */
     public function edit(Department $department)
     {
-        return view('departments.edit', compact('department'));
+        // Also fetch potential managers for the edit form
+        $managers = User::whereHas('role', function ($query) {
+            $query->where('role_name', 'Roles.Faculty Head');
+        })->get();
+
+        return view('departments.edit', compact('department', 'managers'));
     }
 
     /**
@@ -66,9 +82,13 @@ class DepartmentController extends Controller
         $validated = $request->validate([
             'name.en' => 'required|string|max:255|unique:departments,name->en,' . $department->id,
             'name.fa' => 'required|string|max:255|unique:departments,name->fa,' . $department->id,
+            'manager_id' => 'nullable|exists:users,id' // Validate the manager
         ]);
 
-        $department->update(['name' => $validated['name']]);
+        $department->update([
+            'name' => $validated['name'],
+            'manager_id' => $request->manager_id,
+        ]);
 
         return redirect()->route('departments.index')->with('success', __('Department updated successfully.'));
     }
