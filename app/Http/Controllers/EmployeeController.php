@@ -23,7 +23,9 @@ class EmployeeController extends Controller
                 $q->where('first_name', 'like', "%{$searchTerm}%")
                     ->orWhere('last_name', 'like', "%{$searchTerm}%")
                     ->orWhereHas('department', function ($subQ) use ($searchTerm) {
-                        $subQ->where('name', 'like', "%{$searchTerm}%");
+                        // Search in both English and Persian translations of the department name
+                        $subQ->where('name->en', 'like', "%{$searchTerm}%")
+                            ->orWhere('name->fa', 'like', "%{$searchTerm}%");
                     });
             });
         }
