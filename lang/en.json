@@ -142,5 +142,8 @@
     "No groups found.": "No groups found.",
     "Edit Group": "Edit Group",
     "Update Group": "Update Group",
-    "Create Group": "Create Group"
+    "Create Group": "Create Group",
+    "Enter name, department, or group...": "Enter name, department, or group...",
+    "Select": "Select",
+    "Confirm Attendance for": "Confirm Attendance for"
 }

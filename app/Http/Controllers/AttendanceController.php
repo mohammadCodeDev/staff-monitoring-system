@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Attendance;
 use App\Models\Employee;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth; 
+use Illuminate\Support\Facades\Auth;
 
 class AttendanceController extends Controller
 {
@@ -26,9 +26,9 @@ class AttendanceController extends Controller
      */
     public function create()
     {
-        // Fetch only active employees for the selection dropdown
-        $employees = Employee::where('is_active', true)->get();
-        return view('attendances.create', compact('employees'));
+        // We no longer need to pass employees here.
+        // The view will fetch them via a live search.
+        return view('attendances.create');
     }
 
     /**
@@ -36,33 +36,56 @@ class AttendanceController extends Controller
      */
     public function store(Request $request)
     {
-        // Get the authenticated user
-        $user = Auth::user();
-
-        // Define validation rules
-        $rules = [
+        $validated = $request->validate([
             'employee_id' => 'required|exists:employees,id',
             'event_type' => 'required|in:entry,exit',
-            'timestamp' => 'nullable|date', // Timestamp is optional
-        ];
-
-        // If the user is a System Admin, the timestamp is required
-        if ($user->role->role_name == 'Roles.System Admin') {
-            $rules['timestamp'] = 'required|date';
-        }
-
-        $validated = $request->validate($rules);
-
-        // Create the attendance record
-        Attendance::create([
-            'employee_id' => $validated['employee_id'],
-            'event_type' => $validated['event_type'],
-            // Use provided timestamp, or default to the current time if empty
-            'timestamp' => $validated['timestamp'] ?? now(),
-            'guard_id' => $user->id, // The logged-in user is the guard
+            'timestamp' => 'nullable|date',
         ]);
 
-        return redirect()->route('attendances.index')
-                         ->with('success', __('Attendance recorded successfully.'));
+        Attendance::create([
+            'employee_id' => $validated['employee_id'],
+            'guard_id' => Auth::id(),
+            'event_type' => $validated['event_type'],
+            'timestamp' => $validated['timestamp'] ?? now(),
+        ]);
+
+        // Redirect back with a success message. The view will handle the UI reset.
+        return redirect()->route('attendances.create')
+            ->with('success', __('Attendance recorded successfully.'));
+    }
+
+    public function searchEmployees(Request $request)
+    {
+        $query = Employee::query();
+
+        if ($request->filled('search')) {
+            $searchTerm = $request->input('search');
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('first_name', 'like', "%{$searchTerm}%")
+                    ->orWhere('last_name', 'like', "%{$searchTerm}%")
+                    ->orWhereHas('department', function ($subQ) use ($searchTerm) {
+                        $subQ->where('name->en', 'like', "%{$searchTerm}%")
+                            ->orWhere('name->fa', 'like', "%{$searchTerm}%");
+                    })
+                    ->orWhereHas('group', function ($subQ) use ($searchTerm) {
+                        $subQ->where('name->en', 'like', "%{$searchTerm}%")
+                            ->orWhere('name->fa', 'like', "%{$searchTerm}%");
+                    });
+            });
+        }
+
+        // Only get active employees for attendance logging
+        $employees = $query->where('is_active', true)->with(['department', 'group'])->latest()->get();
+
+        // Return the correct partial view with the "Select" button
+        return view('attendances.partials._search-results-rows', compact('employees'))->render();
+    }
+
+    /**
+     * Show the confirmation page for logging attendance for a specific employee.
+     */
+    public function confirm(Employee $employee)
+    {
+        return view('attendances.confirm', compact('employee'));
     }
 }

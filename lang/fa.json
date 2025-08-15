@@ -142,5 +142,8 @@
     "No groups found.": "هیچ گروهی یافت نشد.",
     "Edit Group": "ویرایش گروه",
     "Update Group": "به‌روزرسانی گروه",
-    "Create Group": "ساخت گروه آموزشی"
+    "Create Group": "ساخت گروه آموزشی",
+    "Enter name, department, or group...": "نام، دانشکده، یا گروه آموزشی را وارد کنید...",
+    "Select": "انتخاب",
+    "Confirm Attendance for": "تایید حضور برای"
 }

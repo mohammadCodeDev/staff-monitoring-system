@@ -70,4 +70,14 @@ Route::get('/attendances', [AttendanceController::class, 'index'])
     ->middleware(['auth', 'role:Roles.System Admin,Roles.System Observer,Roles.University President,Roles.Faculty Head,Roles.Group Manager'])
     ->name('attendances.index');
 
+// Add this route for the live search on the attendance logging page
+Route::get('/attendances/search-employees', [AttendanceController::class, 'searchEmployees'])
+    ->middleware(['auth', 'role:Roles.System Admin,Roles.Guard'])
+    ->name('attendances.searchEmployees');
+
+// Route for the attendance confirmation page
+Route::get('/attendances/confirm/{employee}', [AttendanceController::class, 'confirm'])
+    ->middleware(['auth', 'role:Roles.System Admin,Roles.Guard'])
+    ->name('attendances.confirm');
+
 require __DIR__ . '/auth.php';
