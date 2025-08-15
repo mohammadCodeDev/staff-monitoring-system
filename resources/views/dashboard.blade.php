@@ -22,8 +22,9 @@
         </div>
     </div>
 
-    <!-- Admin Actions Section -->
-    <!-- This section is only visible to users with the 'System Admin' role -->
+    <!--
+    !-- Admin Actions Section 
+    !-- This section is only visible to users with the 'System Admin' role --
     @if(Auth::user()->role->role_name == 'Roles.System Admin')
     <div class="py-6 pt-0">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
@@ -67,7 +68,7 @@
     </div>
     @endif
 
-    <!-- Other Roles' Action Section for View Attendance Log -->
+    !-- Other Roles' Action Section for View Attendance Log --
     @php
     $monitoringRoles = ['Roles.System Observer', 'Roles.University President', 'Roles.Faculty Head', 'Roles.Group Manager'];
     @endphp
@@ -89,7 +90,7 @@
     </div>
     @endif
 
-    <!-- Guard Actions Section -->
+    !-- Guard Actions Section --
     @if(Auth::user()->role->role_name == 'Roles.Guard')
     <div class="py-6 pt-0">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
@@ -106,6 +107,8 @@
         </div>
     </div>
     @endif
+
+-->
 
     <!--
     <div class="py-12 pt-0">

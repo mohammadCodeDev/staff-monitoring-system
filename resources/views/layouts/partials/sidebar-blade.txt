@@ -1,0 +1,62 @@
+{{-- The <aside> tag now reacts to the 'sidebarOpen' state with dynamic classes and a smooth transition --}}
+<aside 
+    :class="sidebarOpen ? 'w-64' : 'w-20'"
+    class="bg-white dark:bg-gray-800 p-4 space-y-6 border-r border-gray-200 dark:border-gray-700 rtl:border-l rtl:border-r-0 transition-all duration-300 ease-in-out"
+>
+    @if(Auth::user()->role->role_name == 'Roles.System Admin')
+        <div>
+            {{-- Title is hidden when sidebar is collapsed --}}
+            <h3 x-show="sidebarOpen" class="font-semibold text-lg mb-4 text-gray-900 dark:text-gray-100 text-left rtl:text-right">{{ __('Admin Actions') }}</h3>
+            <div class="flex flex-col space-y-2">
+                {{-- Text inside the link is hidden when collapsed --}}
+                <x-sidebar-link :href="route('employees.create')" :active="request()->routeIs('employees.create')">
+                    <span x-show="sidebarOpen">{{ __('Add New Employee') }}</span>
+                </x-sidebar-link>
+                <x-sidebar-link :href="route('employees.index')" :active="request()->routeIs('employees.index', 'employees.show', 'employees.edit')">
+                    <span x-show="sidebarOpen">{{ __('View All Employees') }}</span>
+                </x-sidebar-link>
+                <x-sidebar-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')">
+                    <span x-show="sidebarOpen">{{ __('Manage User Roles') }}</span>
+                </x-sidebar-link>
+                <x-sidebar-link :href="route('departments.index')" :active="request()->routeIs('departments.*')">
+                    <span x-show="sidebarOpen">{{ __('Manage Departments') }}</span>
+                </x-sidebar-link>
+                <x-sidebar-link :href="route('groups.index')" :active="request()->routeIs('groups.*')">
+                    <span x-show="sidebarOpen">{{ __('Manage Groups') }}</span>
+                </x-sidebar-link>
+                <x-sidebar-link :href="route('attendances.index')" :active="request()->routeIs('attendances.index')">
+                    <span x-show="sidebarOpen">{{ __('Attendance Monitoring') }}</span>
+                </x-sidebar-link>
+                <x-sidebar-link :href="route('attendances.create')" :active="request()->routeIs('attendances.create')">
+                    <span x-show="sidebarOpen">{{ __('Log Attendance') }}</span>
+                </x-sidebar-link>
+            </div>
+        </div>
+    @endif
+
+    @php
+        $monitoringRoles = ['Roles.System Observer', 'Roles.University President', 'Roles.Faculty Head', 'Roles.Group Manager'];
+    @endphp
+    @if(in_array(Auth::user()->role->role_name, $monitoringRoles))
+        <div>
+            <h3 x-show="sidebarOpen" class="font-semibold text-lg mb-4 text-gray-900 dark:text-gray-100 text-left rtl:text-right">{{ __('Monitoring Actions') }}</h3>
+            <div class="flex flex-col space-y-2">
+                <x-sidebar-link :href="route('attendances.index')" :active="request()->routeIs('attendances.index')">
+                    <span x-show="sidebarOpen">{{ __('View Attendance Log') }}</span>
+                </x-sidebar-link>
+            </div>
+        </div>
+    @endif
+
+    @if(Auth::user()->role->role_name == 'Roles.Guard')
+        <div>
+            <h3 x-show="sidebarOpen" class="font-semibold text-lg mb-4 text-gray-900 dark:text-gray-100 text-left rtl:text-right">{{ __('Guard Actions') }}</h3>
+            <div class="flex flex-col space-y-2">
+                <x-sidebar-link :href="route('attendances.create')" :active="request()->routeIs('attendances.create')">
+                    <span x-show="sidebarOpen">{{ __('Log Attendance') }}</span>
+                </x-sidebar-link>
+            </div>
+        </div>
+    @endif
+
+</aside>

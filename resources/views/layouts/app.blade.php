@@ -29,22 +29,26 @@
 </head>
 
 <body class="font-sans antialiased">
-    <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
+    {{-- Alpine.js state for sidebar toggle --}}
+    <div x-data="{ sidebarOpen: true }" class="h-screen flex flex-col bg-gray-100 dark:bg-gray-900">
+
+        {{-- The header is now a direct child of the flex-col container --}}
         @include('layouts.navigation')
 
-        {{-- This new flex container creates the two-column layout --}}
-        <div class="flex">
+        {{-- This container holds both sidebar and main content, and fills the remaining vertical space --}}
+        <div class="flex-1 flex overflow-hidden">
 
             <!-- Page Content (Main Area) -->
 
-             <!-- Sidebar -->
+            <!-- Sidebar -->
             {{-- The sidebar is now placed *before* the main content in the code --}}
             {{-- The sidebar is only included if a user is authenticated --}}
             @auth
             @include('layouts.partials.sidebar')
             @endauth
-            
-            <main class="flex-1">
+
+            {{-- Added overflow-y-auto for independent scrolling --}}
+            <main class="flex-1 overflow-y-auto">
                 <!-- Page Heading -->
                 @isset($header)
                 <header class="bg-white dark:bg-gray-800 shadow">
@@ -54,10 +58,12 @@
                 </header>
                 @endisset
 
-                <!-- Slot for page-specific content -->
-                {{ $slot }}
+                <div class="p-6"> {{-- Added padding around content --}}
+                    <!-- Slot for page-specific content -->
+                    {{ $slot }}
+                </div>
             </main>
-            
+
         </div>
     </div>
 </body>
