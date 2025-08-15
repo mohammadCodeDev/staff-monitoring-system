@@ -147,5 +147,10 @@
     "Select": "انتخاب",
     "Manual Entry": "ورود دستی",
     "Manual Attendance Entry for": "ثبت تردد دستی برای",
-    "Confirm Attendance for": "تایید تردد برای"
+    "Confirm Attendance for": "تایید تردد برای",
+    "Edit Attendance Record": "ویرایش رکورد تردد",
+    "Attendance record updated successfully.": "رکورد تردد با موفقیت به‌روزرسانی شد.",
+    "Attendance record deleted successfully.": "رکورد تردد با موفقیت حذف شد.",
+    "Are you sure you want to delete this record?": "آیا از حذف این رکورد اطمینان دارید؟",
+    "Update": "به‌روزرسانی"
 }

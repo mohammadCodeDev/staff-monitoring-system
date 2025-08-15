@@ -56,6 +56,13 @@ Route::middleware(['auth', 'role:Roles.System Admin'])->prefix('admin')->name('a
     Route::patch('/users/{user}/role', [UserManagementController::class, 'updateRole'])->name('users.updateRole');
 });
 
+// --- ATTENDANCE ROUTES ---
+
+// Route for the attendance monitoring page
+Route::get('/attendances', [AttendanceController::class, 'index'])
+    ->middleware(['auth', 'role:Roles.System Admin,Roles.System Observer,Roles.University President,Roles.Faculty Head,Roles.Group Manager'])
+    ->name('attendances.index');
+
 // Routes for creating attendance records
 Route::get('/attendances/create', [AttendanceController::class, 'create'])
     ->middleware(['auth', 'role:Roles.System Admin,Roles.Guard'])
@@ -64,16 +71,6 @@ Route::get('/attendances/create', [AttendanceController::class, 'create'])
 Route::post('/attendances', [AttendanceController::class, 'store'])
     ->middleware(['auth', 'role:Roles.System Admin,Roles.Guard'])
     ->name('attendances.store');
-
-// Route for the attendance monitoring page
-Route::get('/attendances', [AttendanceController::class, 'index'])
-    ->middleware(['auth', 'role:Roles.System Admin,Roles.System Observer,Roles.University President,Roles.Faculty Head,Roles.Group Manager'])
-    ->name('attendances.index');
-
-// Add this route for the live search on the attendance logging page
-Route::get('/attendances/search-employees', [AttendanceController::class, 'searchEmployees'])
-    ->middleware(['auth', 'role:Roles.System Admin,Roles.Guard'])
-    ->name('attendances.searchEmployees');
 
 // Route for the attendance confirmation page
 Route::get('/attendances/confirm/{employee}', [AttendanceController::class, 'confirm'])
@@ -84,5 +81,24 @@ Route::get('/attendances/confirm/{employee}', [AttendanceController::class, 'con
 Route::get('/attendances/manual-entry/{employee}', [AttendanceController::class, 'manualEntry'])
     ->middleware(['auth', 'role:Roles.System Admin,Roles.Guard'])
     ->name('attendances.manual-entry');
+
+// Add this route for the live search on the attendance logging page
+Route::get('/attendances/search-employees', [AttendanceController::class, 'searchEmployees'])
+    ->middleware(['auth', 'role:Roles.System Admin,Roles.Guard'])
+    ->name('attendances.searchEmployees');
+
+// *** NEW ROUTES FOR EDIT & DELETE ***
+Route::get('/attendances/{attendance}/edit', [AttendanceController::class, 'edit'])
+    ->middleware(['auth', 'role:Roles.System Admin'])
+    ->name('attendances.edit');
+
+Route::put('/attendances/{attendance}', [AttendanceController::class, 'update'])
+    ->middleware(['auth', 'role:Roles.System Admin'])
+    ->name('attendances.update');
+
+Route::delete('/attendances/{attendance}', [AttendanceController::class, 'destroy'])
+    ->middleware(['auth', 'role:Roles.System Admin'])
+    ->name('attendances.destroy');
+// --- END ATTENDANCE ROUTES ---
 
 require __DIR__ . '/auth.php';

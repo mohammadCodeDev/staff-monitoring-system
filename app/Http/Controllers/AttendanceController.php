@@ -68,6 +68,30 @@ class AttendanceController extends Controller
             ->with('success', __('Attendance recorded successfully.'));
     }
 
+    /**
+     * Show the form for editing the specified attendance record.
+     */
+    public function edit(Attendance $attendance)
+    {
+        return view('attendances.edit', compact('attendance'));
+    }
+
+    /**
+     * Update the specified attendance record in storage.
+     */
+    public function update(Request $request, Attendance $attendance)
+    {
+        $validated = $request->validate([
+            'timestamp' => 'required|date_format:Y-m-d\TH:i',
+        ]);
+
+        $attendance->update([
+            'timestamp' => Carbon::createFromFormat('Y-m-d\TH:i', $validated['timestamp']),
+        ]);
+
+        return redirect()->route('attendances.index')->with('success', __('Attendance record updated successfully.'));
+    }
+
     public function searchEmployees(Request $request)
     {
         $query = Employee::query();
@@ -109,5 +133,14 @@ class AttendanceController extends Controller
     public function manualEntry(Employee $employee)
     {
         return view('attendances.manual-entry', compact('employee'));
+    }
+
+     /**
+     * Remove the specified attendance record from storage.
+     */
+    public function destroy(Attendance $attendance)
+    {
+        $attendance->delete();
+        return redirect()->route('attendances.index')->with('success', __('Attendance record deleted successfully.'));
     }
 }
