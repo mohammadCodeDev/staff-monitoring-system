@@ -145,5 +145,7 @@
     "Create Group": "Create Group",
     "Enter name, department, or group...": "Enter name, department, or group...",
     "Select": "Select",
-    "Confirm Attendance for": "Confirm Attendance for"
+    "Confirm Attendance for": "Confirm Attendance for",
+    "Manual Entry": "Manual Entry",
+    "Manual Attendance Entry for": "Manual Attendance Entry for"
 }

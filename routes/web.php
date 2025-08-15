@@ -80,4 +80,9 @@ Route::get('/attendances/confirm/{employee}', [AttendanceController::class, 'con
     ->middleware(['auth', 'role:Roles.System Admin,Roles.Guard'])
     ->name('attendances.confirm');
 
+// Route for the manual attendance entry page
+Route::get('/attendances/manual-entry/{employee}', [AttendanceController::class, 'manualEntry'])
+    ->middleware(['auth', 'role:Roles.System Admin,Roles.Guard'])
+    ->name('attendances.manual-entry');
+
 require __DIR__ . '/auth.php';

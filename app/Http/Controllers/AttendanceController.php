@@ -6,6 +6,7 @@ use App\Models\Attendance;
 use App\Models\Employee;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 
 class AttendanceController extends Controller
 {
@@ -36,20 +37,33 @@ class AttendanceController extends Controller
      */
     public function store(Request $request)
     {
+        // *** THE FIX IS HERE: More specific validation rule ***
         $validated = $request->validate([
             'employee_id' => 'required|exists:employees,id',
             'event_type' => 'required|in:entry,exit',
-            'timestamp' => 'nullable|date',
+            // This rule specifically matches the format from datetime-local input
+            'timestamp' => 'nullable|date_format:Y-m-d\TH:i',
         ]);
+
+        $timestampToStore = null;
+
+        // The key 'timestamp' will only exist in $validated if it's not empty and passes validation.
+        if (isset($validated['timestamp'])) {
+            // Use createFromFormat for stricter, more reliable parsing.
+            $timestampToStore = Carbon::createFromFormat('Y-m-d\TH:i', $validated['timestamp']);
+        } else {
+            // This branch is for the 'confirm' page which doesn't send a timestamp.
+            $timestampToStore = now();
+        }
 
         Attendance::create([
             'employee_id' => $validated['employee_id'],
             'guard_id' => Auth::id(),
-            'event_type' => $validated['event_type'],
-            'timestamp' => $validated['timestamp'] ?? now(),
+            'event_type' => $validated['event_type'], // Using validated data is safer
+            'timestamp' => $timestampToStore,
         ]);
 
-        // Redirect back with a success message. The view will handle the UI reset.
+        // Redirect back to the search page with a success message
         return redirect()->route('attendances.create')
             ->with('success', __('Attendance recorded successfully.'));
     }
@@ -87,5 +101,13 @@ class AttendanceController extends Controller
     public function confirm(Employee $employee)
     {
         return view('attendances.confirm', compact('employee'));
+    }
+
+    /**
+     * Show the form for manually entering attendance for a specific employee.
+     */
+    public function manualEntry(Employee $employee)
+    {
+        return view('attendances.manual-entry', compact('employee'));
     }
 }

@@ -145,5 +145,7 @@
     "Create Group": "ساخت گروه آموزشی",
     "Enter name, department, or group...": "نام، دانشکده، یا گروه آموزشی را وارد کنید...",
     "Select": "انتخاب",
-    "Confirm Attendance for": "تایید حضور برای"
+    "Manual Entry": "ورود دستی",
+    "Manual Attendance Entry for": "ثبت تردد دستی برای",
+    "Confirm Attendance for": "تایید تردد برای"
 }
