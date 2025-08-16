@@ -92,7 +92,11 @@
                                     <option disabled>{{ __('Loading...') }}</option>
                                 </template>
                                 <template x-for="group in groups" :key="group.id">
-                                    <option :value="group.id" x-text="group.name.{{ app()->getLocale() }}"></option>
+                                    <option
+                                        :value="group.id"
+                                        x-text="group.name.{{ app()->getLocale() }}"
+                                        :selected="group.id == selectedGroup">
+                                    </option>
                                 </template>
                             </select>
                         </div>

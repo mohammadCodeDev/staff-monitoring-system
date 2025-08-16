@@ -68,10 +68,14 @@ class EmployeeController extends Controller
         $validatedData = $request->validate([
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
-            'department_id' => 'required|exists:departments,id', // Ensures the selected department is valid
             'department_id' => 'nullable|exists:departments,id', // <-- Make nullable
             'group_id' => 'nullable|exists:groups,id',           // <-- Add group_id
         ]);
+
+        // If no department is selected, ensure the group is also set to null.
+        if (empty($validatedData['department_id'])) {
+            $validatedData['group_id'] = null;
+        }
 
         // 2. Create a new employee record using the validated data
         Employee::create($validatedData);
@@ -112,11 +116,14 @@ class EmployeeController extends Controller
         $validatedData = $request->validate([
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
-            'department_id' => 'required|exists:departments,id',
             'department_id' => 'nullable|exists:departments,id', // <-- Make nullable
             'group_id' => 'nullable|exists:groups,id',           // <-- Add group_id
             'is_active' => 'required|boolean', // Validate the status
         ]);
+
+        if (empty($validatedData['department_id'])) {
+            $validatedData['group_id'] = null;
+        }
 
         // 2. Update the employee's record with the validated data
         $employee->update($validatedData);

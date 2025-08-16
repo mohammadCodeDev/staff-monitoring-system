@@ -30,6 +30,11 @@
                 .then(data => {
                     this.groups = data;
                     this.isLoading = false;
+
+                    const groupIds = this.groups.map(g => g.id);
+                    if (!groupIds.includes(parseInt(this.selectedGroup))) {
+                        this.selectedGroup = '';
+                    }
                 });
         },
         init() {
@@ -75,9 +80,15 @@
                             <x-input-label for="group_id" :value="__('Group Name')" />
                             <select id="group_id" name="group_id" x-model="selectedGroup" :disabled="isLoading || !selectedDepartment" class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">
                                 <option value="">{{ __('Select a Group') }}</option>
-                                <template x-if="isLoading"><option disabled>{{ __('Loading...') }}</option></template>
+                                <template x-if="isLoading">
+                                    <option disabled>{{ __('Loading...') }}</option>
+                                </template>
                                 <template x-for="group in groups" :key="group.id">
-                                    <option :value="group.id" x-text="group.name.{{ app()->getLocale() }}"></option>
+                                    <option
+                                        :value="group.id"
+                                        x-text="group.name.{{ app()->getLocale() }}"
+                                        :selected="group.id == selectedGroup">
+                                    </option>
                                 </template>
                             </select>
                         </div>

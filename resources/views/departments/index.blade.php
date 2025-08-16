@@ -50,7 +50,7 @@
                         <thead>
                             <tr>
                                 <th class="px-6 py-3 {{ app()->getLocale() == 'fa' ? 'text-right' : 'text-left' }}">{{ __('Department Name') }}</th>
-                                <th class="px-6 py-3 {{ app()->getLocale() == 'fa' ? 'text-right' : 'text-left' }}">{{ __('Roles.Faculty Head') }}</th>
+                                <th class="px-6 py-3 {{ app()->getLocale() == 'fa' ? 'text-right' : 'text-left' }}">{{ __('Department Head') }}</th>
                                 <th class="px-6 py-3 {{ app()->getLocale() == 'fa' ? 'text-right' : 'text-left' }}">{{ __('Actions') }}</th>
                             </tr>
                         </thead>

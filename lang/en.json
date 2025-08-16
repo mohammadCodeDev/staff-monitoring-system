@@ -152,5 +152,7 @@
     "Attendance record updated successfully.": "Attendance record updated successfully.",
     "Attendance record deleted successfully.": "Attendance record deleted successfully.",
     "Are you sure you want to delete this record?": "Are you sure you want to delete this record?",
-    "Update": "Update"
+    "Update": "Update",
+    "Department Head": "Department Head",
+    "Select a Group": "Select a Group"
 }
