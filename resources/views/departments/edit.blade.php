@@ -38,7 +38,7 @@
 
                         {{-- Manager Selection Dropdown --}}
                         <div class="mt-4">
-                            <x-input-label for="manager_id" :value="__('Roles.Faculty Head')" />
+                            <x-input-label for="manager_id" :value="__('Department Head')" />
                             <select name="manager_id" id="manager_id" class="block mt-1 w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">
                                 <option value="">{{ __('Select a Manager') }}</option>
                                 @if(isset($managers))
