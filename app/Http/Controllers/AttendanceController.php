@@ -7,6 +7,7 @@ use App\Models\Employee;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class AttendanceController extends Controller
 {
@@ -94,28 +95,23 @@ class AttendanceController extends Controller
 
     public function searchEmployees(Request $request)
     {
-        $query = Employee::query();
+        $searchTerm = $request->input('search', '');
 
-        if ($request->filled('search')) {
-            $searchTerm = $request->input('search');
-            $query->where(function ($q) use ($searchTerm) {
-                $q->where('first_name', 'like', "%{$searchTerm}%")
-                    ->orWhere('last_name', 'like', "%{$searchTerm}%")
-                    ->orWhereHas('department', function ($subQ) use ($searchTerm) {
-                        $subQ->where('name->en', 'like', "%{$searchTerm}%")
-                            ->orWhere('name->fa', 'like', "%{$searchTerm}%");
-                    })
-                    ->orWhereHas('group', function ($subQ) use ($searchTerm) {
-                        $subQ->where('name->en', 'like', "%{$searchTerm}%")
-                            ->orWhere('name->fa', 'like', "%{$searchTerm}%");
-                    });
-            });
+        // If the search term is empty, return an empty response to clear the results.
+        if (empty($searchTerm)) {
+            return response('');
         }
 
-        // Only get active employees for attendance logging
-        $employees = $query->where('is_active', true)->with(['department', 'group'])->latest()->get();
+        $employees = Employee::where('is_active', true)
+            // This is the new simplified search logic for full name
+            ->where(DB::raw("CONCAT(first_name, ' ', last_name)"), 'LIKE', "%{$searchTerm}%")
+            ->with(['department', 'group']) // Eager load relationships for the partial view
+            ->latest()
+            ->limit(10) // Limit results for better performance
+            ->get();
 
-        // Return the correct partial view with the "Select" button
+        // Return the partial view with the found employees
+        // No changes are needed in the partial view itself.
         return view('attendances.partials._search-results-rows', compact('employees'))->render();
     }
 
@@ -135,7 +131,7 @@ class AttendanceController extends Controller
         return view('attendances.manual-entry', compact('employee'));
     }
 
-     /**
+    /**
      * Remove the specified attendance record from storage.
      */
     public function destroy(Attendance $attendance)

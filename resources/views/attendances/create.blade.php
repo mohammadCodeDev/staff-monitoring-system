@@ -100,7 +100,7 @@
                                 id="search"
                                 type="text"
                                 class="block w-full mt-1"
-                                placeholder="{{ __('Enter name, department, or group...') }}"
+                                placeholder="{{ __('Enter full name...') }}"
                                 x-model="search"
                                 x-on:input.debounce.500ms="fetchEmployees()"
                                 autofocus />
