@@ -18,11 +18,25 @@
 
     <!-- This script handles theme switching based on localStorage -->
     <script>
-        const theme = localStorage.getItem('theme');
-        if (theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        // Get user's theme from the database (injected by Blade)
+        const userTheme = "{{ Auth::user()->theme ?? 'system' }}";
+        
+        // Get theme from localStorage as a fallback or for 'system' mode
+        const storedTheme = localStorage.getItem('theme');
+
+        // Determine the theme to apply
+        let themeToApply = userTheme;
+        if (userTheme === 'system') {
+            themeToApply = storedTheme || 'system';
+        }
+
+        // Apply the theme
+        if (themeToApply === 'dark' || (themeToApply === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
             document.documentElement.classList.add('dark');
+            localStorage.setItem('theme', 'dark'); // Sync localStorage
         } else {
             document.documentElement.classList.remove('dark');
+            localStorage.setItem('theme', 'light'); // Sync localStorage
         }
     </script>
 

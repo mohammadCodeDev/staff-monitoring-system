@@ -14,26 +14,44 @@
                         {{ __('Choose how the application looks. "System" will match your operating system preference.') }}
                     </p>
 
-                    <div x-data="themeSwitcher" class="mt-6 space-y-2">
-                        <div>
-                            <label class="inline-flex items-center">
-                                <input type="radio" name="theme" value="light" @click="setTheme('light')" :checked="theme === 'light'" class="form-radio text-indigo-600">
-                                <span class="ml-2">{{ __('Light') }}</span>
-                            </label>
+                    {{-- This is now a real form that POSTs to the server --}}
+                    <form method="POST" action="{{ route('settings.theme.update') }}" class="mt-6">
+                        @csrf
+                        <div class="mt-2 space-y-2">
+                            {{-- Light Theme --}}
+                            <div>
+                                <label class="inline-flex items-center">
+                                    <input type="radio" name="theme" value="light" onchange="this.form.submit()" 
+                                           {{ Auth::user()->theme == 'light' ? 'checked' : '' }} 
+                                           class="form-radio text-indigo-600">
+                                    <span class="ml-2">{{ __('Light') }}</span>
+                                </label>
+                            </div>
+                            {{-- Dark Theme --}}
+                            <div>
+                                <label class="inline-flex items-center">
+                                    <input type="radio" name="theme" value="dark" onchange="this.form.submit()" 
+                                           {{ Auth::user()->theme == 'dark' ? 'checked' : '' }} 
+                                           class="form-radio text-indigo-600">
+                                    <span class="ml-2">{{ __('Dark') }}</span>
+                                </label>
+                            </div>
+                            {{-- System Theme --}}
+                            <div>
+                                <label class="inline-flex items-center">
+                                    <input type="radio" name="theme" value="system" onchange="this.form.submit()" 
+                                           {{ Auth::user()->theme == 'system' ? 'checked' : '' }} 
+                                           class="form-radio text-indigo-600">
+                                    <span class="ml-2">{{ __('System') }}</span>
+                                </label>
+                            </div>
                         </div>
-                        <div>
-                            <label class="inline-flex items-center">
-                                <input type="radio" name="theme" value="dark" @click="setTheme('dark')" :checked="theme === 'dark'" class="form-radio text-indigo-600">
-                                <span class="ml-2">{{ __('Dark') }}</span>
-                            </label>
-                        </div>
-                        <div>
-                            <label class="inline-flex items-center">
-                                <input type="radio" name="theme" value="system" @click="setTheme('system')" :checked="theme === 'system'" class="form-radio text-indigo-600">
-                                <span class="ml-2">{{ __('System') }}</span>
-                            </label>
-                        </div>
-                    </div>
+
+                        {{-- Success Message --}}
+                        @if (session('status') === 'theme-updated')
+                        <p x-data="{ show: true }" x-show="show" x-transition x-init="setTimeout(() => show = false, 2000)" class="text-sm mt-2 text-green-600 dark:text-green-400">{{ __('Theme updated.') }}</p>
+                        @endif
+                    </form>
                 </div>
             </div>
         </div>

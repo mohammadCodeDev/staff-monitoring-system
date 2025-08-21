@@ -26,6 +26,9 @@ Route::get('/settings', function () {
 //POST route for updating the locale
 Route::post('/settings/locale', [SettingsController::class, 'updateLocale'])->name('settings.locale.update');
 
+// POST route for updating the theme
+Route::post('/settings/theme', [SettingsController::class, 'updateTheme'])->name('settings.theme.update');
+
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
