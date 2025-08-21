@@ -55,4 +55,23 @@ class SettingsController extends Controller
         // 4. Redirect back with a success message
         return Redirect::route('settings')->with('status', 'theme-updated');
     }
+
+    /**
+     * Update the user's font size preference.
+     */
+    public function updateFontSize(Request $request): RedirectResponse
+    {
+        // 1. Validate the incoming font size (must be a number between 80 and 120)
+        $request->validate([
+            'font_size' => ['required', 'numeric', 'min:80', 'max:120'],
+        ]);
+
+        // 2. Get the user and update the value
+        $user = $request->user();
+        $user->font_size = $request->font_size;
+        $user->save();
+
+        // 3. Redirect back with a success message
+        return Redirect::route('settings')->with('status', 'font-size-updated');
+    }
 }

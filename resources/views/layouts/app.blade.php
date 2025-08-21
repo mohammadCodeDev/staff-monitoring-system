@@ -16,8 +16,9 @@
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-    <!-- This script handles theme switching based on localStorage -->
+    <!-- This script handles Theme and Font size switching based on localStorage -->
     <script>
+        // --- THEME LOGIC ---
         // Get user's theme from the database (injected by Blade)
         const userTheme = "{{ Auth::user()->theme ?? 'system' }}";
         
@@ -38,6 +39,12 @@
             document.documentElement.classList.remove('dark');
             localStorage.setItem('theme', 'light'); // Sync localStorage
         }
+
+         // --- FONT SIZE LOGIC (NEW) ---
+        // Use Blade to inject the font size from the database into a JS variable
+        const userFontSize = "{{ Auth::user()->font_size ?? 100 }}";
+        // Use pure JavaScript to apply the style to the root element
+        document.documentElement.style.fontSize = userFontSize + '%';
     </script>
 
 </head>

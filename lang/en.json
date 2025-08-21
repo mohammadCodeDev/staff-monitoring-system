@@ -155,5 +155,12 @@
     "Update": "Update",
     "Department Head": "Department Head",
     "Select a Group": "Select a Group",
-    "Theme updated.": "Theme updated."
+    "Theme updated.": "Theme updated.",
+    "Font Size Settings": "Font Size Settings",
+    "Adjust the text size for better readability.": "Adjust the text size for better readability.",
+    "Small": "Small",
+    "Medium": "Medium",
+    "Large": "Large",
+    "Manual Adjustment": "Manual Adjustment",
+    "Font size updated.": "Font size updated."
 }

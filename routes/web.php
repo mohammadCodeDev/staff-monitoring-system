@@ -29,6 +29,9 @@ Route::post('/settings/locale', [SettingsController::class, 'updateLocale'])->na
 // POST route for updating the theme
 Route::post('/settings/theme', [SettingsController::class, 'updateTheme'])->name('settings.theme.update');
 
+// POST route for updating the font size
+Route::post('/settings/font-size', [SettingsController::class, 'updateFontSize'])->name('settings.font-size.update');
+
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

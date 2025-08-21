@@ -155,5 +155,12 @@
     "Update": "به‌روزرسانی",
     "Department Head": "رئیس بخش",
     "Select a Group": "یک گروه آموزشی انتخاب کنید",
-    "Theme updated.": "تم با موفقیت به‌روز شد."
+    "Theme updated.": "تم با موفقیت به‌روز شد.",
+    "Font Size Settings": "تنظیمات اندازه فونت",
+    "Adjust the text size for better readability.": "اندازه متن را برای خوانایی بهتر تنظیم کنید.",
+    "Small": "کوچک",
+    "Medium": "متوسط",
+    "Large": "بزرگ",
+    "Manual Adjustment": "تنظیم دستی",
+    "Font size updated.": "اندازه فونت به‌روزرسانی شد."
 }
