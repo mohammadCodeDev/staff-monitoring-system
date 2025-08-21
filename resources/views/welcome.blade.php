@@ -4,11 +4,26 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ config('app.name', 'Laravel') }}</title>
+    <title>{{ config('app.name', 'staff-monitoring-system') }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script>
-        // For the welcome page, always force light theme for consistency
-        document.documentElement.classList.remove('dark');
+        // Use PHP/Blade to define a single JS variable for the initial theme.
+        // This is friendly to the editor's linter.
+        const themeConfig = "{{ Auth::check() ? (Auth::user()->theme ?? 'system') : 'light' }}";
+
+        // The rest is pure JavaScript that uses the variable from above.
+        const storedTheme = localStorage.getItem('theme');
+        let themeToApply = themeConfig;
+
+        if (themeConfig === 'system') {
+            themeToApply = storedTheme || 'system';
+        }
+
+        if (themeToApply === 'dark' || (themeToApply === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
     </script>
 </head>
 
