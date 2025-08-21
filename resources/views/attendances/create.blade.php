@@ -18,6 +18,7 @@
     <div class="py-12" x-data="{
         search: '',
         resultsHtml: '',
+        resultsCount: 0, 
         isLoading: false,
         isModalOpen: false,
         selectedEmployee: null,
@@ -25,15 +26,17 @@
         fetchEmployees() {
             if (this.search.trim() === '') {
                 this.resultsHtml = '';
+                this.resultsCount = 0;
                 return;
             }
             this.isLoading = true;
             fetch(`{{ route('attendances.searchEmployees') }}?search=${encodeURIComponent(this.search.trim())}`, {
                 headers: { 'X-Requested-With': 'XMLHttpRequest' }
             })
-            .then(response => response.text())
-            .then(html => {
-                this.resultsHtml = html; 
+            .then(response => response.json())
+            .then(data => {
+                this.resultsHtml = data.html; 
+                this.resultsCount = data.count;
                 this.isLoading = false;
             });
         },
@@ -45,6 +48,7 @@
 
         
     }" @open-manual-entry-modal.window="openModal($event.detail.employee)">
+
         <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
 
             {{-- The success message will now also trigger the resetView function --}}
@@ -76,7 +80,7 @@
 
             {{-- Search Results Table --}}
             <div x-show="search.trim() !== ''" class="mt-6 bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg" x-transition>
-                <div class="p-6 text-gray-900 dark:text-gray-100">
+                <div class="p-6 pb-16 text-gray-900 dark:text-gray-100">
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                             <thead class="bg-gray-50 dark:bg-gray-700">
@@ -93,36 +97,41 @@
                             </tbody>
                         </table>
                     </div>
+
+                    <div x-show="resultsCount >= 10" class="mt-4 text-sm text-center text-gray-500 dark:text-gray-400">
+                        {{ __('More results may be available. Please refine your search.') }}
+                    </div>
                 </div>
             </div>
+        </div>
 
-            {{-- MANUAL ENTRY MODAL --}}
-            <div x-show="isModalOpen" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" style="display: none;">
-                <div @click.away="isModalOpen = false" class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-8 w-full max-w-md">
-                    <h3 class="text-xl font-bold mb-4" x-text="`{{ __('Manual Attendance Entry for') }}: ${manualEntryEmployee ? manualEntryEmployee.fullName : ''}`"></h3>
+        {{-- MANUAL ENTRY MODAL --}}
+        <div x-show="isModalOpen" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" style="display: none;">
+            <div @click.away="isModalOpen = false" class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-8 w-full max-w-md">
+                <h3 class="text-xl font-bold mb-4" x-text="`{{ __('Manual Attendance Entry for') }}: ${manualEntryEmployee ? manualEntryEmployee.fullName : ''}`"></h3>
 
-                    <form action="{{ route('attendances.store') }}" method="POST">
-                        @csrf
-                        <input type="hidden" name="employee_id" :value="manualEntryEmployee ? manualEntryEmployee.id : ''">
+                <form action="{{ route('attendances.store') }}" method="POST">
+                    @csrf
+                    <input type="hidden" name="employee_id" :value="manualEntryEmployee ? manualEntryEmployee.id : ''">
 
-                        <div>
-                            <x-input-label for="timestamp" :value="__('Event Time (Manual Entry)')" />
-                            <x-text-input id="timestamp" name="timestamp" type="datetime-local" class="mt-1 block w-full" required />
-                        </div>
+                    <div>
+                        <x-input-label for="timestamp" :value="__('Event Time (Manual Entry)')" />
+                        <x-text-input id="timestamp" name="timestamp" type="datetime-local" class="mt-1 block w-full" required />
+                    </div>
 
-                        <div class="mt-8 flex space-x-4 rtl:space-x-reverse w-full">
-                            <button type="submit" name="event_type" value="entry" class="w-1/2 text-center px-6 py-3 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-500 focus:outline-none transition">
-                                {{ __('Entry') }}
-                            </button>
-                            <button type="submit" name="event_type" value="exit" class="w-1/2 text-center px-6 py-3 bg-red-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-500 focus:outline-none transition">
-                                {{ __('Exit') }}
-                            </button>
-                        </div>
-                    </form>
-                </div>
+                    <div class="mt-8 flex space-x-4 rtl:space-x-reverse w-full">
+                        <button type="submit" name="event_type" value="entry" class="w-1/2 text-center px-6 py-3 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-500 focus:outline-none transition">
+                            {{ __('Entry') }}
+                        </button>
+                        <button type="submit" name="event_type" value="exit" class="w-1/2 text-center px-6 py-3 bg-red-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-500 focus:outline-none transition">
+                            {{ __('Exit') }}
+                        </button>
+                    </div>
+                </form>
             </div>
+        </div>
 
-            <!--
+        <!--
             {{-- CONFIRMATION VIEW --}}
             <template x-if="view === 'confirm'">
                 <div x-transition class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
@@ -174,6 +183,6 @@
             </template>
             -->
 
-        </div>
+    </div>
     </div>
 </x-app-layout>

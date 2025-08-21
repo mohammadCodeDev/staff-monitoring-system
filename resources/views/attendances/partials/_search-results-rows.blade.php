@@ -55,7 +55,15 @@
             </button>
             <div x-show="open" @click.away="open = false"
                 x-transition
-                class="origin-top-right rtl:origin-top-left absolute right-0 rtl:right-auto rtl:left-0 mt-2 w-48 rounded-md shadow-lg bg-white dark:bg-gray-700 ring-1 ring-black ring-opacity-5 focus:outline-none z-10">
+                class="absolute right-0 rtl:right-auto rtl:left-0 w-48 rounded-md shadow-lg bg-white dark:bg-gray-700 ring-1 ring-black ring-opacity-5 focus:outline-none z-10
+                       {{-- This Blade directive checks if it's the last item --}}
+                       @if($loop->last)
+                           origin-bottom-right bottom-full mb-2
+                       @else
+                           origin-top-right mt-2
+                       @endif
+                      "
+                style="display: none;">
                 <div class="py-1">
                     <button @click="$dispatch('open-manual-entry-modal', { employee: {{ json_encode($employee) }} }); open = false;"
                         class="w-full text-left rtl:text-right block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600">

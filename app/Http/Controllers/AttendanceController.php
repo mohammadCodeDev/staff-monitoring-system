@@ -99,7 +99,7 @@ class AttendanceController extends Controller
 
         // If the search term is empty, return an empty response to clear the results.
         if (empty($searchTerm)) {
-            return response('');
+            return response()->json(['html' => '', 'count' => 0]); // Return JSON
         }
 
         $employees = Employee::where('is_active', true)
@@ -110,9 +110,14 @@ class AttendanceController extends Controller
             ->limit(10) // Limit results for better performance
             ->get();
 
-        // Return the partial view with the found employees
-        // No changes are needed in the partial view itself.
-        return view('attendances.partials._search-results-rows', compact('employees'))->render();
+        // Render the partial view to HTML
+        $html = view('attendances.partials._search-results-rows', compact('employees'))->render();
+
+        // Return both HTML and the count as a JSON object
+        return response()->json([
+            'html' => $html,
+            'count' => $employees->count()
+        ]);
     }
 
     /**
