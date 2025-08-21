@@ -79,14 +79,14 @@ Route::post('/attendances', [AttendanceController::class, 'store'])
     ->name('attendances.store');
 
 // Route for the attendance confirmation page
-Route::get('/attendances/confirm/{employee}', [AttendanceController::class, 'confirm'])
-    ->middleware(['auth', 'role:Roles.System Admin,Roles.Guard'])
-    ->name('attendances.confirm');
+//Route::get('/attendances/confirm/{employee}', [AttendanceController::class, 'confirm'])
+//    ->middleware(['auth', 'role:Roles.System Admin,Roles.Guard'])
+//    ->name('attendances.confirm');
 
 // Route for the manual attendance entry page
-Route::get('/attendances/manual-entry/{employee}', [AttendanceController::class, 'manualEntry'])
-    ->middleware(['auth', 'role:Roles.System Admin,Roles.Guard'])
-    ->name('attendances.manual-entry');
+//Route::get('/attendances/manual-entry/{employee}', [AttendanceController::class, 'manualEntry'])
+//    ->middleware(['auth', 'role:Roles.System Admin,Roles.Guard'])
+//    ->name('attendances.manual-entry');
 
 // Add this route for the live search on the attendance logging page
 Route::get('/attendances/search-employees', [AttendanceController::class, 'searchEmployees'])

@@ -5,32 +5,67 @@
 
 @forelse ($employees as $employee)
 <tr class="hover:bg-gray-100 dark:hover:bg-gray-700">
-    <td class="px-6 py-4 whitespace-nowrap">
-        {{-- Action buttons are now in a flex container --}}
-        <div class="flex items-center space-x-2 rtl:space-x-reverse">
-            {{-- Select button for automatic (current time) entry --}}
-            <a href="{{ route('attendances.confirm', $employee->id) }}"
-                class="inline-flex items-center px-3 py-1.5 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-500 focus:outline-none focus:border-indigo-700 focus:ring focus:ring-indigo-200 active:bg-indigo-600 disabled:opacity-25 transition">
-                {{ __('Select') }}
-            </a>
 
-            {{-- Link to the new manual entry page --}}
-            <a href="{{ route('attendances.manual-entry', $employee->id) }}"
-                class="inline-flex items-center px-3 py-1.5 bg-gray-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-500 focus:outline-none focus:border-gray-700 focus:ring focus:ring-gray-200 active:bg-gray-600 disabled:opacity-25 transition">
-                {{ __('Manual Entry') }}
-            </a>
+    {{-- Column 1: Inline Actions (Entry/Exit) --}}
+    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+        <div class="flex items-center space-x-2 rtl:space-x-reverse">
+            {{-- Entry Form --}}
+            <form action="{{ route('attendances.store') }}" method="POST">
+                @csrf
+                <input type="hidden" name="employee_id" value="{{ $employee->id }}">
+                <input type="hidden" name="event_type" value="entry">
+                <button type="submit" class="inline-flex items-center px-3 py-1.5 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-500 focus:outline-none transition">
+                    {{ __('Entry') }}
+                </button>
+            </form>
+            {{-- Exit Form --}}
+            <form action="{{ route('attendances.store') }}" method="POST">
+                @csrf
+                <input type="hidden" name="employee_id" value="{{ $employee->id }}">
+                <input type="hidden" name="event_type" value="exit">
+                <button type="submit" class="inline-flex items-center px-3 py-1.5 bg-red-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-500 focus:outline-none transition">
+                    {{ __('Exit') }}
+                </button>
+            </form>
         </div>
     </td>
-    {{-- Other columns (fullName, department, group) remain the same --}}
+
+    {{-- Column 2: Full Name --}}
     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200">
         {{ $employee->fullName }}
     </td>
+
+    {{-- Column 3: Department --}}
     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
         {{ $employee->department?->name }}
     </td>
+
+    {{-- Column 4: Group --}}
     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
         {{ $employee->group?->name }}
     </td>
+
+    {{-- Column 5: More Options (Kebab Menu) for Manual Entry --}}
+    <td class="px-6 py-4 whitespace-nowrap text-right rtl:text-left text-sm font-medium">
+        <div x-data="{ open: false }" class="relative inline-block text-left rtl:text-right">
+            <button @click="open = !open" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 focus:outline-none">
+                <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 12.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 18.75a.75.75 0 110-1.5.75.75 0 010 1.5z" />
+                </svg>
+            </button>
+            <div x-show="open" @click.away="open = false"
+                x-transition
+                class="origin-top-right rtl:origin-top-left absolute right-0 rtl:right-auto rtl:left-0 mt-2 w-48 rounded-md shadow-lg bg-white dark:bg-gray-700 ring-1 ring-black ring-opacity-5 focus:outline-none z-10">
+                <div class="py-1">
+                    <button @click="$dispatch('open-manual-entry-modal', { employee: {{ json_encode($employee) }} }); open = false;"
+                        class="w-full text-left rtl:text-right block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600">
+                        {{ __('Manual Entry') }}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </td>
+
 </tr>
 @empty
 {{-- This row is shown if the search returns no results --}}

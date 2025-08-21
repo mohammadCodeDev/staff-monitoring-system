@@ -118,18 +118,24 @@ class AttendanceController extends Controller
     /**
      * Show the confirmation page for logging attendance for a specific employee.
      */
-    public function confirm(Employee $employee)
-    {
-        return view('attendances.confirm', compact('employee'));
-    }
+
+    /**
+     * public function confirm(Employee $employee)
+     * {
+     *     return view('attendances.confirm', compact('employee'));
+     * }
+     */
 
     /**
      * Show the form for manually entering attendance for a specific employee.
      */
-    public function manualEntry(Employee $employee)
-    {
-        return view('attendances.manual-entry', compact('employee'));
-    }
+
+    /** 
+     * public function manualEntry(Employee $employee)
+     * {
+     *     return view('attendances.manual-entry', compact('employee'));
+     * }
+     */
 
     /**
      * Remove the specified attendance record from storage.

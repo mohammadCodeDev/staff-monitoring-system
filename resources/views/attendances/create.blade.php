@@ -16,11 +16,11 @@
         - 'view' now reliably controls which part of the UI is visible ('search' or 'confirm').
     --}}
     <div class="py-12" x-data="{
-        view: 'search',
         search: '',
         resultsHtml: '',
-        selectedEmployee: null,
         isLoading: false,
+        isModalOpen: false,
+        selectedEmployee: null,
 
         fetchEmployees() {
             if (this.search.trim() === '') {
@@ -28,7 +28,7 @@
                 return;
             }
             this.isLoading = true;
-            fetch(`{{ route('attendances.searchEmployees') }}?search=${this.search}`, {
+            fetch(`{{ route('attendances.searchEmployees') }}?search=${encodeURIComponent(this.search.trim())}`, {
                 headers: { 'X-Requested-With': 'XMLHttpRequest' }
             })
             .then(response => response.text())
@@ -38,45 +38,13 @@
             });
         },
 
-        // This is the robust function to handle employee selection
-        selectEmployee(employee) {
-            if (typeof employee !== 'object' || employee === null) {
-                console.error('Invalid employee data received:', employee);
-                return;
-            }
-            
-            // Create a clean copy to safely manipulate
-            let processedEmployee = JSON.parse(JSON.stringify(employee));
-
-            // Safely parse translatable fields from JSON strings to objects
-            if (processedEmployee.department && typeof processedEmployee.department.name === 'string') {
-                try {
-                    processedEmployee.department.name = JSON.parse(processedEmployee.department.name);
-                } catch (e) {
-                    processedEmployee.department.name = null;
-                }
-            }
-
-            if (processedEmployee.group && typeof processedEmployee.group.name === 'string') {
-                try {
-                    processedEmployee.group.name = JSON.parse(processedEmployee.group.name);
-                } catch (e) {
-                    processedEmployee.group.name = null;
-                }
-            }
-
-            this.selectedEmployee = processedEmployee;
-            this.view = 'confirm'; // Switch to the confirmation view
-        },
-
-        // Resets the UI back to the search state
-        resetView() {
-            this.view = 'search';
-            this.search = '';
-            this.resultsHtml = '';
-            this.selectedEmployee = null;
+        openModal(employee) {
+            this.manualEntryEmployee = employee;
+            this.isModalOpen = true;
         }
-    }">
+
+        
+    }" @open-manual-entry-modal.window="openModal($event.detail.employee)">
         <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
 
             {{-- The success message will now also trigger the resetView function --}}
@@ -90,45 +58,70 @@
             {{-- We use <template> with x-if to completely swap the views in the DOM --}}
 
             {{-- SEARCH VIEW --}}
-            <template x-if="view === 'search'">
-                <div x-transition>
-                    {{-- Search Box --}}
-                    <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                        <div class="p-6 text-gray-900 dark:text-gray-100">
-                            <x-input-label for="search" :value="__('Search Employee')" />
-                            <x-text-input
-                                id="search"
-                                type="text"
-                                class="block w-full mt-1"
-                                placeholder="{{ __('Enter full name...') }}"
-                                x-model="search"
-                                x-on:input.debounce.500ms="fetchEmployees()"
-                                autofocus />
-                        </div>
-                    </div>
 
-                    {{-- Search Results Table --}}
-                    <div x-show="search.trim() !== ''" class="mt-6 bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg" x-transition>
-                        <div class="p-6 text-gray-900 dark:text-gray-100">
-                            <div class="overflow-x-auto">
-                                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                                    <thead class="bg-gray-50 dark:bg-gray-700">
-                                        <tr>
-                                            <th class="px-6 py-3 text-left rtl:text-right text-xs font-medium uppercase tracking-wider">{{ __('Actions') }}</th>
-                                            <th class="px-6 py-3 text-left rtl:text-right text-xs font-medium uppercase tracking-wider">{{ __('Full Name') }}</th>
-                                            <th class="px-6 py-3 text-left rtl:text-right text-xs font-medium uppercase tracking-wider">{{ __('Department') }}</th>
-                                            <th class="px-6 py-3 text-left rtl:text-right text-xs font-medium uppercase tracking-wider">{{ __('Group Name') }}</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700" x-html="resultsHtml">
-                                        {{-- AJAX results will be injected here --}}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
+            {{-- Search Box --}}
+            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6 text-gray-900 dark:text-gray-100">
+                    <x-input-label for="search" :value="__('Search Employee')" />
+                    <x-text-input
+                        id="search"
+                        type="text"
+                        class="block w-full mt-1"
+                        placeholder="{{ __('Enter full name...') }}"
+                        x-model="search"
+                        x-on:input.debounce.500ms="fetchEmployees()"
+                        autofocus />
+                </div>
+            </div>
+
+            {{-- Search Results Table --}}
+            <div x-show="search.trim() !== ''" class="mt-6 bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg" x-transition>
+                <div class="p-6 text-gray-900 dark:text-gray-100">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                            <thead class="bg-gray-50 dark:bg-gray-700">
+                                <tr>
+                                    <th class="px-6 py-3 text-left rtl:text-right text-xs font-medium uppercase tracking-wider">{{ __('Actions') }}</th>
+                                    <th class="px-6 py-3 text-left rtl:text-right text-xs font-medium uppercase tracking-wider">{{ __('Full Name') }}</th>
+                                    <th class="px-6 py-3 text-left rtl:text-right text-xs font-medium uppercase tracking-wider">{{ __('Department') }}</th>
+                                    <th class="px-6 py-3 text-left rtl:text-right text-xs font-medium uppercase tracking-wider">{{ __('Group Name') }}</th>
+                                    <th class="px-6 py-3 w-12"></th> {{-- Empty header for the kebab menu --}}
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700" x-html="resultsHtml">
+                                {{-- AJAX results will be injected here --}}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
-            </template>
+            </div>
+
+            {{-- MANUAL ENTRY MODAL --}}
+            <div x-show="isModalOpen" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" style="display: none;">
+                <div @click.away="isModalOpen = false" class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-8 w-full max-w-md">
+                    <h3 class="text-xl font-bold mb-4" x-text="`{{ __('Manual Attendance Entry for') }}: ${manualEntryEmployee ? manualEntryEmployee.fullName : ''}`"></h3>
+
+                    <form action="{{ route('attendances.store') }}" method="POST">
+                        @csrf
+                        <input type="hidden" name="employee_id" :value="manualEntryEmployee ? manualEntryEmployee.id : ''">
+
+                        <div>
+                            <x-input-label for="timestamp" :value="__('Event Time (Manual Entry)')" />
+                            <x-text-input id="timestamp" name="timestamp" type="datetime-local" class="mt-1 block w-full" required />
+                        </div>
+
+                        <div class="mt-8 flex space-x-4 rtl:space-x-reverse w-full">
+                            <button type="submit" name="event_type" value="entry" class="w-1/2 text-center px-6 py-3 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-500 focus:outline-none transition">
+                                {{ __('Entry') }}
+                            </button>
+                            <button type="submit" name="event_type" value="exit" class="w-1/2 text-center px-6 py-3 bg-red-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-500 focus:outline-none transition">
+                                {{ __('Exit') }}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
             <!--
             {{-- CONFIRMATION VIEW --}}
             <template x-if="view === 'confirm'">
@@ -179,7 +172,7 @@
                     </div>
                 </div>
             </template>
-    -->
+            -->
 
         </div>
     </div>
