@@ -1,3 +1,14 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.hover-zoom {
+    transition: transform 0.2s ease-in-out, z-index 0.2s ease-in-out;
+    position: relative;
+    z-index: 1;
+}
+
+.hover-zoom:hover {
+    transform: scale(2.5); /* میزان بزرگ‌نمایی را می‌توانید تغییر دهید */
+    z-index: 10;
+}

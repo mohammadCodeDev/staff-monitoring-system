@@ -46,7 +46,7 @@
                 <div class="p-6 text-gray-900 dark:text-gray-100">
 
                     {{-- The form for creating a new employee, styled with Tailwind CSS classes. --}}
-                    <form action="{{ route('employees.store') }}" method="POST" class="space-y-6">
+                    <form action="{{ route('employees.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
                         @csrf {{-- CSRF protection token --}}
 
                         {{-- First Name Input --}}
@@ -91,6 +91,13 @@
                                     </option>
                                 </template>
                             </select>
+                        </div>
+
+                        {{-- Profile Photo Input --}}
+                        <div>
+                            <x-input-label for="profile_photo" :value="__('Profile Photo')" />
+                            <input id="profile_photo" name="profile_photo" type="file" class="mt-1 block w-full text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400" accept="image/png, image/jpeg, image/jpg">
+                            <x-input-error class="mt-2" :messages="$errors->get('profile_photo')" />
                         </div>
 
                         {{-- Submit Button --}}

@@ -35,17 +35,22 @@
         {{ $employee->fullName }}
     </td>
 
-    {{-- Column 3: Department --}}
+    {{-- Column 3: Photo (New) --}}
+    <td class="px-6 py-4 whitespace-nowrap">
+        <img class="h-10 w-10 rounded-full object-cover hover-zoom" src="{{ $employee->profilePhotoUrl }}" alt="{{ $employee->fullName }}">
+    </td>
+
+    {{-- Column 4: Department --}}
     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
         {{ $employee->department?->name }}
     </td>
 
-    {{-- Column 4: Group --}}
+    {{-- Column 5: Group --}}
     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
         {{ $employee->group?->name }}
     </td>
 
-    {{-- Column 5: More Options (Kebab Menu) for Manual Entry --}}
+    {{-- Column 6: More Options (Kebab Menu) for Manual Entry --}}
     <td class="px-6 py-4 whitespace-nowrap text-right rtl:text-left text-sm font-medium">
         <div x-data="{ open: false }" class="relative inline-block text-left rtl:text-right">
             <button @click="open = !open" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 focus:outline-none">

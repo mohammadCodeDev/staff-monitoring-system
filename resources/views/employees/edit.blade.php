@@ -48,7 +48,7 @@
                 <div class="p-6 text-gray-900 dark:text-gray-100">
 
                     {{-- The form points to the update route and uses the PUT method --}}
-                    <form action="{{ route('employees.update', $employee->id) }}" method="POST" class="space-y-6">
+                    <form action="{{ route('employees.update', $employee->id) }}" method="POST" enctype="multipart/form-data" class="space-y-6">
                         @csrf
                         @method('PUT') {{-- Important for telling Laravel this is an update operation --}}
 
@@ -99,6 +99,21 @@
                                     </option>
                                 </template>
                             </select>
+                        </div>
+
+                        {{-- Profile Photo --}}
+                        <div>
+                            <x-input-label for="profile_photo" :value="__('Profile Photo')" />
+
+                            {{-- Display current photo if it exists --}}
+                            @if ($employee->profile_photo_path)
+                            <div class="mt-2">
+                                <img src="{{ Storage::url($employee->profile_photo_path) }}" alt="{{ $employee->fullName }}" class="rounded-full h-20 w-20 object-cover">
+                            </div>
+                            @endif
+
+                            <input id="profile_photo" name="profile_photo" type="file" class="mt-2 block w-full text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400" accept="image/png, image/jpeg, image/jpg">
+                            <x-input-error class="mt-2" :messages="$errors->get('profile_photo')" />
                         </div>
 
                         {{-- Status (Active/Inactive) --}}

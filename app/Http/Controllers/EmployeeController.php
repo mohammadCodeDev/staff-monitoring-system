@@ -6,6 +6,7 @@ use App\Models\Department;
 use App\Models\Employee;
 use App\Models\Group;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class EmployeeController extends Controller
 {
@@ -119,7 +120,20 @@ class EmployeeController extends Controller
             'department_id' => 'nullable|exists:departments,id', // <-- Make nullable
             'group_id' => 'nullable|exists:groups,id',           // <-- Add group_id
             'is_active' => 'required|boolean', // Validate the status
+            'profile_photo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048', // 2MB Max
         ]);
+
+
+        // --- Handle File Update ---
+        if ($request->hasFile('profile_photo')) {
+            // Delete old photo if it exists
+            if ($employee->profile_photo_path) {
+                Storage::disk('public')->delete($employee->profile_photo_path);
+            }
+            // Store the new photo
+            $path = $request->file('profile_photo')->store('employee_photos', 'public');
+            $validatedData['profile_photo_path'] = $path;
+        }
 
         if (empty($validatedData['department_id'])) {
             $validatedData['group_id'] = null;
@@ -138,10 +152,16 @@ class EmployeeController extends Controller
      */
     public function destroy(Employee $employee)
     {
+        // --- Delete Photo from Storage ---
+        if ($employee->profile_photo_path) {
+            Storage::disk('public')->delete($employee->profile_photo_path);
+        }
+
         $employee->delete();
         return redirect()->route('employees.index')
             ->with('success', __('Employee deleted successfully.'));
     }
+
     /**
      * Deactivate the specified employee.
      */

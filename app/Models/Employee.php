@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Storage;
 
 class Employee extends Model
 {
@@ -23,6 +24,7 @@ class Employee extends Model
         'department_id',
         'group_id',
         'is_active',
+        'profile_photo_path',
     ];
 
     /**
@@ -33,6 +35,14 @@ class Employee extends Model
     protected $casts = [
         'is_active' => 'boolean',
     ];
+
+
+    /**
+     * Appends custom attributes to the model's array form.
+     *
+     * @var array
+     */
+    protected $appends = ['full_name', 'profile_photo_url'];
 
     /**
      * Get the department that the employee belongs to.
@@ -69,5 +79,20 @@ class Employee extends Model
         return Attribute::make(
             get: fn(mixed $value, array $attributes) => $attributes['first_name'] . ' ' . $attributes['last_name'],
         );
+    }
+
+    /**
+     * Get the URL for the employee's profile photo.
+     * 
+     */
+    public function getProfilePhotoUrlAttribute(): string
+    {
+        if ($this->profile_photo_path) {
+            // Returns the public URL to the stored image
+            return Storage::url($this->profile_photo_path);
+        }
+
+        // Returns a default avatar from ui-avatars.com
+        return 'https://ui-avatars.com/api/?name=' . urlencode($this->fullName) . '&color=7F9CF5&background=EBF4FF';
     }
 }

@@ -1,7 +1,12 @@
 @forelse ($employees as $employee)
 <tr>
+    {{-- New TD for Profile Photo --}}
+    <td class="px-6 py-4 whitespace-nowrap">
+        <img class="h-10 w-10 rounded-full object-cover hover-zoom" src="{{ $employee->profilePhotoUrl }}" alt="{{ $employee->fullName }}">
+    </td>
+
     <td class="px-6 py-4 whitespace-nowrap">{{ $employee->fullName }}</td>
-    
+
     {{-- Safely access department name --}}
     <td class="px-6 py-4 whitespace-nowrap">{{ __($employee->department?->name) }}</td>
 
@@ -39,6 +44,7 @@
 </tr>
 @empty
 <tr>
-    <td colspan="4" class="px-6 py-4 whitespace-nowrap text-center text-gray-500">{{ __('No employees found.') }}</td>
+    {{-- Updated colspan --}}
+    <td colspan="6" class="px-6 py-4 whitespace-nowrap text-center text-gray-500">{{ __('No employees found.') }}</td>
 </tr>
 @endforelse
