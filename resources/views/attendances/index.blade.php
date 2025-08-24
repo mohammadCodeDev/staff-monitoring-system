@@ -55,21 +55,32 @@
                                     </td>
                                     <td class="px-6 py-4">{{ $attendance->timestamp }}</td>
                                     <td class="px-6 py-4">{{ $attendance->recorder->first_name }} {{ $attendance->recorder->last_name }}</td>
-                                    {{-- New Actions Column --}}
+                                    {{-- Actions Column with Authorization --}}
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        {{--
+                                            The @can directive checks the 'update' policy for the given attendance record.
+                                            We will define this policy in the next step.
+                                        --}}
+                                        @can('update', $attendance)
                                         <div class="flex justify-start space-x-4 rtl:space-x-reverse">
-                                            <a href="{{ route('attendances.edit', $attendance->id) }}" class="text-indigo-600 ...">{{ __('Edit') }}</a>
+                                            <a href="{{ route('attendances.edit', $attendance->id) }}" class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-200">{{ __('Edit') }}</a>
+
+                                            {{-- The delete button is also protected by a policy check --}}
+                                            @can('delete', $attendance)
                                             <form action="{{ route('attendances.destroy', $attendance->id) }}" method="POST" x-data @submit.prevent="if (confirm('{{ __('Are you sure you want to delete this record?') }}')) $el.submit()">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="text-red-600 ...">{{ __('Delete') }}</button>
+                                                <button type="submit" class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-200">{{ __('Delete') }}</button>
                                             </form>
+                                            @endcan
                                         </div>
+                                        @endcan
                                     </td>
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="4" class="px-6 py-4 text-center text-gray-500">{{ __('No attendance records found.') }}</td>
+                                    {{-- colspan should be 5 to match the number of columns --}}
+                                    <td colspan="5" class="px-6 py-4 text-center text-gray-500">{{ __('No attendance records found.') }}</td>
                                 </tr>
                                 @endforelse
                             </tbody>

@@ -8,9 +8,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class AttendanceController extends Controller
 {
+    use AuthorizesRequests;
+
     /**
      * Display a listing of the attendance records.
      */
@@ -74,6 +77,9 @@ class AttendanceController extends Controller
      */
     public function edit(Attendance $attendance)
     {
+        // Authorize the action using the AttendancePolicy.
+        $this->authorize('update', $attendance);
+
         return view('attendances.edit', compact('attendance'));
     }
 
@@ -82,6 +88,9 @@ class AttendanceController extends Controller
      */
     public function update(Request $request, Attendance $attendance)
     {
+        // Authorize the action using the AttendancePolicy.
+        $this->authorize('update', $attendance);
+
         $validated = $request->validate([
             'timestamp' => 'required|date_format:Y-m-d\TH:i',
         ]);
@@ -147,6 +156,9 @@ class AttendanceController extends Controller
      */
     public function destroy(Attendance $attendance)
     {
+        // Authorize the action using the AttendancePolicy.
+        $this->authorize('delete', $attendance);
+
         $attendance->delete();
         return redirect()->route('attendances.index')->with('success', __('Attendance record deleted successfully.'));
     }

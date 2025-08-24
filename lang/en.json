@@ -166,5 +166,8 @@
     "Enter full name...": "Enter full name...",
     "More results may be available. Please refine your search.": "More results may be available. Please refine your search.",
     "Photo": "Photo",
-    "Profile Photo": "Profile Photo"
+    "Profile Photo": "Profile Photo",
+     "This action is unauthorized.": "This action is unauthorized.",
+    "You are not allowed to modify records older than 7 days.": "You are not allowed to modify records older than 7 days.",
+    "Guard Actions": "Guard Actions"
 }

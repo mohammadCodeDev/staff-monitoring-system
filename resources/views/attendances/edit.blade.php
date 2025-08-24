@@ -32,6 +32,18 @@
                                 disabled />
                         </div>
 
+                        {{-- Display Event Type (Read-only) -- NEW --}}
+                        <div class="mb-6">
+                            <x-input-label for="event_type" :value="__('Event Type')" />
+                            <x-text-input
+                                id="event_type"
+                                type="text"
+                                class="mt-1 block w-full bg-gray-100 dark:bg-gray-700"
+                                {{-- Dynamically set the value and style based on event_type --}}
+                                :value="$attendance->event_type === 'entry' ? __('Entry') : __('Exit')"
+                                disabled />
+                        </div>
+
                         {{-- Datetime Input Field --}}
                         <div>
                             <x-input-label for="timestamp" :value="__('Timestamp')" />

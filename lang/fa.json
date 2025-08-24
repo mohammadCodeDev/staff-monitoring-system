@@ -166,5 +166,8 @@
     "Enter full name...": "نام کامل را وارد کنید...",
     "More results may be available. Please refine your search.": "ممکن است نتایج بیشتری وجود داشته باشد. لطفاً جستجوی خود را دقیق‌تر کنید.",
     "Photo": "عکس کارمند",
-    "Profile Photo": "عکس پروفایل"
+    "Profile Photo": "عکس پروفایل",
+     "This action is unauthorized.": "شما مجاز به انجام این عملیات نیستید.",
+    "You are not allowed to modify records older than 7 days.": "شما مجاز به ویرایش رکوردهای قدیمی‌تر از ۷ روز نیستید.",
+    "Guard Actions": "اقدامات نگهبان"
 }
