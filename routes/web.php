@@ -66,7 +66,7 @@ Route::middleware(['auth', 'role:Roles.System Admin'])->prefix('admin')->name('a
 
 // Route for the attendance monitoring page
 Route::get('/attendances', [AttendanceController::class, 'index'])
-    ->middleware(['auth', 'role:Roles.System Admin,Roles.System Observer,Roles.University President,Roles.Faculty Head,Roles.Group Manager'])
+    ->middleware(['auth', 'role:Roles.System Admin,Roles.System Observer,Roles.University President,Roles.Faculty Head,Roles.Group Manager,Roles.Guard'])
     ->name('attendances.index');
 
 // Routes for creating attendance records
@@ -95,15 +95,15 @@ Route::get('/attendances/search-employees', [AttendanceController::class, 'searc
 
 // *** NEW ROUTES FOR EDIT & DELETE ***
 Route::get('/attendances/{attendance}/edit', [AttendanceController::class, 'edit'])
-    ->middleware(['auth', 'role:Roles.System Admin'])
+    ->middleware(['auth', 'role:Roles.System Admin,Roles.Guard'])
     ->name('attendances.edit');
 
 Route::put('/attendances/{attendance}', [AttendanceController::class, 'update'])
-    ->middleware(['auth', 'role:Roles.System Admin'])
+    ->middleware(['auth', 'role:Roles.System Admin,Roles.Guard'])
     ->name('attendances.update');
 
 Route::delete('/attendances/{attendance}', [AttendanceController::class, 'destroy'])
-    ->middleware(['auth', 'role:Roles.System Admin'])
+    ->middleware(['auth', 'role:Roles.System Admin,Roles.Guard'])
     ->name('attendances.destroy');
 // --- END ATTENDANCE ROUTES ---
 

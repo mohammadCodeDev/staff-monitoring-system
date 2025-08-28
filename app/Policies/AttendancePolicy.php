@@ -45,8 +45,9 @@ class AttendancePolicy
 
         // A Guard can update only if the record is not older than 7 days.
         if ($user->role->role_name === 'Roles.Guard') {
-            // Check if the record's creation timestamp is within the last 7 days.
-            return Carbon::parse($attendance->created_at)->greaterThanOrEqualTo(Carbon::now()->subDays(7));
+            // The redundant Carbon::parse() has been removed.
+            // We directly compare the Carbon object from the model.
+            return $attendance->timestamp->greaterThanOrEqualTo(Carbon::now()->subDays(7));
         }
 
         // Other roles cannot update.

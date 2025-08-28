@@ -35,6 +35,7 @@
     <div>
         <h3 class="font-semibold text-lg mb-4 text-gray-900 dark:text-gray-100 text-left rtl:text-right">{{ __('Guard Actions') }}</h3>
         <div class="flex flex-col space-y-2">
+            <x-sidebar-link :href="route('attendances.index')" :active="request()->routeIs('attendances.index')">{{ __('View Attendance Log') }}</x-sidebar-link>
             <x-sidebar-link :href="route('attendances.create')" :active="request()->routeIs('attendances.create')">{{ __('Log Attendance') }}</x-sidebar-link>
         </div>
     </div>
