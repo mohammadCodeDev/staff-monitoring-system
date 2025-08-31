@@ -169,5 +169,8 @@
     "Profile Photo": "عکس پروفایل",
      "This action is unauthorized.": "شما مجاز به انجام این عملیات نیستید.",
     "You are not allowed to modify records older than 7 days.": "شما مجاز به ویرایش رکوردهای قدیمی‌تر از ۷ روز نیستید.",
-    "Guard Actions": "اقدامات نگهبان"
+    "Guard Actions": "اقدامات نگهبان",
+    "Entry Time": "زمان ثبت ورود",
+    "Exit Time": "زمان ثبت خروج",
+    "Date": "تاریخ"
 }

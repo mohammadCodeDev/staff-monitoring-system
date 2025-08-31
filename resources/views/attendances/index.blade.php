@@ -4,10 +4,11 @@
             <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
                 {{ __('Attendance Monitoring') }}
             </h2>
-            {{-- Link to the attendance logging page --}}
-            <a href="{{ route('attendances.create') }}" class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-500 ...">
+            @can('create', App\Models\Attendance::class) {{-- Added authorization check --}}
+            <a href="{{ route('attendances.create') }}" class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-500 active:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition ease-in-out duration-150">
                 {{ __('Log Attendance') }}
             </a>
+            @endcan
         </div>
     </x-slot>
 
@@ -35,56 +36,32 @@
                         <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                             <thead class="bg-gray-50 dark:bg-gray-700">
                                 <tr>
+                                    {{-- ستون‌های جدید --}}
                                     <th scope="col" class="px-6 py-3 {{ app()->getLocale() == 'fa' ? 'text-right' : 'text-left' }}">{{ __('Employee') }}</th>
-                                    <th scope="col" class="px-6 py-3 {{ app()->getLocale() == 'fa' ? 'text-right' : 'text-left' }}">{{ __('Event Type') }}</th>
-                                    <th scope="col" class="px-6 py-3 {{ app()->getLocale() == 'fa' ? 'text-right' : 'text-left' }}">{{ __('Timestamp') }}</th>
-                                    <th scope="col" class="px-6 py-3 {{ app()->getLocale() == 'fa' ? 'text-right' : 'text-left' }}">{{ __('Recorded By (Guard)') }}</th>
-                                    <th scope="col" class="px-6 py-3 {{ app()->getLocale() == 'fa' ? 'text-right' : 'text-left' }}">{{ __('Actions') }}</th>
+                                    <th scope="col" class="px-6 py-3 {{ app()->getLocale() == 'fa' ? 'text-right' : 'text-left' }}">{{ __('Entry Time') }}</th>
+                                    <th scope="col" class="px-6 py-3 {{ app()->getLocale() == 'fa' ? 'text-right' : 'text-left' }}">{{ __('Exit Time') }}</th>
+                                    <th scope="col" class="px-6 py-3 {{ app()->getLocale() == 'fa' ? 'text-right' : 'text-left' }}">{{ __('Date') }}</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                                @forelse ($attendances as $attendance)
+                                @forelse ($attendances as $attendance_pair)
                                 <tr>
-                                    <td class="px-6 py-4">{{ $attendance->employee->fullName }}</td>
-                                    <td class="px-6 py-4">
-                                        @if($attendance->event_type == 'entry')
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">{{ __('Entry') }}</span>
-                                        @else
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">{{ __('Exit') }}</span>
-                                        @endif
-                                    </td>
-                                    <td class="px-6 py-4">{{ $attendance->timestamp }}</td>
-                                    <td class="px-6 py-4">{{ $attendance->recorder->first_name }} {{ $attendance->recorder->last_name }}</td>
-                                    {{-- Actions Column with Authorization --}}
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                        {{--
-                                            The @can directive checks the 'update' policy for the given attendance record.
-                                            We will define this policy in the next step.
-                                        --}}
-                                        @can('update', $attendance)
-                                        <div class="flex justify-start space-x-4 rtl:space-x-reverse">
-                                            <a href="{{ route('attendances.edit', $attendance->id) }}" class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-200">{{ __('Edit') }}</a>
-
-                                            {{-- The delete button is also protected by a policy check --}}
-                                            @can('delete', $attendance)
-                                            <form action="{{ route('attendances.destroy', $attendance->id) }}" method="POST" x-data @submit.prevent="if (confirm('{{ __('Are you sure you want to delete this record?') }}')) $el.submit()">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-200">{{ __('Delete') }}</button>
-                                            </form>
-                                            @endcan
-                                        </div>
-                                        @endcan
-                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">{{ $attendance_pair->employee->fullName ?? __('N/A') }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">{{ $attendance_pair->entry_time ? \Carbon\Carbon::parse($attendance_pair->entry_time)->format('H:i:s') : '---' }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">{{ $attendance_pair->exit_time ? \Carbon\Carbon::parse($attendance_pair->exit_time)->format('H:i:s') : '---' }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">{{ \Carbon\Carbon::parse($attendance_pair->attendance_date)->format('Y-m-d') }}</td>
                                 </tr>
                                 @empty
                                 <tr>
-                                    {{-- colspan should be 5 to match the number of columns --}}
-                                    <td colspan="5" class="px-6 py-4 text-center text-gray-500">{{ __('No attendance records found.') }}</td>
+                                    <td colspan="4" class="px-6 py-4 text-center text-gray-500">{{ __('No attendance records found.') }}</td>
                                 </tr>
                                 @endforelse
                             </tbody>
                         </table>
+                    </div>
+                    {{-- افزودن لینک‌های صفحه‌بندی --}}
+                    <div class="mt-4">
+                        {{ $attendances->links() }}
                     </div>
                 </div>
             </div>

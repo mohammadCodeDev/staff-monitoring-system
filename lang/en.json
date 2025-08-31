@@ -169,5 +169,8 @@
     "Profile Photo": "Profile Photo",
      "This action is unauthorized.": "This action is unauthorized.",
     "You are not allowed to modify records older than 7 days.": "You are not allowed to modify records older than 7 days.",
-    "Guard Actions": "Guard Actions"
+    "Guard Actions": "Guard Actions",
+    "Entry Time": "Entry Time",
+    "Exit Time": "Exit Time",
+    "Date": "Date"
 }

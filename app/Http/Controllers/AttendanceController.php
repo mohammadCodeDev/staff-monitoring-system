@@ -15,15 +15,27 @@ class AttendanceController extends Controller
     use AuthorizesRequests;
 
     /**
-     * Display a listing of the attendance records.
+     * Display a listing of the resource.
+     * This method is updated to group records by employee and day.
      */
     public function index()
     {
-        // Eager load related models to prevent N+1 query issues.
-        // We will add role-based filtering here in the future.
-        $attendances = Attendance::with(['employee', 'recorder'])->latest()->get();
+        // This query groups attendance records by employee and the calendar date.
+        // It finds the earliest 'entry' and the latest 'exit' for each group.
+        $attendancePairs = Attendance::query()
+            ->select(
+                'employee_id',
+                DB::raw('DATE(timestamp) as attendance_date'), // Extract the date part for grouping
+                DB::raw("MIN(CASE WHEN event_type = 'entry' THEN timestamp END) as entry_time"), // Find the first entry time
+                DB::raw("MAX(CASE WHEN event_type = 'exit' THEN timestamp END) as exit_time")   // Find the last exit time
+            )
+            ->groupBy('employee_id', 'attendance_date')
+            ->orderBy('attendance_date', 'desc') // Order the results by date, newest first
+            ->orderBy('entry_time', 'desc')      // Also order by entry time
+            ->with('employee') // Eager load the employee relationship to prevent N+1 issues
+            ->paginate(20); // Paginate the results for better performance
 
-        return view('attendances.index', compact('attendances'));
+        return view('attendances.index', ['attendances' => $attendancePairs]);
     }
 
     /**
