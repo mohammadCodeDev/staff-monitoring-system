@@ -67,6 +67,18 @@
             </div>
             @endif
 
+            {{-- Display Validation Errors --}}
+            @if ($errors->any())
+            <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                <strong class="font-bold">{{ __('Error!') }}</strong>
+                <ul>
+                    @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+            @endif
+
             {{-- Search Box --}}
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900 dark:text-gray-100">
@@ -123,6 +135,12 @@
                         <x-input-label for="timestamp" :value="__('Event Time (Manual Entry)')" />
                         <x-text-input id="timestamp" name="timestamp" type="datetime-local" class="mt-1 block w-full dark:bg-gray-900 dark:text-gray-300 dark:invert" required />
                     </div>
+
+                    {{-- THIS BLOCK FOR MODAL-SPECIFIC ERRORS --}}
+                    @error('event_type')
+                    <p class="mt-2 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                    @enderror
+                    {{-- END OF NEW BLOCK --}}
 
                     <div class="mt-8 flex space-x-4 rtl:space-x-reverse w-full">
                         <button type="submit" name="event_type" value="entry" class="w-1/2 text-center px-6 py-3 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-500 focus:outline-none transition">

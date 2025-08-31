@@ -173,5 +173,8 @@
     "Entry Time": "Entry Time",
     "Exit Time": "Exit Time",
     "Date": "Date",
-    "Raw Attendance Log": "Raw Attendance Log"
+    "Raw Attendance Log": "Raw Attendance Log",
+    "Error!": "Error!",
+    "validation.attendance.exit_before_entry": "Cannot log an exit because the last recorded event for this employee was not an entry.",
+    "validation.attendance.duplicate_entry": "Cannot log an entry because this employee has already entered and has not yet exited."
 }

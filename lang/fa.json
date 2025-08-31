@@ -173,5 +173,8 @@
     "Entry Time": "زمان ثبت ورود",
     "Exit Time": "زمان ثبت خروج",
     "Date": "تاریخ",
-    "Raw Attendance Log": "گزارش خام تردد"
+    "Raw Attendance Log": "گزارش خام تردد",
+    "Error!": "خطا!",
+    "validation.attendance.exit_before_entry": "امکان ثبت خروج وجود ندارد زیرا آخرین رویداد ثبت‌شده برای این کارمند، ورود نبوده است.",
+    "validation.attendance.duplicate_entry": "امکان ثبت ورود وجود ندارد زیرا این کارمند قبلاً وارد شده و هنوز خارج نشده است."
 }

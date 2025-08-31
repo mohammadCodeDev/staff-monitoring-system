@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Support\Facades\Validator;
 
 class AttendanceController extends Controller
 {
@@ -53,33 +54,73 @@ class AttendanceController extends Controller
      */
     public function store(Request $request)
     {
-        // *** THE FIX IS HERE: More specific validation rule ***
-        $validated = $request->validate([
+        $input = $request->all();
+
+        // Step 1: Basic validation using the Validator facade
+        $validator = Validator::make($input, [
             'employee_id' => 'required|exists:employees,id',
             'event_type' => 'required|in:entry,exit',
-            // This rule specifically matches the format from datetime-local input
             'timestamp' => 'nullable|date_format:Y-m-d\TH:i',
         ]);
 
-        $timestampToStore = null;
+        // Step 2: Add complex conditional validation using the 'after' hook
+        $validator->after(function ($validator) use ($input) {
+            // Get the employee ID and event type from the input
+            $employeeId = $input['employee_id'] ?? null;
+            $eventType = $input['event_type'] ?? null;
 
-        // The key 'timestamp' will only exist in $validated if it's not empty and passes validation.
-        if (isset($validated['timestamp'])) {
-            // Use createFromFormat for stricter, more reliable parsing.
-            $timestampToStore = Carbon::createFromFormat('Y-m-d\TH:i', $validated['timestamp']);
-        } else {
-            // This branch is for the 'confirm' page which doesn't send a timestamp.
-            $timestampToStore = now();
+            if (!$employeeId || !$eventType) {
+                return; // Stop if basic data is missing
+            }
+
+            // Find the last recorded event for this employee
+            $lastEvent = Attendance::where('employee_id', $employeeId)->latest('timestamp')->first();
+
+            // Rule 1: Cannot log an 'exit' if the last event was not an 'entry'
+            if ($eventType === 'exit') {
+                if (!$lastEvent || $lastEvent->event_type === 'exit') {
+                    // Add a custom error message for this specific case
+                    $validator->errors()->add(
+                        'event_type',
+                        __('validation.attendance.exit_before_entry')
+                    );
+                }
+            }
+
+            // Rule 2: Cannot log an 'entry' if the last event was already an 'entry'
+            if ($eventType === 'entry') {
+                if ($lastEvent && $lastEvent->event_type === 'entry') {
+                    // Add a custom error message for this case
+                    $validator->errors()->add(
+                        'event_type',
+                        __('validation.attendance.duplicate_entry')
+                    );
+                }
+            }
+        });
+
+        // Step 3: Check if validation fails
+        if ($validator->fails()) {
+            // Redirect back with the validation errors and the original input
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput();
         }
+
+        // Step 4: If validation passes, proceed to create the record
+        $validated = $validator->validated(); // Get the validated data
+
+        $timestampToStore = isset($validated['timestamp'])
+            ? Carbon::createFromFormat('Y-m-d\TH:i', $validated['timestamp'])
+            : now();
 
         Attendance::create([
             'employee_id' => $validated['employee_id'],
             'guard_id' => Auth::id(),
-            'event_type' => $validated['event_type'], // Using validated data is safer
+            'event_type' => $validated['event_type'],
             'timestamp' => $timestampToStore,
         ]);
 
-        // Redirect back to the search page with a success message
         return redirect()->route('attendances.create')
             ->with('success', __('Attendance recorded successfully.'));
     }
