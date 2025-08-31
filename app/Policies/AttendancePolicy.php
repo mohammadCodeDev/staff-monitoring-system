@@ -11,14 +11,27 @@ class AttendancePolicy
 {
     /**
      * Determine whether the user can view any models.
+     * This is checked for the index and raw-log pages.
      */
     public function viewAny(User $user): bool
     {
-        return false;
+        // Allow users with specific roles to view the attendance logs.
+        // We list all roles that are allowed to see any kind of log.
+        $allowedRoles = [
+            'Roles.System Admin',
+            'Roles.Guard',
+            'Roles.System Observer',
+            'Roles.University President',
+            'Roles.Faculty Head',
+            'Roles.Group Manager'
+        ];
+
+        return in_array($user->role->role_name, $allowedRoles);
     }
 
     /**
      * Determine whether the user can view the model.
+     * This is not currently used, but we'll set it to false for now.
      */
     public function view(User $user, Attendance $attendance): bool
     {
@@ -27,10 +40,15 @@ class AttendancePolicy
 
     /**
      * Determine whether the user can create models.
+     * This is checked before showing the "Log Attendance" button/page.
      */
     public function create(User $user): bool
     {
-        return false;
+        // Only System Admins and Guards should be able to create new records.
+        return in_array($user->role->role_name, [
+            'Roles.System Admin',
+            'Roles.Guard'
+        ]);
     }
 
     /**
@@ -45,8 +63,6 @@ class AttendancePolicy
 
         // A Guard can update only if the record is not older than 7 days.
         if ($user->role->role_name === 'Roles.Guard') {
-            // The redundant Carbon::parse() has been removed.
-            // We directly compare the Carbon object from the model.
             return $attendance->timestamp->greaterThanOrEqualTo(Carbon::now()->subDays(7));
         }
 

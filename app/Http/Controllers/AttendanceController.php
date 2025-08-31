@@ -174,4 +174,24 @@ class AttendanceController extends Controller
         $attendance->delete();
         return redirect()->route('attendances.index')->with('success', __('Attendance record deleted successfully.'));
     }
+
+    /**
+     * Display a raw, detailed listing of all attendance records.
+     * This method is for the detailed log view.
+     */
+    public function rawLog()
+    {
+        // Authorize if the user can view any attendance records at all.
+        // This uses the 'viewAny' method in your AttendancePolicy (if it exists).
+        $this->authorize('viewAny', Attendance::class);
+
+        // Fetch all attendance records, ordered by the latest timestamp.
+        // Eager load related models to prevent N+1 query issues.
+        $attendances = Attendance::with(['employee', 'recorder'])
+            ->latest() // This is equivalent to orderBy('created_at', 'desc')
+            ->paginate(25); // Paginate the raw log as well
+
+        // The view name matches our new file name.
+        return view('attendances.raw-log', compact('attendances'));
+    }
 }

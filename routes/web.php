@@ -64,10 +64,15 @@ Route::middleware(['auth', 'role:Roles.System Admin'])->prefix('admin')->name('a
 
 // --- ATTENDANCE ROUTES ---
 
-// Route for the attendance monitoring page
+// Route for the main attendance monitoring page (paired view)
 Route::get('/attendances', [AttendanceController::class, 'index'])
     ->middleware(['auth', 'role:Roles.System Admin,Roles.System Observer,Roles.University President,Roles.Faculty Head,Roles.Group Manager,Roles.Guard'])
     ->name('attendances.index');
+
+// ROUTE FOR THE RAW LOG VIEW
+Route::get('/attendances/raw-log', [AttendanceController::class, 'rawLog'])
+    ->middleware(['auth', 'role:Roles.System Admin,Roles.Guard'])
+    ->name('attendances.raw-log');
 
 // Routes for creating attendance records
 Route::get('/attendances/create', [AttendanceController::class, 'create'])

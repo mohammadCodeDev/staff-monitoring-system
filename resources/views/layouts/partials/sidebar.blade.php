@@ -12,12 +12,13 @@
             <x-sidebar-link :href="route('departments.index')" :active="request()->routeIs('departments.*')">{{ __('Manage Departments') }}</x-sidebar-link>
             <x-sidebar-link :href="route('groups.index')" :active="request()->routeIs('groups.*')">{{ __('Manage Groups') }}</x-sidebar-link>
             <x-sidebar-link :href="route('attendances.index')" :active="request()->routeIs('attendances.index')">{{ __('Attendance Monitoring') }}</x-sidebar-link>
+            <x-sidebar-link :href="route('attendances.raw-log')" :active="request()->routeIs('attendances.raw-log')">{{ __('Raw Attendance Log') }}</x-sidebar-link>
             <x-sidebar-link :href="route('attendances.create')" :active="request()->routeIs('attendances.create')">{{ __('Log Attendance') }}</x-sidebar-link>
         </div>
     </div>
     @endif
 
-     <!-- Other Roles' Action Section for View Attendance Log -->
+    <!-- Other Roles' Action Section for View Attendance Log -->
     @php
     $monitoringRoles = ['Roles.System Observer', 'Roles.University President', 'Roles.Faculty Head', 'Roles.Group Manager'];
     @endphp
@@ -30,12 +31,13 @@
     </div>
     @endif
 
-     <!-- Guard Actions Section -->
+    <!-- Guard Actions Section -->
     @if(Auth::user()->role->role_name == 'Roles.Guard')
     <div>
         <h3 class="font-semibold text-lg mb-4 text-gray-900 dark:text-gray-100 text-left rtl:text-right">{{ __('Guard Actions') }}</h3>
         <div class="flex flex-col space-y-2">
             <x-sidebar-link :href="route('attendances.index')" :active="request()->routeIs('attendances.index')">{{ __('View Attendance Log') }}</x-sidebar-link>
+            <x-sidebar-link :href="route('attendances.raw-log')" :active="request()->routeIs('attendances.raw-log')">{{ __('Raw Attendance Log') }}</x-sidebar-link>
             <x-sidebar-link :href="route('attendances.create')" :active="request()->routeIs('attendances.create')">{{ __('Log Attendance') }}</x-sidebar-link>
         </div>
     </div>
