@@ -79,6 +79,10 @@ Route::get('/attendances/chart', [AttendanceController::class, 'showChart'])
     ->middleware(['auth', 'role:Roles.System Admin,Roles.System Observer,Roles.University President,Roles.Faculty Head,Roles.Group Manager,Roles.Guard'])
     ->name('attendances.chart');
 
+// ROUTE FOR THE WEEKLY CHART
+Route::get('/attendances/chart/week', [AttendanceController::class, 'showChartWeek'])
+    ->name('attendances.chart.week');
+
 // Routes for creating attendance records
 Route::get('/attendances/create', [AttendanceController::class, 'create'])
     ->middleware(['auth', 'role:Roles.System Admin,Roles.Guard'])

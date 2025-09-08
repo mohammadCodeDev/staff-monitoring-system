@@ -191,5 +191,8 @@
     "Today's Attendance Chart": "نمودار تردد امروز",
     "Displaying today's entry and exit times.": "نمایش زمان ورود و خروج امروز.",
     "Working Hours": "ساعات کاری",
-    "No attendance records found for today.": "هیچ رکورد ترددی برای امروز یافت نشد."
+    "No attendance records found for today.": "هیچ رکورد ترددی برای امروز یافت نشد.",
+    "Last 7 Days Attendance Chart": "نمودار تردد ۷ روز اخیر",
+    "Today": "امروز",
+    "This Week": "این هفته"
 }

@@ -191,5 +191,8 @@
     "Today's Attendance Chart": "Today's Attendance Chart",
     "Displaying today's entry and exit times.": "Displaying today's entry and exit times.",
     "Working Hours": "Working Hours",
-    "No attendance records found for today.": "No attendance records found for today."
+    "No attendance records found for today.": "No attendance records found for today.",
+    "Last 7 Days Attendance Chart": "Last 7 Days Attendance Chart",
+    "Today": "Today",
+    "This Week": "This Week"
 }
