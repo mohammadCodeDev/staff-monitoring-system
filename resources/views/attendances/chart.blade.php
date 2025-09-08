@@ -57,8 +57,8 @@
                     },
                     xaxis: {
                         type: 'datetime',
-                        min: new Date('1970-01-01T00:00:00.000Z').getTime(),
-                        max: new Date('1970-01-01T23:59:59.000Z').getTime(),
+                        min: new Date('1970-01-01T00:00:00.000').getTime(),
+                        max: new Date('1970-01-01T23:59:59.000').getTime(),
                         labels: {
                             datetimeUTC: false,
                             format: 'HH:mm'
