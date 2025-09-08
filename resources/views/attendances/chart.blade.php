@@ -11,10 +11,11 @@
                 <div class="p-6 text-gray-900 dark:text-gray-100">
                     <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">{{ __("Displaying today's entry and exit times.") }}</p>
 
-                    {{-- The div now receives 'categories' instead of 'days' --}}
+                    {{-- The div now receives 'categories' AND 'colors' --}}
                     <div id="chartData"
                         data-series="{{ json_encode($series) }}"
                         data-categories="{{ json_encode($categories) }}"
+                        data-colors="{{ json_encode($chartColors) }}" {{-- Add this line --}}
                         class="hidden">
                     </div>
 
@@ -32,9 +33,11 @@
             if (chartDataElement) {
                 const seriesData = JSON.parse(chartDataElement.dataset.series);
                 const categoriesData = JSON.parse(chartDataElement.dataset.categories);
+                const colorsData = JSON.parse(chartDataElement.dataset.colors); // Read the colors
 
                 const options = {
                     series: seriesData,
+                    colors: colorsData, // Use the generated colors for the chart
                     chart: {
                         height: 600,
                         type: 'rangeBar',
@@ -46,7 +49,8 @@
                     plotOptions: {
                         bar: {
                             horizontal: true,
-                            // We no longer need 'rangeBarGroupRows' as we have one bar per employee
+                            // This is the key setting that applies a different color to each bar
+                            distributed: true, 
                         }
                     },
                     xaxis: {
@@ -59,18 +63,17 @@
                         }
                     },
                     yaxis: {
-                        // The categories are now the employee names
                         categories: categoriesData,
                     },
                     tooltip: {
                         theme: document.documentElement.classList.contains('dark') ? 'dark' : 'light',
-                        // The tooltip logic is simplified
                         x: {
                             format: 'HH:mm'
                         }
                     },
                     legend: {
-                        position: 'top',
+                        // We hide the legend as colors are now self-explanatory per employee
+                        show: false 
                     },
                     grid: {
                         borderColor: '#90A4AE',
@@ -78,7 +81,6 @@
                     }
                 };
                 
-                // If there is no data, show a message instead of an empty chart
                 if (seriesData.length === 0 || seriesData[0].data.length === 0) {
                     document.querySelector("#attendanceChart").innerHTML = `<div class="text-center p-10">{{ __("No attendance records found for today.") }}</div>`;
                 } else {

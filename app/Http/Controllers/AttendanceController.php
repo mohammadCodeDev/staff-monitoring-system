@@ -237,83 +237,79 @@ class AttendanceController extends Controller
         return view('attendances.raw-log', compact('attendances'));
     }
 
-    /**
+   /**
      * Display attendance data as a chart for the current day.
-     * This version correctly handles and displays multiple entry/exit pairs.
+     * The Y-axis will show employees and the X-axis will show a 24-hour timeline.
+     * This version assigns a unique color to each employee.
      */
     public function showChart()
     {
         // Authorize if the user can view any attendance records.
         $this->authorize('viewAny', Attendance::class);
 
-        // Step 1: Fetch all of today's raw events (same logic as showToday).
-        $todaysEvents = Attendance::query()
+        // Fetch today's attendance records.
+        $todaysAttendance = Attendance::query()
             ->whereDate('timestamp', Carbon::today())
+            ->select(
+                'employee_id',
+                DB::raw("MIN(CASE WHEN event_type = 'entry' THEN timestamp END) as entry_time"),
+                DB::raw("MAX(CASE WHEN event_type = 'exit' THEN timestamp END) as exit_time")
+            )
+            ->groupBy('employee_id')
             ->with('employee')
-            ->orderBy('employee_id')
-            ->orderBy('timestamp')
             ->get();
 
-        // Step 2: Process events into pairs (same logic as showToday).
-        $groupedByEmployee = $todaysEvents->groupBy('employee_id');
-        $attendancePairs = [];
-
-        foreach ($groupedByEmployee as $events) {
-            $entryTime = null;
-            $employee = $events->first()->employee;
-            if (!$employee) continue;
-
-            foreach ($events as $event) {
-                if ($event->event_type === 'entry' && is_null($entryTime)) {
-                    $entryTime = $event;
-                } elseif ($event->event_type === 'exit' && !is_null($entryTime)) {
-                    $attendancePairs[] = (object)[
-                        'employee' => $employee,
-                        'entry_time' => $entryTime->timestamp,
-                        'exit_time' => $event->timestamp,
-                    ];
-                    $entryTime = null;
-                }
-            }
-        }
-
-        // Step 3: Convert the pairs into the format required by ApexCharts.
+        // Process data into pairs.
         $chartData = [];
         $employeeNames = [];
 
-        foreach ($attendancePairs as $pair) {
-            $employeeName = $pair->employee->full_name;
-            // Collect unique employee names for the Y-axis categories.
-            if (!in_array($employeeName, $employeeNames)) {
-                $employeeNames[] = $employeeName;
-            }
-
-            // Skip pairs that don't have an exit time for the chart.
-            if (is_null($pair->exit_time)) {
+        foreach ($todaysAttendance as $record) {
+            if (!$record->entry_time || !$record->exit_time || !$record->employee) {
                 continue;
             }
 
-            // Create timestamps based on the generic '1970-01-01' date.
-            $baseDate = '1970-01-01';
-            $entryTime = Carbon::parse($pair->entry_time)->format('H:i:s');
-            $exitTime = Carbon::parse($pair->exit_time)->format('H:i:s');
+            $employeeName = $record->employee->full_name;
+            $employeeNames[] = $employeeName;
 
+            $baseDate = '1970-01-01';
+            $entryTime = Carbon::parse($record->entry_time)->format('H:i:s');
+            $exitTime = Carbon::parse($record->exit_time)->format('H:i:s');
             $entryTimestamp = Carbon::parse("$baseDate $entryTime")->getTimestamp() * 1000;
             $exitTimestamp = Carbon::parse("$baseDate $exitTime")->getTimestamp() * 1000;
 
-            // This will now create multiple data points for the same employee if they have multiple sessions.
             $chartData[] = [
                 'x' => $employeeName,
                 'y' => [$entryTimestamp, $exitTimestamp],
             ];
         }
+        
+        // --- START: NEW CODE FOR COLORS ---
+        // Step A: Define a palette of colors.
+        $colorPalette = [
+            '#008FFB', '#00E396', '#FEB019', '#FF4560', '#775DD0',
+            '#546E7A', '#26a69a', '#D10CE8', '#FF66C3', '#00B0F0'
+        ];
+        
+        // Step B: Generate a color for each employee, looping through the palette if needed.
+        $chartColors = [];
+        for ($i = 0; $i < count($employeeNames); $i++) {
+            $chartColors[] = $colorPalette[$i % count($colorPalette)];
+        }
+        // --- END: NEW CODE FOR COLORS ---
 
-        // Finalize the series object for the chart.
-        $series = [['name' => __('Working Hours'), 'data' => $chartData]];
+        // Create the final series object.
+        $series = [
+            [
+                'name' => __('Working Hours'),
+                'data' => $chartData,
+            ]
+        ];
 
+        // Step C: Pass the new colors array to the view.
         return view('attendances.chart', [
             'series' => $series,
             'categories' => $employeeNames,
+            'chartColors' => $chartColors, // New variable passed to the view
         ]);
     }
 
