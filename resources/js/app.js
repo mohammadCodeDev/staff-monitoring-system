@@ -56,3 +56,6 @@ document.addEventListener('alpine:initializing', () => {
 });
 
 Alpine.start();
+
+import ApexCharts from 'apexcharts';
+window.ApexCharts = ApexCharts;

@@ -176,5 +176,16 @@
     "Raw Attendance Log": "Raw Attendance Log",
     "Error!": "Error!",
     "validation.attendance.exit_before_entry": "Cannot log an exit because the last recorded event for this employee was not an entry.",
-    "validation.attendance.duplicate_entry": "Cannot log an entry because this employee has already entered and has not yet exited."
+    "validation.attendance.duplicate_entry": "Cannot log an entry because this employee has already entered and has not yet exited.",
+    "Attendance Chart": "Attendance Chart",
+    "Displaying attendance for the last 14 days.": "Displaying attendance for the last 14 days.",
+    "Sunday": "Sunday",
+    "Monday": "Monday",
+    "Tuesday": "Tuesday",
+    "Wednesday": "Wednesday",
+    "Thursday": "Thursday",
+    "Friday": "Friday",
+    "Saturday": "Saturday",
+    "Today's Attendance": "Today's Attendance",
+    "Today Attendance": "Today's Attendance"
 }

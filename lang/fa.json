@@ -176,5 +176,16 @@
     "Raw Attendance Log": "گزارش خام تردد",
     "Error!": "خطا!",
     "validation.attendance.exit_before_entry": "امکان ثبت خروج وجود ندارد زیرا آخرین رویداد ثبت‌شده برای این کارمند، ورود نبوده است.",
-    "validation.attendance.duplicate_entry": "امکان ثبت ورود وجود ندارد زیرا این کارمند قبلاً وارد شده و هنوز خارج نشده است."
+    "validation.attendance.duplicate_entry": "امکان ثبت ورود وجود ندارد زیرا این کارمند قبلاً وارد شده و هنوز خارج نشده است.",
+    "Attendance Chart": "نمودار تردد",
+    "Displaying attendance for the last 14 days.": "نمایش تردد برای ۱۴ روز گذشته.",
+    "Sunday": "یکشنبه",
+    "Monday": "دوشنبه",
+    "Tuesday": "سه‌شنبه",
+    "Wednesday": "چهارشنبه",
+    "Thursday": "پنج‌شنبه",
+    "Friday": "جمعه",
+    "Saturday": "شنبه",
+    "Today's Attendance": "حضور و غیاب امروز",
+    "Today Attendance": "ورود و خروج امروز"
 }

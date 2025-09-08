@@ -74,6 +74,11 @@ Route::get('/attendances/raw-log', [AttendanceController::class, 'rawLog'])
     ->middleware(['auth', 'role:Roles.System Admin,Roles.Guard'])
     ->name('attendances.raw-log');
 
+// ROUTE FOR THE NEW CHART VIEW
+Route::get('/attendances/chart', [AttendanceController::class, 'showChart'])
+    ->middleware(['auth', 'role:Roles.System Admin,Roles.System Observer,Roles.University President,Roles.Faculty Head,Roles.Group Manager,Roles.Guard'])
+    ->name('attendances.chart');
+
 // Routes for creating attendance records
 Route::get('/attendances/create', [AttendanceController::class, 'create'])
     ->middleware(['auth', 'role:Roles.System Admin,Roles.Guard'])
@@ -110,6 +115,12 @@ Route::put('/attendances/{attendance}', [AttendanceController::class, 'update'])
 Route::delete('/attendances/{attendance}', [AttendanceController::class, 'destroy'])
     ->middleware(['auth', 'role:Roles.System Admin,Roles.Guard'])
     ->name('attendances.destroy');
+
+// TODAY'S ATTENDANCE
+Route::get('/attendances/today', [AttendanceController::class, 'showToday'])
+    ->middleware(['auth', 'role:Roles.System Admin,Roles.System Observer,Roles.University President,Roles.Faculty Head,Roles.Group Manager,Roles.Guard'])
+    ->name('attendances.today');
+
 // --- END ATTENDANCE ROUTES ---
 
 require __DIR__ . '/auth.php';

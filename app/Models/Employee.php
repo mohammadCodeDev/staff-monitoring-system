@@ -95,4 +95,14 @@ class Employee extends Model
         // Returns a default avatar from ui-avatars.com
         return 'https://ui-avatars.com/api/?name=' . urlencode($this->fullName) . '&color=7F9CF5&background=EBF4FF';
     }
+
+    /**
+     * Get the employee's full name.
+     *
+     * @return string
+     */
+    public function getFullNameAttribute(): string
+    {
+        return "{$this->first_name} {$this->last_name}";
+    }
 }

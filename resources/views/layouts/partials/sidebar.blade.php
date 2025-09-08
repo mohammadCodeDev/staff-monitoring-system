@@ -12,8 +12,10 @@
             <x-sidebar-link :href="route('departments.index')" :active="request()->routeIs('departments.*')">{{ __('Manage Departments') }}</x-sidebar-link>
             <x-sidebar-link :href="route('groups.index')" :active="request()->routeIs('groups.*')">{{ __('Manage Groups') }}</x-sidebar-link>
             <x-sidebar-link :href="route('attendances.index')" :active="request()->routeIs('attendances.index')">{{ __('Attendance Monitoring') }}</x-sidebar-link>
+            <x-sidebar-link :href="route('attendances.chart')" :active="request()->routeIs('attendances.chart')">{{ __('Attendance Chart') }}</x-sidebar-link>
             <x-sidebar-link :href="route('attendances.raw-log')" :active="request()->routeIs('attendances.raw-log')">{{ __('Raw Attendance Log') }}</x-sidebar-link>
             <x-sidebar-link :href="route('attendances.create')" :active="request()->routeIs('attendances.create')">{{ __('Log Attendance') }}</x-sidebar-link>
+            <x-sidebar-link :href="route('attendances.today')" :active="request()->routeIs('attendances.today')">{{ __('Today Attendance') }}</x-sidebar-link>
         </div>
     </div>
     @endif
