@@ -167,7 +167,7 @@
     "More results may be available. Please refine your search.": "More results may be available. Please refine your search.",
     "Photo": "Photo",
     "Profile Photo": "Profile Photo",
-     "This action is unauthorized.": "This action is unauthorized.",
+    "This action is unauthorized.": "This action is unauthorized.",
     "You are not allowed to modify records older than 7 days.": "You are not allowed to modify records older than 7 days.",
     "Guard Actions": "Guard Actions",
     "Entry Time": "Entry Time",
@@ -187,5 +187,9 @@
     "Friday": "Friday",
     "Saturday": "Saturday",
     "Today's Attendance": "Today's Attendance",
-    "Today Attendance": "Today's Attendance"
+    "Today Attendance": "Today's Attendance",
+    "Today's Attendance Chart": "Today's Attendance Chart",
+    "Displaying today's entry and exit times.": "Displaying today's entry and exit times.",
+    "Working Hours": "Working Hours",
+    "No attendance records found for today.": "No attendance records found for today."
 }

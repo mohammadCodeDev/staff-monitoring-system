@@ -1,20 +1,20 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('Attendance Chart') }}
+            {{ __("Today's Attendance Chart") }}
         </h2>
     </x-slot>
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                {{-- Your existing content is now inside these wrappers --}}
                 <div class="p-6 text-gray-900 dark:text-gray-100">
-                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">{{ __('Displaying attendance for the last 14 days.') }}</p>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">{{ __("Displaying today's entry and exit times.") }}</p>
 
+                    {{-- The div now receives 'categories' instead of 'days' --}}
                     <div id="chartData"
                         data-series="{{ json_encode($series) }}"
-                        data-days="{{ json_encode($daysOfWeek) }}"
+                        data-categories="{{ json_encode($categories) }}"
                         class="hidden">
                     </div>
 
@@ -24,19 +24,15 @@
         </div>
     </div>
 
-
+    {{-- The script is updated to handle the new data structure --}}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Find the element containing our data
             const chartDataElement = document.getElementById('chartData');
 
-            // This check prevents errors if the chart logic is on a page without the data element
             if (chartDataElement) {
-                // Read and parse the data from the 'data-*' attributes
                 const seriesData = JSON.parse(chartDataElement.dataset.series);
-                const daysOfWeek = JSON.parse(chartDataElement.dataset.days);
+                const categoriesData = JSON.parse(chartDataElement.dataset.categories);
 
-                // Your original, full options object
                 const options = {
                     series: seriesData,
                     chart: {
@@ -50,8 +46,7 @@
                     plotOptions: {
                         bar: {
                             horizontal: true,
-                            barHeight: '50%',
-                            rangeBarGroupRows: true
+                            // We no longer need 'rangeBarGroupRows' as we have one bar per employee
                         }
                     },
                     xaxis: {
@@ -64,35 +59,14 @@
                         }
                     },
                     yaxis: {
-                        categories: daysOfWeek,
+                        // The categories are now the employee names
+                        categories: categoriesData,
                     },
                     tooltip: {
                         theme: document.documentElement.classList.contains('dark') ? 'dark' : 'light',
-                        custom: function({
-                            series,
-                            seriesIndex,
-                            dataPointIndex,
-                            w
-                        }) {
-                            const dataForDay = series[seriesIndex][dataPointIndex];
-                            if (!dataForDay || dataForDay.length === 0) {
-                                return '';
-                            }
-                            const dataPoint = dataForDay[0];
-                            const seriesName = dataPoint.x;
-                            const fromTime = new Date(dataPoint.y[0]);
-                            const toTime = new Date(dataPoint.y[1]);
-                            const formatTime = (date) => {
-                                let hours = date.getHours().toString().padStart(2, '0');
-                                let minutes = date.getMinutes().toString().padStart(2, '0');
-                                return `${hours}:${minutes}`;
-                            }
-                            return `
-                        <div class="p-2">
-                            <div><strong>${seriesName}</strong></div>
-                            <div><span>${formatTime(fromTime)} - ${formatTime(toTime)}</span></div>
-                        </div>
-                        `;
+                        // The tooltip logic is simplified
+                        x: {
+                            format: 'HH:mm'
                         }
                     },
                     legend: {
@@ -103,11 +77,15 @@
                         strokeDashArray: 2,
                     }
                 };
-
-                const chart = new ApexCharts(document.querySelector("#attendanceChart"), options);
-                chart.render();
+                
+                // If there is no data, show a message instead of an empty chart
+                if (seriesData.length === 0 || seriesData[0].data.length === 0) {
+                    document.querySelector("#attendanceChart").innerHTML = `<div class="text-center p-10">{{ __("No attendance records found for today.") }}</div>`;
+                } else {
+                    const chart = new ApexCharts(document.querySelector("#attendanceChart"), options);
+                    chart.render();
+                }
             }
         });
     </script>
-
 </x-app-layout>

@@ -59,9 +59,9 @@
                             </tbody>
                         </table>
                     </div>
-                    {{-- افزودن لینک‌های صفحه‌بندی --}}
+                    
                     <div class="mt-4">
-                        {{ $attendances->links() }}
+                        
                     </div>
                 </div>
             </div>

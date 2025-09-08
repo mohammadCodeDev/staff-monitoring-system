@@ -153,7 +153,7 @@ class AttendanceController extends Controller
             'timestamp' => Carbon::createFromFormat('Y-m-d\TH:i', $validated['timestamp']),
         ]);
 
-        return redirect()->route('attendances.index')->with('success', __('Attendance record updated successfully.'));
+        return redirect()->route('attendances.raw-log')->with('success', __('Attendance record updated successfully.'));
     }
 
     public function searchEmployees(Request $request)
@@ -237,117 +237,141 @@ class AttendanceController extends Controller
         return view('attendances.raw-log', compact('attendances'));
     }
 
-       /**
-     * Display attendance data as a chart.
+    /**
+     * Display attendance data as a chart for the current day.
+     * This version correctly handles and displays multiple entry/exit pairs.
      */
     public function showChart()
     {
         // Authorize if the user can view any attendance records.
         $this->authorize('viewAny', Attendance::class);
 
-        // Fetch attendance pairs for the last 14 days
-        $attendanceData = Attendance::query()
-            ->select(
-                'employee_id',
-                DB::raw('DATE(timestamp) as attendance_date'),
-                DB::raw("MIN(CASE WHEN event_type = 'entry' THEN timestamp END) as entry_time"),
-                DB::raw("MAX(CASE WHEN event_type = 'exit' THEN timestamp END) as exit_time")
-            )
-            ->where('timestamp', '>=', Carbon::now()->subDays(14))
-            ->groupBy('employee_id', 'attendance_date')
-            ->with('employee') // Eager load for performance
-            ->orderBy('attendance_date')
+        // Step 1: Fetch all of today's raw events (same logic as showToday).
+        $todaysEvents = Attendance::query()
+            ->whereDate('timestamp', Carbon::today())
+            ->with('employee')
+            ->orderBy('employee_id')
+            ->orderBy('timestamp')
             ->get();
 
-        // Prepare localized day names for the y-axis categories, starting from Sunday
-        $daysOfWeek = [];
-        $date = Carbon::now()->startOfWeek(Carbon::SUNDAY);
-        for ($i = 0; $i < 7; $i++) {
-            // Use the English day name as the key and the localized version as the value
-            $daysOfWeek[$date->format('l')] = __($date->format('l'));
-            $date->addDay();
+        // Step 2: Process events into pairs (same logic as showToday).
+        $groupedByEmployee = $todaysEvents->groupBy('employee_id');
+        $attendancePairs = [];
+
+        foreach ($groupedByEmployee as $events) {
+            $entryTime = null;
+            $employee = $events->first()->employee;
+            if (!$employee) continue;
+
+            foreach ($events as $event) {
+                if ($event->event_type === 'entry' && is_null($entryTime)) {
+                    $entryTime = $event;
+                } elseif ($event->event_type === 'exit' && !is_null($entryTime)) {
+                    $attendancePairs[] = (object)[
+                        'employee' => $employee,
+                        'entry_time' => $entryTime->timestamp,
+                        'exit_time' => $event->timestamp,
+                    ];
+                    $entryTime = null;
+                }
+            }
         }
 
-        $employeeData = [];
-        foreach ($attendanceData as $record) {
-            // Skip records that don't have both entry and exit times or a valid employee
-            if (!$record->entry_time || !$record->exit_time || !$record->employee) {
+        // Step 3: Convert the pairs into the format required by ApexCharts.
+        $chartData = [];
+        $employeeNames = [];
+
+        foreach ($attendancePairs as $pair) {
+            $employeeName = $pair->employee->full_name;
+            // Collect unique employee names for the Y-axis categories.
+            if (!in_array($employeeName, $employeeNames)) {
+                $employeeNames[] = $employeeName;
+            }
+
+            // Skip pairs that don't have an exit time for the chart.
+            if (is_null($pair->exit_time)) {
                 continue;
             }
 
-            $employeeName = $record->employee->full_name; // Accessing the accessor as a property
-            $dayName = Carbon::parse($record->attendance_date)->format('l'); // e.g., "Monday"
-
-            // Ensure the day from the database exists in our week structure
-            if (!isset($daysOfWeek[$dayName])) {
-                continue;
-            }
-            
-            // Initialize the data structure for the employee if it's the first time we see them
-            if (!isset($employeeData[$employeeName])) {
-                // Create an array with keys for each day of the week, filled with empty arrays
-                $employeeData[$employeeName] = array_fill_keys(array_keys($daysOfWeek), []);
-            }
-
-            // The 'y' value for the chart needs JS timestamps (in milliseconds)
-            // but based on a generic date (1970-01-01) to match the chart's x-axis
+            // Create timestamps based on the generic '1970-01-01' date.
             $baseDate = '1970-01-01';
-            $entryTime = Carbon::parse($record->entry_time)->format('H:i:s');
-            $exitTime = Carbon::parse($record->exit_time)->format('H:i:s');
+            $entryTime = Carbon::parse($pair->entry_time)->format('H:i:s');
+            $exitTime = Carbon::parse($pair->exit_time)->format('H:i:s');
 
             $entryTimestamp = Carbon::parse("$baseDate $entryTime")->getTimestamp() * 1000;
             $exitTimestamp = Carbon::parse("$baseDate $exitTime")->getTimestamp() * 1000;
 
-            // Add the data to the correct day for the correct employee
-            // The 'x' value is used by rangeBarGroupRows for the label inside the bar
-            $employeeData[$employeeName][$dayName][] = [
+            // This will now create multiple data points for the same employee if they have multiple sessions.
+            $chartData[] = [
                 'x' => $employeeName,
                 'y' => [$entryTimestamp, $exitTimestamp],
             ];
         }
 
-        // Finalize the series structure for ApexCharts
-        $series = [];
-        foreach ($employeeData as $name => $data) {
-            $series[] = [
-                'name' => $name,
-                // Ensure the data is in the same order as the y-axis categories by using array_values
-                'data' => array_values($data),
-            ];
-        }
-
-        //dd($series); // DEBUG: Add this line to dump the variable and stop execution
+        // Finalize the series object for the chart.
+        $series = [['name' => __('Working Hours'), 'data' => $chartData]];
 
         return view('attendances.chart', [
             'series' => $series,
-            // Send just the localized names in the correct order to the view
-            'daysOfWeek' => array_values($daysOfWeek),
+            'categories' => $employeeNames,
         ]);
     }
 
     /**
      * Display a listing of the attendance resource for the current day on a dedicated page.
+     * This version correctly handles multiple entry/exit pairs for a single employee.
      */
     public function showToday()
     {
         // Authorize if the user can view any attendance records.
         $this->authorize('viewAny', Attendance::class);
 
-        // The logic is the same as the previous suggestion, fetching only today's records.
-        $attendancePairs = Attendance::query()
-            ->whereDate('timestamp', Carbon::today()) // Filter for today's records
-            ->select(
-                'employee_id',
-                DB::raw('DATE(timestamp) as attendance_date'),
-                DB::raw("MIN(CASE WHEN event_type = 'entry' THEN timestamp END) as entry_time"),
-                DB::raw("MAX(CASE WHEN event_type = 'exit' THEN timestamp END) as exit_time")
-            )
-            ->groupBy('employee_id', 'attendance_date')
-            ->orderBy('entry_time', 'desc')
+        // Step 1: Fetch all of today's raw events, ordered correctly by employee and time.
+        $todaysEvents = Attendance::query()
+            ->whereDate('timestamp', Carbon::today())
             ->with('employee')
-            ->paginate(20);
+            ->orderBy('employee_id')
+            ->orderBy('timestamp')
+            ->get();
 
-        // We return a new view file named 'today.blade.php'
-        return view('attendances.today', ['attendances' => $attendancePairs]);
+        // Step 2: Group events by employee and process them to create entry/exit pairs.
+        $groupedByEmployee = $todaysEvents->groupBy('employee_id');
+        $attendancePairs = [];
+
+        foreach ($groupedByEmployee as $events) {
+            $entryTime = null;
+            $employee = $events->first()->employee;
+
+            if (!$employee) continue; // Skip if for some reason employee is not found
+
+            foreach ($events as $event) {
+                if ($event->event_type === 'entry' && is_null($entryTime)) {
+                    // Found the start of a new session
+                    $entryTime = $event;
+                } elseif ($event->event_type === 'exit' && !is_null($entryTime)) {
+                    // Found the end of the session, create a pair object
+                    $attendancePairs[] = (object)[
+                        'employee' => $employee,
+                        'entry_time' => $entryTime->timestamp,
+                        'exit_time' => $event->timestamp,
+                        'attendance_date' => Carbon::parse($event->timestamp)->toDateString()
+                    ];
+                    $entryTime = null; // Reset for the next potential pair
+                }
+            }
+
+            // This handles the case where an employee has an 'entry' but no 'exit' yet for today.
+            if ($entryTime) {
+                $attendancePairs[] = (object)[
+                    'employee' => $employee,
+                    'entry_time' => $entryTime->timestamp,
+                    'exit_time' => null, // No exit time yet
+                    'attendance_date' => Carbon::parse($entryTime->timestamp)->toDateString()
+                ];
+            }
+        }
+
+        // Pass the processed pairs to the view. Note: Pagination is removed as it's a single day view.
+        return view('attendances.today', ['attendances' => collect($attendancePairs)]);
     }
 }
