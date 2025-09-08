@@ -43,6 +43,8 @@
                         type: 'rangeBar',
                         toolbar: {
                             show: true,
+                            //Set the default tool to Panning
+                            autoSelected: 'pan'
                         },
                         foreColor: document.documentElement.classList.contains('dark') ? '#E5E7EB' : '#111827'
                     },
