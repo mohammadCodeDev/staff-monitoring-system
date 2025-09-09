@@ -25,6 +25,10 @@
                     class="px-4 py-2 text-sm font-medium rounded-md {{ request()->routeIs('attendances.chart.week') ? 'bg-indigo-600 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600' }}">
                     {{ __('This Week') }}
                 </a>
+                <a href="{{ route('attendances.chart.month') }}" id="month-view-link"
+                    class="px-4 py-2 text-sm font-medium rounded-md {{ request()->routeIs('attendances.chart.month') ? 'bg-indigo-600 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600' }}">
+                    {{ __('This Month') }}
+                </a>
             </div>
         </div>
     </div>
@@ -35,11 +39,13 @@
                 <div class="p-6 text-gray-900 dark:text-gray-100">
                     {{-- The title section is updated --}}
                     <div class="flex items-baseline justify-center mb-4">
-                        <h3 class="text-lg font-medium">
+                        <h3 class="text-lg font-medium" id="chart-title">
                             @if($viewType === 'today')
                             {{ __("Today's Attendance Chart") }}
-                            @else
+                            @elseif($viewType === 'week')
                             {{ __("Last 7 Days Attendance Chart") }}
+                            @else
+                            {{ __("This Month's Attendance Chart") }}
                             @endif
                         </h3>
                         {{-- Add the date range display for the weekly view --}}
@@ -167,6 +173,7 @@
                 function hasRenderableData(series, vType) {
                     if (!series || series.length === 0) return false;
                     if (vType === 'today') return series[0] && series[0].data && series[0].data.length > 0;
+                    // Both 'week' and 'month' have the same data structure
                     return series.some(s => s.data && s.data.length > 0);
                 }
 
@@ -190,27 +197,33 @@
                 // --- LIVE SEARCH LOGIC ---
                 let debounceTimer;
                 const searchInput = document.getElementById('chart-search-input');
-                const apiUrl = viewType === 'today' ? '{{ route("chart.data.today") }}' : '{{ route("chart.data.week") }}';
 
                 const todayLink = document.getElementById('today-view-link');
                 const weekLink = document.getElementById('week-view-link');
-                const todayBaseUrl = todayLink.href;
-                const weekBaseUrl = weekLink.href;
+                const monthLink = document.getElementById('month-view-link');
+                const todayBaseUrl = todayLink.href.split('?')[0];
+                const weekBaseUrl = weekLink.href.split('?')[0];
+                const monthBaseUrl = monthLink.href.split('?')[0];
 
-                // 1. Create a helper function to update links
+                const apiUrl = viewType === 'today' ? '{{ route("chart.data.today") }}' :
+                    (viewType === 'week' ? '{{ route("chart.data.week") }}' : '{{ route("chart.data.month") }}');
+
+                // Helper function to update all toggle links with the search term
                 function updateToggleLinks(searchTerm) {
-                    todayLink.href = searchTerm ? `${todayBaseUrl.split('?')[0]}?search=${encodeURIComponent(searchTerm)}` : todayBaseUrl.split('?')[0];
-                    weekLink.href = searchTerm ? `${weekBaseUrl.split('?')[0]}?search=${encodeURIComponent(searchTerm)}` : weekBaseUrl.split('?')[0];
+                    const query = searchTerm ? `?search=${encodeURIComponent(searchTerm)}` : '';
+                    todayLink.href = todayBaseUrl + query;
+                    weekLink.href = weekBaseUrl + query;
+                    monthLink.href = monthBaseUrl + query; // This line was missing
                 }
 
-                // 2. Call the function once on page load
+                // Call the function once on page load to set initial link states
                 updateToggleLinks(searchInput.value);
 
                 searchInput.addEventListener('input', function(e) {
                     clearTimeout(debounceTimer);
                     const searchTerm = e.target.value;
 
-                    // 3. Call the function again on every input
+                    // Call the link updater on every input
                     updateToggleLinks(searchTerm);
 
                     debounceTimer = setTimeout(() => {

@@ -101,6 +101,15 @@ Route::get('/chart-data/week', [AttendanceController::class, 'getChartDataWeek']
     ->middleware(['auth'])
     ->name('chart.data.week');
 
+// MONTHLY ROUTES
+Route::get('/attendances/chart/month', [AttendanceController::class, 'showChartMonth'])
+    ->middleware(['auth', 'role:Roles.System Admin,Roles.System Observer,Roles.University President,Roles.Faculty Head,Roles.Group Manager,Roles.Guard'])
+    ->name('attendances.chart.month');
+
+Route::get('/chart-data/month', [AttendanceController::class, 'getChartDataMonth'])
+    ->middleware(['auth'])
+    ->name('chart.data.month');
+
 // Route for the attendance confirmation page
 //Route::get('/attendances/confirm/{employee}', [AttendanceController::class, 'confirm'])
 //    ->middleware(['auth', 'role:Roles.System Admin,Roles.Guard'])

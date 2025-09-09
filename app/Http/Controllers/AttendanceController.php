@@ -465,4 +465,96 @@ class AttendanceController extends Controller
         // Pass the processed pairs to the view. Note: Pagination is removed as it's a single day view.
         return view('attendances.today', ['attendances' => collect($attendancePairs)]);
     }
+
+
+
+
+    public function showChartMonth(Request $request)
+    {
+        $chartData = $this->getChartDataMonth($request);
+        return view('attendances.chart', $chartData);
+    }
+
+    public function getChartDataMonth(Request $request)
+    {
+        $this->authorize('viewAny', Attendance::class);
+        $searchTerm = $request->input('search');
+
+        // Query for all events from the beginning of the current month until now
+        $query = Attendance::query()
+            ->where('timestamp', '>=', Carbon::now()->startOfMonth());
+
+        if ($searchTerm) {
+            $query->whereHas('employee', function ($q) use ($searchTerm) {
+                $q->where(DB::raw("CONCAT(first_name, ' ', last_name)"), 'LIKE', "%{$searchTerm}%");
+            });
+        }
+        $monthlyEvents = $query->with('employee')->orderBy('timestamp')->get();
+
+        // The rest of the logic is very similar to the weekly view
+        $groupedByEmployee = $monthlyEvents->groupBy('employee_id');
+        $attendancePairs = [];
+        foreach ($groupedByEmployee as $events) {
+            $entryTime = null;
+            $employee = $events->first()->employee;
+            if (!$employee) continue;
+            foreach ($events as $event) {
+                if ($event->event_type === 'entry' && is_null($entryTime)) {
+                    $entryTime = $event;
+                } elseif ($event->event_type === 'exit' && !is_null($entryTime)) {
+                    $attendancePairs[] = (object)['employee' => $employee, 'entry_time' => $entryTime->timestamp, 'exit_time' => $event->timestamp];
+                    $entryTime = null;
+                }
+            }
+        }
+
+        // Y-axis categories will be the days of the month so far
+        $dayCategories = [];
+        $startOfMonth = Carbon::now()->startOfMonth();
+        $today = Carbon::now();
+        for ($date = $startOfMonth; $date->lte($today); $date->addDay()) {
+            $dayCategories[$date->toDateString()] = $date->format('Y-m-d');
+        }
+
+        $pairsByEmployee = collect($attendancePairs)->groupBy('employee.id');
+        $series = [];
+        $employeeColorMap = [];
+        $colorPalette = ['#008FFB', '#00E396', '#FEB019', '#FF4560', '#775DD0', '#546E7A', '#26a69a', '#D10CE8'];
+        $colorIndex = 0;
+
+        foreach ($pairsByEmployee as $employeeId => $employeePairs) {
+            $employee = $employeePairs->first()->employee;
+            $employeeName = $employee->full_name;
+            if (!isset($employeeColorMap[$employeeName])) {
+                $employeeColorMap[$employeeName] = $colorPalette[$colorIndex % count($colorPalette)];
+                $colorIndex++;
+            }
+            $employeeDataPoints = [];
+            foreach ($employeePairs as $pair) {
+                $dateString = Carbon::parse($pair->entry_time)->toDateString();
+                if (isset($dayCategories[$dateString])) {
+                    $entryCarbon = Carbon::parse($pair->entry_time);
+                    $exitCarbon = Carbon::parse($pair->exit_time);
+                    $entryTimestamp = Carbon::create(1970, 1, 1, $entryCarbon->hour, $entryCarbon->minute, $entryCarbon->second, 'UTC')->getTimestamp() * 1000;
+                    $exitTimestamp = Carbon::create(1970, 1, 1, $exitCarbon->hour, $exitCarbon->minute, $exitCarbon->second, 'UTC')->getTimestamp() * 1000;
+                    $employeeDataPoints[] = ['x' => $dayCategories[$dateString], 'y' => [$entryTimestamp, $exitTimestamp]];
+                }
+            }
+            $series[] = ['name' => $employeeName, 'data' => $employeeDataPoints];
+        }
+
+        $data = [
+            'series' => $series,
+            'categories' => array_values($dayCategories),
+            'chartColors' => array_values($employeeColorMap),
+            'viewType' => 'month',
+            'startDateFormatted' => null,
+            'endDateFormatted' => null,
+            'searchTerm' => $searchTerm
+        ];
+        if ($request->ajax()) {
+            return response()->json($data);
+        }
+        return $data;
+    }
 }
