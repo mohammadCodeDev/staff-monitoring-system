@@ -194,5 +194,7 @@
     "No attendance records found for today.": "هیچ رکورد ترددی برای امروز یافت نشد.",
     "Last 7 Days Attendance Chart": "نمودار تردد ۷ روز اخیر",
     "Today": "امروز",
-    "This Week": "این هفته"
+    "This Week": "این هفته",
+    "from": "از",
+    "to": "تا"
 }

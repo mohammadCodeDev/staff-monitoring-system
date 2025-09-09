@@ -194,5 +194,7 @@
     "No attendance records found for today.": "No attendance records found for today.",
     "Last 7 Days Attendance Chart": "Last 7 Days Attendance Chart",
     "Today": "Today",
-    "This Week": "This Week"
+    "This Week": "This Week",
+    "from": "from",
+    "to": "to"
 }

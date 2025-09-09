@@ -340,21 +340,22 @@ class AttendanceController extends Controller
             'categories' => $employeeNames,
             'chartColors' => $chartColors,
             'viewType' => 'today',
+            'startDateFormatted' => null,
+            'endDateFormatted' => null,
         ]);
     }
 
-      /**
+    /**
      * Display attendance data as a chart for the last 7 days.
-     * FINAL VERSION: This version simplifies the data structure to bypass an internal
-     * ApexCharts bug when rendering sparse multi-series rangeBar charts.
+     * FINAL VERSION: Uses UTC for all timestamp calculations to ensure consistency.
      */
     public function showChartWeek()
     {
         $this->authorize('viewAny', Attendance::class);
 
-        // Step 1: Fetch all raw events from the last 7 days.
+        // Step 1: Fetch all raw events from the last 7 days
         $weeklyEvents = Attendance::query()
-            ->where('timestamp', '>=', Carbon::now()->subDays(7))
+            ->where('timestamp', '>=', Carbon::now()->subDays(6)->startOfDay())
             ->with('employee')
             ->orderBy('timestamp')
             ->get();
@@ -388,7 +389,6 @@ class AttendanceController extends Controller
             $dayCategories[$date->toDateString()] = __($date->format('l')) . ' (' . $date->format('Y-m-d') . ')';
         }
 
-        // --- START: NEW SIMPLIFIED DATA STRUCTURE LOGIC ---
         $pairsByEmployee = collect($attendancePairs)->groupBy('employee.id');
         $series = [];
         $employeeColorMap = [];
@@ -404,19 +404,19 @@ class AttendanceController extends Controller
                 $colorIndex++;
             }
 
-            // Create a simple, flat array of data points FOR THIS EMPLOYEE.
-            // No more empty placeholders.
             $employeeDataPoints = [];
             foreach ($employeePairs as $pair) {
                 $dateString = Carbon::parse($pair->entry_time)->toDateString();
                 if (isset($dayCategories[$dateString])) {
-                    $baseDate = '1970-0-01';
-                    $entryTime = Carbon::parse($pair->entry_time)->format('H:i:s');
-                    $exitTime = Carbon::parse($pair->exit_time)->format('H:i:s');
-                    $entryTimestamp = Carbon::parse("$baseDate $entryTime")->getTimestamp() * 1000;
-                    $exitTimestamp = Carbon::parse("$baseDate $exitTime")->getTimestamp() * 1000;
+                    // START: CORRECTED TIMESTAMP LOGIC (FORCE UTC)
+                    $entryTime = Carbon::parse($pair->entry_time);
+                    $exitTime = Carbon::parse($pair->exit_time);
 
-                    // Each data point explicitly names its category ('x' value).
+                    // Create timestamps for the generic date, but explicitly in the UTC timezone.
+                    $entryTimestamp = Carbon::create(1970, 1, 1, $entryTime->hour, $entryTime->minute, $entryTime->second, 'UTC')->getTimestamp() * 1000;
+                    $exitTimestamp = Carbon::create(1970, 1, 1, $exitTime->hour, $exitTime->minute, $exitTime->second, 'UTC')->getTimestamp() * 1000;
+                    // END: CORRECTED TIMESTAMP LOGIC
+
                     $employeeDataPoints[] = [
                         'x' => $dayCategories[$dateString],
                         'y' => [$entryTimestamp, $exitTimestamp],
@@ -424,18 +424,27 @@ class AttendanceController extends Controller
                 }
             }
 
+            // Define the start and end dates for the 7-day period.
+            $startDate = Carbon::now()->subDays(6);
+            $endDate = Carbon::now();
+
+            // Format the dates using translated day names (respects app locale).
+            $startDateFormatted = $startDate->translatedFormat('l (Y-m-d)');
+            $endDateFormatted = $endDate->translatedFormat('l (Y-m-d)');
+
             $series[] = [
                 'name' => $employeeName,
-                'data' => $employeeDataPoints, // Use the new flat array of data points.
+                'data' => $employeeDataPoints,
             ];
         }
-        // --- END: NEW SIMPLIFIED DATA STRUCTURE LOGIC ---
 
         return view('attendances.chart', [
             'series' => $series,
-            'categories' => array_values($dayCategories), // Y-axis categories remain the same
+            'categories' => array_values($dayCategories),
             'chartColors' => array_values($employeeColorMap),
             'viewType' => 'week',
+            'startDateFormatted' => $startDateFormatted,
+            'endDateFormatted' => $endDateFormatted, 
         ]);
     }
 
