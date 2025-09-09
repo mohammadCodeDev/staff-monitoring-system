@@ -343,9 +343,10 @@ class AttendanceController extends Controller
         ]);
     }
 
-    /**
+      /**
      * Display attendance data as a chart for the last 7 days.
-     * The Y-axis shows the days of the week, and the legend shows employee names.
+     * FINAL VERSION: This version simplifies the data structure to bypass an internal
+     * ApexCharts bug when rendering sparse multi-series rangeBar charts.
      */
     public function showChartWeek()
     {
@@ -358,7 +359,7 @@ class AttendanceController extends Controller
             ->orderBy('timestamp')
             ->get();
 
-        // Step 2: Process events into pairs (entry/exit).
+        // Step 2: Process events into entry/exit pairs.
         $groupedByEmployee = $weeklyEvents->groupBy('employee_id');
         $attendancePairs = [];
         foreach ($groupedByEmployee as $events) {
@@ -381,14 +382,13 @@ class AttendanceController extends Controller
         }
 
         // Step 3: Prepare data structures for the weekly chart.
-        // Y-axis categories will be the last 7 days.
         $dayCategories = [];
         for ($i = 6; $i >= 0; $i--) {
             $date = Carbon::now()->subDays($i);
             $dayCategories[$date->toDateString()] = __($date->format('l')) . ' (' . $date->format('Y-m-d') . ')';
         }
 
-        // Group pairs by employee to create a series for each one.
+        // --- START: NEW SIMPLIFIED DATA STRUCTURE LOGIC ---
         $pairsByEmployee = collect($attendancePairs)->groupBy('employee.id');
         $series = [];
         $employeeColorMap = [];
@@ -399,24 +399,25 @@ class AttendanceController extends Controller
             $employee = $employeePairs->first()->employee;
             $employeeName = $employee->full_name;
 
-            // Assign a color to this employee
             if (!isset($employeeColorMap[$employeeName])) {
                 $employeeColorMap[$employeeName] = $colorPalette[$colorIndex % count($colorPalette)];
                 $colorIndex++;
             }
 
-            // Prepare data points for this employee's series
-            $employeeData = array_fill_keys(array_keys($dayCategories), []);
+            // Create a simple, flat array of data points FOR THIS EMPLOYEE.
+            // No more empty placeholders.
+            $employeeDataPoints = [];
             foreach ($employeePairs as $pair) {
                 $dateString = Carbon::parse($pair->entry_time)->toDateString();
-                if (isset($employeeData[$dateString])) {
-                    $baseDate = '1970-01-01';
+                if (isset($dayCategories[$dateString])) {
+                    $baseDate = '1970-0-01';
                     $entryTime = Carbon::parse($pair->entry_time)->format('H:i:s');
                     $exitTime = Carbon::parse($pair->exit_time)->format('H:i:s');
                     $entryTimestamp = Carbon::parse("$baseDate $entryTime")->getTimestamp() * 1000;
                     $exitTimestamp = Carbon::parse("$baseDate $exitTime")->getTimestamp() * 1000;
 
-                    $employeeData[$dateString][] = [
+                    // Each data point explicitly names its category ('x' value).
+                    $employeeDataPoints[] = [
                         'x' => $dayCategories[$dateString],
                         'y' => [$entryTimestamp, $exitTimestamp],
                     ];
@@ -425,15 +426,16 @@ class AttendanceController extends Controller
 
             $series[] = [
                 'name' => $employeeName,
-                'data' => array_values($employeeData),
+                'data' => $employeeDataPoints, // Use the new flat array of data points.
             ];
         }
+        // --- END: NEW SIMPLIFIED DATA STRUCTURE LOGIC ---
 
         return view('attendances.chart', [
             'series' => $series,
-            'categories' => array_values($dayCategories),
+            'categories' => array_values($dayCategories), // Y-axis categories remain the same
             'chartColors' => array_values($employeeColorMap),
-            'viewType' => 'week', // Identify this as the weekly view
+            'viewType' => 'week',
         ]);
     }
 

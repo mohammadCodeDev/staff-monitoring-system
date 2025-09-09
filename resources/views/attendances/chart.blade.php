@@ -105,7 +105,7 @@
                     options.plotOptions = {
                         bar: {
                             horizontal: true,
-                            rangeBarGroupRows: true
+                            //rangeBarGroupRows: true
                         }
                     };
                     options.legend = {
@@ -134,7 +134,21 @@
                     };
                 }
 
-                if (seriesData.length === 0 || seriesData[0].data.length === 0) {
+                function hasRenderableData(series, viewType) {
+                    if (!series || series.length === 0) {
+                        return false;
+                    }
+
+                    if (viewType === 'today') {
+                        // For 'today' view, the data array is flat. Check if it's not empty.
+                        return series[0] && series[0].data && series[0].data.length > 0;
+                    } else { // 'week' view
+                        // For 'week' view, data is nested. Check if any day in any series has data.
+                        return series.some(s => s.data && s.data.length > 0); 
+                    }
+                }
+
+                if (!hasRenderableData(seriesData, viewType)) {
                     document.querySelector("#attendanceChart").innerHTML = `<div class="text-center p-10">{{ __("No attendance records found.") }}</div>`;
                 } else {
                     const chart = new ApexCharts(document.querySelector("#attendanceChart"), options);
