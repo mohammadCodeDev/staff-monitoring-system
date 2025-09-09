@@ -237,215 +237,173 @@ class AttendanceController extends Controller
         return view('attendances.raw-log', compact('attendances'));
     }
 
-    /**
-     * Display attendance data as a chart for the current day.
-     * The Y-axis will show employees and the X-axis will show a 24-hour timeline.
-     * correctly handles multiple entry/exit pairs
-     * This version assigns a unique color to each employee.
-     */
-    public function showChart()
+    public function showChart(Request $request)
     {
-        // Authorize if the user can view any attendance records.
+        $chartData = $this->getChartDataToday($request);
+        return view('attendances.chart', $chartData);
+    }
+
+    public function showChartWeek(Request $request)
+    {
+        $chartData = $this->getChartDataWeek($request);
+        return view('attendances.chart', $chartData);
+    }
+
+    public function getChartDataToday(Request $request)
+    {
         $this->authorize('viewAny', Attendance::class);
+        $searchTerm = $request->input('search');
 
-        // Step 1: Fetch all of today's raw events, ordered correctly. NO MIN/MAX aggregation.
-        $todaysEvents = Attendance::query()
-            ->whereDate('timestamp', Carbon::today())
-            ->with('employee')
-            ->orderBy('employee_id')
-            ->orderBy('timestamp')
-            ->get();
+        $query = Attendance::query()
+            ->whereDate('timestamp', Carbon::today());
 
-        // Step 2: Process raw events into multiple entry/exit pairs using PHP.
+        if ($searchTerm) {
+            $query->whereHas('employee', function ($q) use ($searchTerm) {
+                $q->where(DB::raw("CONCAT(first_name, ' ', last_name)"), 'LIKE', "%{$searchTerm}%");
+            });
+        }
+
+        $todaysEvents = $query->with('employee')->orderBy('employee_id')->orderBy('timestamp')->get();
+
+        // ... (The rest of the pairing and data processing logic is the same as before)
         $groupedByEmployee = $todaysEvents->groupBy('employee_id');
-        $attendancePairs = [];
-
+        $attendancePairs = []; // ... (pairing logic)
         foreach ($groupedByEmployee as $events) {
             $entryTime = null;
             $employee = $events->first()->employee;
             if (!$employee) continue;
-
             foreach ($events as $event) {
                 if ($event->event_type === 'entry' && is_null($entryTime)) {
                     $entryTime = $event;
                 } elseif ($event->event_type === 'exit' && !is_null($entryTime)) {
-                    $attendancePairs[] = (object)[
-                        'employee' => $employee,
-                        'entry_time' => $entryTime->timestamp,
-                        'exit_time' => $event->timestamp,
-                    ];
-                    $entryTime = null; // Reset for the next pair
+                    $attendancePairs[] = (object)['employee' => $employee, 'entry_time' => $entryTime->timestamp, 'exit_time' => $event->timestamp];
+                    $entryTime = null;
                 }
             }
         }
 
-        // Step 3: Convert the pairs into the format required by ApexCharts.
-        $chartData = [];
+        $chartData = []; // ... (data processing for chart)
         $employeeNames = [];
-        $chartColors = []; // This will now have one color PER BAR.
-        $employeeColorMap = []; // Helper map to store the assigned color for each employee.
-
-        // Step 4: Generate a unique color for each unique employee.
-        $colorPalette = [
-            '#008FFB',
-            '#00E396',
-            '#FEB019',
-            '#FF4560',
-            '#775DD0',
-            '#546E7A',
-            '#26a69a',
-            '#D10CE8',
-            '#FF66C3',
-            '#00B0F0'
-        ];
+        $chartColors = [];
+        $employeeColorMap = [];
+        $colorPalette = ['#008FFB', '#00E396', '#FEB019', '#FF4560', '#775DD0', '#546E7A', '#26a69a', '#D10CE8'];
         $colorIndex = 0;
-
         foreach ($attendancePairs as $pair) {
             $employeeName = $pair->employee->full_name;
-
-            // Step 3a: If we see this employee for the first time...
             if (!isset($employeeColorMap[$employeeName])) {
-                // ...collect their name for the Y-axis categories...
                 $employeeNames[] = $employeeName;
-                // ...and assign them a new color from the palette.
                 $employeeColorMap[$employeeName] = $colorPalette[$colorIndex % count($colorPalette)];
                 $colorIndex++;
             }
+            if (is_null($pair->exit_time)) continue;
+            $entryCarbon = Carbon::parse($pair->entry_time);
+            $exitCarbon = Carbon::parse($pair->exit_time);
 
-            // Step 3b: Convert the pair into chart data format.
-            if (is_null($pair->exit_time)) {
-                continue;
-            }
-            $baseDate = '1970-01-01';
-            $entryTime = Carbon::parse($pair->entry_time)->format('H:i:s');
-            $exitTime = Carbon::parse($pair->exit_time)->format('H:i:s');
-            $entryTimestamp = Carbon::parse("$baseDate $entryTime")->getTimestamp() * 1000;
-            $exitTimestamp = Carbon::parse("$baseDate $exitTime")->getTimestamp() * 1000;
-
-            $chartData[] = [
-                'x' => $employeeName,
-                'y' => [$entryTimestamp, $exitTimestamp],
-            ];
-
-            // Step 3c: Add the employee's assigned color to the chartColors array for this specific bar.
+            $entryTimestamp = Carbon::create(1970, 1, 1, $entryCarbon->hour, $entryCarbon->minute, $entryCarbon->second, 'UTC')->getTimestamp() * 1000;
+            $exitTimestamp = Carbon::create(1970, 1, 1, $exitCarbon->hour, $exitCarbon->minute, $exitCarbon->second, 'UTC')->getTimestamp() * 1000;
+            $chartData[] = ['x' => $employeeName, 'y' => [$entryTimestamp, $exitTimestamp]];
             $chartColors[] = $employeeColorMap[$employeeName];
         }
 
-        // Finalize the series object for the chart.
         $series = [['name' => __('Working Hours'), 'data' => $chartData]];
 
-        // Pass all correct data to the view.
-        return view('attendances.chart', [
+        $data = [
             'series' => $series,
             'categories' => $employeeNames,
             'chartColors' => $chartColors,
             'viewType' => 'today',
             'startDateFormatted' => null,
             'endDateFormatted' => null,
-        ]);
+        ];
+
+        // If the request is AJAX, return JSON, otherwise return the array for the view.
+        if ($request->ajax()) {
+            return response()->json($data);
+        }
+        return $data;
     }
 
-    /**
-     * Display attendance data as a chart for the last 7 days.
-     * FINAL VERSION: Uses UTC for all timestamp calculations to ensure consistency.
-     */
-    public function showChartWeek()
+    public function getChartDataWeek(Request $request)
     {
         $this->authorize('viewAny', Attendance::class);
+        $searchTerm = $request->input('search');
 
-        // Step 1: Fetch all raw events from the last 7 days
-        $weeklyEvents = Attendance::query()
-            ->where('timestamp', '>=', Carbon::now()->subDays(6)->startOfDay())
-            ->with('employee')
-            ->orderBy('timestamp')
-            ->get();
+        $query = Attendance::query()
+            ->where('timestamp', '>=', Carbon::now()->subDays(6)->startOfDay());
 
-        // Step 2: Process events into entry/exit pairs.
+        if ($searchTerm) {
+            $query->whereHas('employee', function ($q) use ($searchTerm) {
+                $q->where(DB::raw("CONCAT(first_name, ' ', last_name)"), 'LIKE', "%{$searchTerm}%");
+            });
+        }
+
+        $weeklyEvents = $query->with('employee')->orderBy('timestamp')->get();
+
+        // ... (The rest of the weekly data processing logic is the same as before)
         $groupedByEmployee = $weeklyEvents->groupBy('employee_id');
-        $attendancePairs = [];
+        $attendancePairs = []; // ... (pairing logic)
         foreach ($groupedByEmployee as $events) {
             $entryTime = null;
             $employee = $events->first()->employee;
             if (!$employee) continue;
-
             foreach ($events as $event) {
                 if ($event->event_type === 'entry' && is_null($entryTime)) {
                     $entryTime = $event;
                 } elseif ($event->event_type === 'exit' && !is_null($entryTime)) {
-                    $attendancePairs[] = (object)[
-                        'employee' => $employee,
-                        'entry_time' => $entryTime->timestamp,
-                        'exit_time' => $event->timestamp,
-                    ];
+                    $attendancePairs[] = (object)['employee' => $employee, 'entry_time' => $entryTime->timestamp, 'exit_time' => $event->timestamp];
                     $entryTime = null;
                 }
             }
         }
 
-        // Step 3: Prepare data structures for the weekly chart.
-        $dayCategories = [];
+        $dayCategories = []; // ... (day category generation)
         for ($i = 6; $i >= 0; $i--) {
             $date = Carbon::now()->subDays($i);
             $dayCategories[$date->toDateString()] = __($date->format('l')) . ' (' . $date->format('Y-m-d') . ')';
         }
 
         $pairsByEmployee = collect($attendancePairs)->groupBy('employee.id');
-        $series = [];
+        $series = []; // ... (series generation logic)
         $employeeColorMap = [];
         $colorPalette = ['#008FFB', '#00E396', '#FEB019', '#FF4560', '#775DD0', '#546E7A', '#26a69a', '#D10CE8'];
         $colorIndex = 0;
-
         foreach ($pairsByEmployee as $employeeId => $employeePairs) {
             $employee = $employeePairs->first()->employee;
             $employeeName = $employee->full_name;
-
             if (!isset($employeeColorMap[$employeeName])) {
                 $employeeColorMap[$employeeName] = $colorPalette[$colorIndex % count($colorPalette)];
                 $colorIndex++;
             }
-
             $employeeDataPoints = [];
             foreach ($employeePairs as $pair) {
                 $dateString = Carbon::parse($pair->entry_time)->toDateString();
                 if (isset($dayCategories[$dateString])) {
-                    // START: CORRECTED TIMESTAMP LOGIC (FORCE UTC)
                     $entryTime = Carbon::parse($pair->entry_time);
                     $exitTime = Carbon::parse($pair->exit_time);
-
-                    // Create timestamps for the generic date, but explicitly in the UTC timezone.
                     $entryTimestamp = Carbon::create(1970, 1, 1, $entryTime->hour, $entryTime->minute, $entryTime->second, 'UTC')->getTimestamp() * 1000;
                     $exitTimestamp = Carbon::create(1970, 1, 1, $exitTime->hour, $exitTime->minute, $exitTime->second, 'UTC')->getTimestamp() * 1000;
-                    // END: CORRECTED TIMESTAMP LOGIC
-
-                    $employeeDataPoints[] = [
-                        'x' => $dayCategories[$dateString],
-                        'y' => [$entryTimestamp, $exitTimestamp],
-                    ];
+                    $employeeDataPoints[] = ['x' => $dayCategories[$dateString], 'y' => [$entryTimestamp, $exitTimestamp]];
                 }
             }
-
-            // Define the start and end dates for the 7-day period.
-            $startDate = Carbon::now()->subDays(6);
-            $endDate = Carbon::now();
-
-            // Format the dates using translated day names (respects app locale).
-            $startDateFormatted = $startDate->translatedFormat('l (Y-m-d)');
-            $endDateFormatted = $endDate->translatedFormat('l (Y-m-d)');
-
-            $series[] = [
-                'name' => $employeeName,
-                'data' => $employeeDataPoints,
-            ];
+            $series[] = ['name' => $employeeName, 'data' => $employeeDataPoints];
         }
 
-        return view('attendances.chart', [
+        $startDateFormatted = Carbon::now()->subDays(6)->translatedFormat('l (Y-m-d)');
+        $endDateFormatted = Carbon::now()->translatedFormat('l (Y-m-d)');
+
+        $data = [
             'series' => $series,
             'categories' => array_values($dayCategories),
             'chartColors' => array_values($employeeColorMap),
             'viewType' => 'week',
             'startDateFormatted' => $startDateFormatted,
-            'endDateFormatted' => $endDateFormatted, 
-        ]);
+            'endDateFormatted' => $endDateFormatted,
+        ];
+
+        if ($request->ajax()) {
+            return response()->json($data);
+        }
+        return $data;
     }
 
     /**

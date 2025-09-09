@@ -92,6 +92,15 @@ Route::post('/attendances', [AttendanceController::class, 'store'])
     ->middleware(['auth', 'role:Roles.System Admin,Roles.Guard'])
     ->name('attendances.store');
 
+// API ROUTES FOR LIVE CHART SEARCH
+Route::get('/chart-data/today', [AttendanceController::class, 'getChartDataToday'])
+    ->middleware(['auth'])
+    ->name('chart.data.today');
+
+Route::get('/chart-data/week', [AttendanceController::class, 'getChartDataWeek'])
+    ->middleware(['auth'])
+    ->name('chart.data.week');
+
 // Route for the attendance confirmation page
 //Route::get('/attendances/confirm/{employee}', [AttendanceController::class, 'confirm'])
 //    ->middleware(['auth', 'role:Roles.System Admin,Roles.Guard'])
