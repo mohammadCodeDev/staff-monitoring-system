@@ -49,7 +49,7 @@
                             @endif
                         </h3>
                         {{-- Add the date range display for the weekly view --}}
-                        @if($viewType === 'week' && isset($startDateFormatted) && isset($endDateFormatted))
+                        @if(($viewType === 'week' || $viewType === 'month') && isset($startDateFormatted) && isset($endDateFormatted))
                         <span class="text-sm font-normal text-gray-500 dark:text-gray-400 mx-2">
                             ({{ __('from') }} {{ $startDateFormatted }} {{ __('to') }} {{ $endDateFormatted }})
                         </span>

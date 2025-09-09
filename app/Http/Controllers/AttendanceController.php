@@ -543,15 +543,20 @@ class AttendanceController extends Controller
             $series[] = ['name' => $employeeName, 'data' => $employeeDataPoints];
         }
 
+        // Calculate start and end dates for the title
+        $startDateFormatted = Carbon::now()->startOfMonth()->translatedFormat('l (Y-m-d)');
+        $endDateFormatted = Carbon::now()->translatedFormat('l (Y-m-d)');
+
         $data = [
             'series' => $series,
             'categories' => array_values($dayCategories),
             'chartColors' => array_values($employeeColorMap),
             'viewType' => 'month',
-            'startDateFormatted' => null,
-            'endDateFormatted' => null,
+            'startDateFormatted' => $startDateFormatted, // Use the calculated start date
+            'endDateFormatted' => $endDateFormatted,   // Use the calculated end date
             'searchTerm' => $searchTerm
         ];
+
         if ($request->ajax()) {
             return response()->json($data);
         }
