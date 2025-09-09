@@ -8,8 +8,8 @@
     <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 pt-12">
         <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
             <div class="p-4">
-                <input type="text" id="chart-search-input" placeholder="{{ __('Search Employee...') }}"
-                    class="w-full bg-gray-100 dark:bg-gray-900 border-gray-300 dark:border-gray-700 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
+                <input type="text" id="chart-search-input" value="{{ $searchTerm ?? '' }}" placeholder="{{ __('Search Employee...') }}"
+                    class="w-full bg-gray-100 dark:bg-gray-900 border-gray-300 dark:border-gray-700 rounded-md focus:ring-indigo-500 focus:border-indigo-500 dark:text-gray-200">
             </div>
         </div>
     </div>
@@ -17,11 +17,11 @@
     <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 py-6 pt-12">
         <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
             <div class="p-4 flex justify-center space-x-2 rtl:space-x-reverse">
-                <a href="{{ route('attendances.chart') }}"
+                <a href="{{ route('attendances.chart') }}" id="today-view-link"
                     class="px-4 py-2 text-sm font-medium rounded-md {{ request()->routeIs('attendances.chart') ? 'bg-indigo-600 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600' }}">
                     {{ __('Today') }}
                 </a>
-                <a href="{{ route('attendances.chart.week') }}"
+                <a href="{{ route('attendances.chart.week') }}" id="week-view-link"
                     class="px-4 py-2 text-sm font-medium rounded-md {{ request()->routeIs('attendances.chart.week') ? 'bg-indigo-600 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600' }}">
                     {{ __('This Week') }}
                 </a>
@@ -91,7 +91,7 @@
                                 autoSelected: 'pan'
                             },
                             animations: {
-                                enabled: false
+                                enabled: true
                             },
                             foreColor: document.documentElement.classList.contains('dark') ? '#E5E7EB' : '#111827'
                         },
@@ -176,6 +176,7 @@
                     chartContainer.innerHTML = ''; // Clear previous content
                     if (!hasRenderableData(data.series, viewType)) {
                         chartContainer.innerHTML = `<div class="text-center p-10">{{ __("No attendance records found.") }}</div>`;
+                        chart = null;
                         return;
                     }
                     const options = buildChartOptions(data);
@@ -191,9 +192,27 @@
                 const searchInput = document.getElementById('chart-search-input');
                 const apiUrl = viewType === 'today' ? '{{ route("chart.data.today") }}' : '{{ route("chart.data.week") }}';
 
+                const todayLink = document.getElementById('today-view-link');
+                const weekLink = document.getElementById('week-view-link');
+                const todayBaseUrl = todayLink.href;
+                const weekBaseUrl = weekLink.href;
+
+                // 1. Create a helper function to update links
+                function updateToggleLinks(searchTerm) {
+                    todayLink.href = searchTerm ? `${todayBaseUrl.split('?')[0]}?search=${encodeURIComponent(searchTerm)}` : todayBaseUrl.split('?')[0];
+                    weekLink.href = searchTerm ? `${weekBaseUrl.split('?')[0]}?search=${encodeURIComponent(searchTerm)}` : weekBaseUrl.split('?')[0];
+                }
+
+                // 2. Call the function once on page load
+                updateToggleLinks(searchInput.value);
+
                 searchInput.addEventListener('input', function(e) {
                     clearTimeout(debounceTimer);
                     const searchTerm = e.target.value;
+
+                    // 3. Call the function again on every input
+                    updateToggleLinks(searchTerm);
+
                     debounceTimer = setTimeout(() => {
                         fetch(`${apiUrl}?search=${encodeURIComponent(searchTerm)}`, {
                                 headers: {

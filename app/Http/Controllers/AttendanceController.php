@@ -314,6 +314,7 @@ class AttendanceController extends Controller
             'viewType' => 'today',
             'startDateFormatted' => null,
             'endDateFormatted' => null,
+            'searchTerm' => $searchTerm,
         ];
 
         // If the request is AJAX, return JSON, otherwise return the array for the view.
@@ -398,6 +399,7 @@ class AttendanceController extends Controller
             'viewType' => 'week',
             'startDateFormatted' => $startDateFormatted,
             'endDateFormatted' => $endDateFormatted,
+            'searchTerm' => $searchTerm,
         ];
 
         if ($request->ajax()) {
