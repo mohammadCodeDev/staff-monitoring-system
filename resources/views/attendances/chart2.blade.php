@@ -56,10 +56,10 @@
                         <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                             <thead class="bg-gray-50 dark:bg-gray-700">
                                 <tr>
-                                    <th class="px-6 py-3 text-left rtl:text-right text-xs font-medium uppercase tracking-wider">{{ __('Actions') }}</th>
-                                    <th class="px-6 py-3 text-left rtl:text-right text-xs font-medium uppercase tracking-wider">{{ __('Photo') }}</th>
-                                    <th class="px-6 py-3 text-left rtl:text-right text-xs font-medium uppercase tracking-wider">{{ __('Full Name') }}</th>
-                                    <th class="px-6 py-3 text-left rtl:text-right text-xs font-medium uppercase tracking-wider">{{ __('Department') }}</th>
+                                    <th class="px-6 py-3 text-left rtl:text-right text-xs font-medium uppercase tracking-wider w-48">{{ __('Actions') }}</th>
+                                    <th class="px-6 py-3 text-left rtl:text-right text-xs font-medium uppercase tracking-wider w-20">{{ __('Photo') }}</th>
+                                    <th class="px-6 py-3 text-left rtl:text-right text-xs font-medium uppercase tracking-wider w-50">{{ __('Full Name') }}</th>
+                                    <th class="px-6 py-3 text-left rtl:text-right text-xs font-medium uppercase tracking-wider w-50">{{ __('Department') }}</th>
                                     <th class="px-6 py-3 text-left rtl:text-right text-xs font-medium uppercase tracking-wider">{{ __('Group Name') }}</th>
                                 </tr>
                             </thead>
