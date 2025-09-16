@@ -199,5 +199,8 @@
     "Search Employee...": "جستجوی کارمند...",
     "to": "تا",
     "This Month": "این ماه",
-    "This Month's Attendance Chart": "نمودار تردد این ماه"
+    "This Month's Attendance Chart": "نمودار تردد این ماه",
+    "...": "...",
+    "Attendance Chart 2": "نمودار تردد ۲",
+    "The second attendance chart will be displayed here.": "نمودار تردد دوم در اینجا نمایش داده خواهد شد."
 }

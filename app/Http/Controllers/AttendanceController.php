@@ -562,4 +562,14 @@ class AttendanceController extends Controller
         }
         return $data;
     }
+
+    /**
+     * Display the second attendance chart view.
+     *
+     * @return \Illuminate\View\View
+     */
+    public function chart2()
+    {
+        return view('attendances.chart2');
+    }
 }

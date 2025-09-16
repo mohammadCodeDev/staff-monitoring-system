@@ -13,6 +13,7 @@
             <x-sidebar-link :href="route('groups.index')" :active="request()->routeIs('groups.*')">{{ __('Manage Groups') }}</x-sidebar-link>
             <x-sidebar-link :href="route('attendances.index')" :active="request()->routeIs('attendances.index')">{{ __('Attendance Monitoring') }}</x-sidebar-link>
             <x-sidebar-link :href="route('attendances.chart')" :active="request()->routeIs('attendances.chart')">{{ __('Attendance Chart') }}</x-sidebar-link>
+            <x-sidebar-link :href="route('attendances.chart2')" :active="request()->routeIs('attendances.chart2')">{{ __('Attendance Chart 2') }}</x-sidebar-link>
             <x-sidebar-link :href="route('attendances.raw-log')" :active="request()->routeIs('attendances.raw-log')">{{ __('Raw Attendance Log') }}</x-sidebar-link>
             <x-sidebar-link :href="route('attendances.create')" :active="request()->routeIs('attendances.create')">{{ __('Log Attendance') }}</x-sidebar-link>
             <x-sidebar-link :href="route('attendances.today')" :active="request()->routeIs('attendances.today')">{{ __('Today Attendance') }}</x-sidebar-link>
@@ -29,6 +30,7 @@
         <h3 class="font-semibold text-lg mb-4 text-gray-900 dark:text-gray-100 text-left rtl:text-right">{{ __('Monitoring Actions') }}</h3>
         <div class="flex flex-col space-y-2">
             <x-sidebar-link :href="route('attendances.index')" :active="request()->routeIs('attendances.index')">{{ __('View Attendance Log') }}</x-sidebar-link>
+            <x-sidebar-link :href="route('attendances.chart2')" :active="request()->routeIs('attendances.chart2')">{{ __('Attendance Chart 2') }}</x-sidebar-link>
         </div>
     </div>
     @endif
