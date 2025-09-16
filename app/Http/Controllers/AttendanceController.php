@@ -572,4 +572,35 @@ class AttendanceController extends Controller
     {
         return view('attendances.chart2');
     }
+
+    public function searchEmployees2(Request $request)
+{
+    $searchTerm = $request->input('search', '');
+    // ADD THIS LINE: Get the context/view type from the request
+    $viewType = $request->input('view', 'log'); // Default to 'log' for the original page
+
+    if (empty($searchTerm)) {
+        return response()->json(['html' => '', 'count' => 0]);
+    }
+
+    $employees = Employee::where('is_active', true)
+        ->where(DB::raw("CONCAT(first_name, ' ', last_name)"), 'LIKE', "%{$searchTerm}%")
+        ->with(['department', 'group'])
+        ->latest()
+        ->limit(10)
+        ->get();
+
+    // THIS IS THE NEW LOGIC: Choose the partial view based on the viewType
+    $partialView = $viewType === 'chart'
+        ? 'attendances.partials._chart-search-results-rows'  // The new partial for our chart page
+        : 'attendances.partials._search-results-rows';       // The original partial for the log page
+
+    // Render the chosen partial view to HTML
+    $html = view($partialView, compact('employees'))->render();
+
+    return response()->json([
+        'html' => $html,
+        'count' => $employees->count()
+    ]);
+}
 }

@@ -129,6 +129,10 @@ Route::get('/attendances/search-employees', [AttendanceController::class, 'searc
     ->middleware(['auth', 'role:Roles.System Admin,Roles.Guard'])
     ->name('attendances.searchEmployees');
 
+Route::get('/attendances/search-employees2', [AttendanceController::class, 'searchEmployees2'])
+    ->middleware(['auth', 'role:Roles.System Admin,Roles.Guard'])
+    ->name('attendances.searchEmployees2');
+
 // *** NEW ROUTES FOR EDIT & DELETE ***
 Route::get('/attendances/{attendance}/edit', [AttendanceController::class, 'edit'])
     ->middleware(['auth', 'role:Roles.System Admin,Roles.Guard'])
