@@ -3,26 +3,33 @@
     {{-- Actions Column --}}
     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
         <div class="flex space-x-2 rtl:space-x-reverse">
-            {{-- NOTE: These routes do not exist yet. We will create them later. --}}
-            <a href="#" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-200">{{ __('Monthly Report') }}</a>
-            <a href="#" class="text-teal-600 hover:text-teal-900 dark:text-teal-400 dark:hover:text-teal-200">{{ __('Yearly Report') }}</a>
+            {{-- ADDED CLASSES to this link --}}
+            <a href="#" class="px-2 py-1 border border-indigo-600 text-indigo-600 rounded-md text-xs hover:bg-indigo-600 hover:text-white transition-colors duration-200">
+                {{ __('Monthly Report') }}
+            </a>
+            {{-- ADDED CLASSES to this link --}}
+            <a href="#" class="px-2 py-1 border border-teal-600 text-teal-600 rounded-md text-xs hover:bg-teal-600 hover:text-white transition-colors duration-200">
+                {{ __('Yearly Report') }}
+            </a>
         </div>
     </td>
 
     {{-- Photo Column --}}
     <td class="px-6 py-4 whitespace-nowrap">
-        @if ($employee->photo_path)
-        <img
-            src="{{ asset('storage/' . $employee->photo_path) }}"
-            alt="{{ $employee->full_name }}"
-            class="h-10 w-10 rounded-full object-cover transition-transform duration-300 hover:scale-300">
-        @else
-        {{-- This creates the dynamic blue circle placeholder --}}
-        <div class="h-10 w-10 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold text-lg">
-            {{-- Gets the first character of the first name --}}
-            {{ mb_substr($employee->first_name, 0, 1) }}
+        {{-- We apply a group class to the container div --}}
+        <div class="group relative">
+            @if ($employee->photo_path)
+            <img
+                src="{{ asset('storage/' . $employee->photo_path) }}"
+                alt="{{ $employee->full_name }}"
+                {{-- Now we use group-hover to trigger the scale effect --}}
+                class="h-10 w-10 rounded-full object-cover transition-transform duration-300 transform group-hover:scale-150">
+            @else
+            <div class="h-10 w-10 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold text-lg">
+                {{ mb_substr($employee->first_name, 0, 1) }}
+            </div>
+            @endif
         </div>
-        @endif
     </td>
 
     {{-- Full Name Column --}}
