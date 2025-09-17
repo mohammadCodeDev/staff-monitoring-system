@@ -291,4 +291,63 @@ class EmployeeController extends Controller
 
         return ['series' => $finalSeries, 'categories' => $categories];
     }
+
+    public function showYearlyReport(Request $request, Employee $employee, $year = null)
+    {
+        $targetYear = $year ?? Carbon::now()->year;
+        $targetDate = Carbon::createFromDate($targetYear, 1, 1);
+
+        $startOfYear = $targetDate->copy()->startOfYear();
+        $endOfYear = $targetDate->copy()->endOfYear();
+
+        $attendances = Attendance::where('employee_id', $employee->id)
+            ->whereBetween('timestamp', [$startOfYear, $endOfYear])
+            ->orderBy('timestamp', 'asc')
+            ->get();
+
+        $monthlyTotals = array_fill(1, 12, 0);
+        $lastEntry = null;
+
+        foreach ($attendances as $event) {
+            if ($event->event_type === 'entry') {
+                $lastEntry = $event;
+            }
+
+            if ($event->event_type === 'exit' && $lastEntry) {
+                $entryTime = Carbon::parse($lastEntry->timestamp);
+                $exitTime = Carbon::parse($event->timestamp);
+
+                if ($entryTime->isSameDay($exitTime)) {
+                    $durationInSeconds = $entryTime->diffInSeconds($exitTime);
+                    $month = $entryTime->month;
+                    $monthlyTotals[$month] += $durationInSeconds;
+                }
+                $lastEntry = null;
+            }
+        }
+
+        $monthlyHours = [];
+        foreach ($monthlyTotals as $seconds) {
+            $monthlyHours[] = round($seconds / 3600, 2);
+        }
+
+        // --- REPLACED JALALI LOGIC WITH GREGORIAN ---
+        // Create standard English month names for the chart categories.
+        $gregorianMonths = [];
+        for ($m = 1; $m <= 12; $m++) {
+            // Create a date for the given month and format it to the full month name (e.g., "January").
+            $gregorianMonths[] = Carbon::create(null, $m, 1)->format('F');
+        }
+
+        $chartSeries = [
+            ['name' => 'Total Working Hours', 'data' => $monthlyHours]
+        ];
+
+        return view('employees.reports.yearly', [
+            'employee' => $employee,
+            'chartSeries' => $chartSeries,
+            'chartCategories' => $gregorianMonths, // Pass Gregorian months to the view
+            'targetDate' => $targetDate,
+        ]);
+    }
 }
