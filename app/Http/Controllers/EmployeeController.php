@@ -210,6 +210,7 @@ class EmployeeController extends Controller
 
     /**
      * Processes raw attendance records into a format suitable for the ApexCharts timeline.
+     * THIS IS THE FINAL, CORRECTED VERSION.
      */
     private function processAttendanceForChart($attendances)
     {
@@ -220,31 +221,39 @@ class EmployeeController extends Controller
         ];
         $categories = [];
         $processedDates = [];
-
         $lastEntry = null;
 
         foreach ($attendances as $event) {
             $eventTime = Carbon::parse($event->timestamp);
-            // Using Jalali date for the Y-axis category
-            $dateCategory = Jalalian::fromCarbon($eventTime)->format('Y/m/d');
 
-            // Add date to Y-axis categories if not already there
-            if (!in_array($dateCategory, $processedDates)) {
-                $categories[] = $dateCategory;
-                $processedDates[] = $dateCategory;
+            // --- FIX #2: Create a combined Jalali and Gregorian date label ---
+            $jalaliDate = Jalalian::fromCarbon($eventTime)->format('Y/m/d');
+            $gregorianDate = $eventTime->format('Y-m-d');
+            $combinedDateLabel = $this->convertPersianNumbersToEnglish($jalaliDate) . "  ($gregorianDate)";
+
+            if (!in_array($combinedDateLabel, $processedDates)) {
+                $categories[] = $combinedDateLabel;
+                $processedDates[] = $combinedDateLabel;
             }
 
-            // Create a timestamp representing only the time of day for the chart's X-axis
-            // We use a fixed date (like 1970-01-01) so all times are on the same scale
-            $timeValue = Carbon::createFromTime($eventTime->hour, $eventTime->minute, $eventTime->second)->timestamp * 1000;
+            // --- FIX #1: Force the timestamp to be based on the year 1970 ---
+            $timeValue = Carbon::create(1970, 1, 1, $eventTime->hour, $eventTime->minute, $eventTime->second);
 
             if ($event->event_type === 'entry') {
-                // If there was a previous entry without an exit, log it as a standalone entry
                 if ($lastEntry) {
                     $lastEntryTime = Carbon::parse($lastEntry->timestamp);
+                    $entryTimeValue = Carbon::create(1970, 1, 1, $lastEntryTime->hour, $lastEntryTime->minute, $lastEntryTime->second);
+
+                    $jalaliEntryDate = Jalalian::fromCarbon($lastEntryTime)->format('Y/m/d');
+                    $gregorianEntryDate = $lastEntryTime->format('Y-m-d');
+                    $combinedEntryLabel = $this->convertPersianNumbersToEnglish($jalaliEntryDate) . "  ($gregorianEntryDate)";
+
                     $seriesData['entries'][] = [
-                        'x' => Jalalian::fromCarbon($lastEntryTime)->format('Y/m/d'),
-                        'y' => Carbon::createFromTime($lastEntryTime->hour, $lastEntryTime->minute, $lastEntryTime->second)->timestamp * 1000,
+                        'x' => $combinedEntryLabel,
+                        'y' => [
+                            $entryTimeValue->clone()->timestamp * 1000,
+                            $entryTimeValue->clone()->addSecond()->timestamp * 1000
+                        ],
                     ];
                 }
                 $lastEntry = $event;
@@ -252,36 +261,46 @@ class EmployeeController extends Controller
 
             if ($event->event_type === 'exit') {
                 if ($lastEntry) {
-                    // We have a pair: entry and exit
                     $entryTime = Carbon::parse($lastEntry->timestamp);
+                    $entryTimeValue = Carbon::create(1970, 1, 1, $entryTime->hour, $entryTime->minute, $entryTime->second);
+
                     $seriesData['bars'][] = [
-                        'x' => $dateCategory,
+                        'x' => $combinedDateLabel,
                         'y' => [
-                            Carbon::createFromTime($entryTime->hour, $entryTime->minute, $entryTime->second)->timestamp * 1000,
-                            $timeValue // The exit time
+                            $entryTimeValue->timestamp * 1000,
+                            $timeValue->timestamp * 1000
                         ],
                     ];
-                    $lastEntry = null; // Reset after creating a pair
+                    $lastEntry = null;
                 } else {
-                    // This is a standalone exit (no preceding entry in the timeframe)
                     $seriesData['exits'][] = [
-                        'x' => $dateCategory,
-                        'y' => $timeValue,
+                        'x' => $combinedDateLabel,
+                        'y' => [
+                            $timeValue->clone()->timestamp * 1000,
+                            $timeValue->clone()->addSecond()->timestamp * 1000
+                        ],
                     ];
                 }
             }
         }
 
-        // After the loop, check if there's a leftover entry that hasn't been paired
         if ($lastEntry) {
             $lastEntryTime = Carbon::parse($lastEntry->timestamp);
+            $entryTimeValue = Carbon::create(1970, 1, 1, $lastEntryTime->hour, $lastEntryTime->minute, $lastEntryTime->second);
+
+            $jalaliEntryDate = Jalalian::fromCarbon($lastEntryTime)->format('Y/m/d');
+            $gregorianEntryDate = $lastEntryTime->format('Y-m-d');
+            $combinedEntryLabel = $this->convertPersianNumbersToEnglish($jalaliEntryDate) . "  ($gregorianEntryDate)";
+
             $seriesData['entries'][] = [
-                'x' => Jalalian::fromCarbon($lastEntryTime)->format('Y/m/d'),
-                'y' => Carbon::createFromTime($lastEntryTime->hour, $lastEntryTime->minute, $lastEntryTime->second)->timestamp * 1000,
+                'x' => $combinedEntryLabel,
+                'y' => [
+                    $entryTimeValue->clone()->timestamp * 1000,
+                    $entryTimeValue->clone()->addSecond()->timestamp * 1000
+                ],
             ];
         }
 
-        // Final structure for ApexCharts
         $finalSeries = [
             ['name' => 'ساعات کاری', 'data' => $seriesData['bars']],
             ['name' => 'ورود', 'data' => $seriesData['entries']],
@@ -289,5 +308,12 @@ class EmployeeController extends Controller
         ];
 
         return ['series' => $finalSeries, 'categories' => array_unique($categories)];
+    }
+
+    private function convertPersianNumbersToEnglish($string)
+    {
+        $persian = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+        $english = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+        return str_replace($persian, $english, $string);
     }
 }

@@ -21,7 +21,7 @@
         // --- THEME LOGIC ---
         // Get user's theme from the database (injected by Blade)
         const userTheme = "{{ Auth::user()->theme ?? 'system' }}";
-        
+
         // Get theme from localStorage as a fallback or for 'system' mode
         const storedTheme = localStorage.getItem('theme');
 
@@ -40,7 +40,7 @@
             localStorage.setItem('theme', 'light'); // Sync localStorage
         }
 
-         // --- FONT SIZE LOGIC (NEW) ---
+        // --- FONT SIZE LOGIC (NEW) ---
         // Use Blade to inject the font size from the database into a JS variable
         const userFontSize = "{{ Auth::user()->font_size ?? 100 }}";
         // Use pure JavaScript to apply the style to the root element
@@ -87,6 +87,10 @@
 
         </div>
     </div>
+
+    {{-- Add the line below right before the closing body tag --}}
+    @stack('scripts')
+
 </body>
 
 </html>
