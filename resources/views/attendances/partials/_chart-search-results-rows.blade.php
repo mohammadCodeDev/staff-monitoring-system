@@ -3,33 +3,27 @@
     {{-- Actions Column --}}
     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
         <div class="flex space-x-2 rtl:space-x-reverse">
-            {{-- ADDED CLASSES to this link --}}
             <a href="#" class="px-2 py-1 border border-indigo-600 text-indigo-600 rounded-md text-xs hover:bg-indigo-600 hover:text-white transition-colors duration-200">
                 {{ __('Monthly Report') }}
             </a>
-            {{-- ADDED CLASSES to this link --}}
             <a href="#" class="px-2 py-1 border border-teal-600 text-teal-600 rounded-md text-xs hover:bg-teal-600 hover:text-white transition-colors duration-200">
                 {{ __('Yearly Report') }}
             </a>
         </div>
     </td>
 
-    {{-- Photo Column --}}
+    {{-- Photo Column (CORRECTED) --}}
     <td class="px-6 py-4 whitespace-nowrap">
-        {{-- We apply a group class to the container div --}}
-        <div class="group relative">
-            @if ($employee->photo_path)
-            <img
-                src="{{ asset('storage/' . $employee->photo_path) }}"
-                alt="{{ $employee->full_name }}"
-                {{-- Now we use group-hover to trigger the scale effect --}}
-                class="h-10 w-10 rounded-full object-cover transition-transform duration-300 transform group-hover:scale-150">
-            @else
-            <div class="h-10 w-10 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold text-lg">
+        {{-- Logic now matches the main employees list for consistency --}}
+        @if ($employee->photo_path)
+            <img src="{{ $employee->profilePhotoUrl }}"
+                 alt="{{ $employee->full_name }}"
+                 class="h-10 w-10 rounded-full object-cover transition-transform duration-300 transform hover:scale-150">
+        @else
+            <div class="h-10 w-10 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold text-lg transition-transform duration-300 transform hover:scale-150">
                 {{ mb_substr($employee->first_name, 0, 1) }}
             </div>
-            @endif
-        </div>
+        @endif
     </td>
 
     {{-- Full Name Column --}}
@@ -37,14 +31,14 @@
         {{ $employee->full_name }}
     </td>
 
-    {{-- Department Column --}}
+    {{-- Department Column (Using nullsafe operator for consistency) --}}
     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-        {{ $employee->department->name ?? __('N/A') }}
+        {{ $employee->department?->name ?? __('N/A') }}
     </td>
 
-    {{-- Group Column --}}
+    {{-- Group Column (Using nullsafe operator for consistency) --}}
     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-        {{ $employee->group->name ?? __('N/A') }}
+        {{ $employee->group?->name ?? __('N/A') }}
     </td>
 </tr>
 @empty
