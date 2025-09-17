@@ -38,7 +38,7 @@
                 const options = {
                     series: seriesData,
                     chart: {
-                        height: 800,
+                        height: 400,
                         type: 'rangeBar', // We explicitly set the type to rangeBar for all series
                         zoom: {
                             enabled: true
@@ -52,7 +52,7 @@
                     plotOptions: {
                         bar: {
                             horizontal: true,
-                            barHeight: '50%',
+                            barHeight: '5',
                             rangeBarGroupRows: true
                         }
                     },
