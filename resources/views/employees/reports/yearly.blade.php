@@ -16,7 +16,6 @@
                     &lt; {{ __('Previous Year') }}
                 </a>
 
-                {{-- --- REPLACED JALALI YEAR WITH GREGORIAN YEAR --- --}}
                 <span class="font-bold text-lg text-gray-800 dark:text-gray-200">
                     {{ $targetDate->year }}
                 </span>
@@ -28,6 +27,13 @@
             </div>
         </div>
     </x-slot>
+
+    {{-- --- NEW: CSS for clickable labels --- --}}
+    <style>
+        .apexcharts-xaxis-label {
+            cursor: pointer;
+        }
+    </style>
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
@@ -58,6 +64,24 @@
                     fontFamily: 'inherit',
                     toolbar: {
                         show: true
+                    },
+                    // --- NEW: Event listener for X-axis clicks ---
+                    events: {
+                        xAxisLabelClick: function(event, chartContext, config) {
+                            // The index of the clicked month (0 for January, 1 for February, etc.)
+                            const monthIndex = config.labelIndex;
+                            // The month number (1 for January, 2 for February, etc.)
+                            const monthNumber = monthIndex + 1;
+
+                            // We create a URL template using Blade, with a placeholder for the month
+                            let urlTemplate = "{{ route('employees.reports.monthly', ['employee' => $employee->id, 'year' => $targetDate->year, 'month' => '__MONTH__']) }}";
+
+                            // Replace the placeholder with the actual month number
+                            let finalUrl = urlTemplate.replace('__MONTH__', monthNumber);
+
+                            // Redirect the user to the monthly report page
+                            window.location.href = finalUrl;
+                        }
                     }
                 },
                 plotOptions: {
@@ -82,7 +106,7 @@
                 },
                 yaxis: {
                     title: {
-                        text: 'Hours' // Changed to English
+                        text: 'Hours'
                     }
                 },
                 fill: {
@@ -91,7 +115,7 @@
                 tooltip: {
                     y: {
                         formatter: function(val) {
-                            return val.toFixed(2) + " hours" // Changed to English
+                            return val.toFixed(2) + " hours"
                         }
                     }
                 }
