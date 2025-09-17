@@ -188,12 +188,21 @@ class EmployeeController extends Controller
             ->with('success', __('Employee reactivated successfully.'));
     }
 
-    public function showMonthlyReport(Employee $employee)
+    public function showMonthlyReport(Request $request, Employee $employee, $year = null, $month = null)
     {
-        $startOfMonth = Carbon::now()->startOfMonth();
-        $endOfMonth = Carbon::now()->endOfMonth();
+        // Determine the target month based on URL parameters, or default to the current month.
+        if ($year && $month) {
+            // Create a Carbon instance from the provided year and month.
+            $targetDate = Carbon::createFromDate($year, $month, 1);
+        } else {
+            // Default to the current month if no parameters are provided.
+            $targetDate = Carbon::now();
+        }
 
-        // Fetch all attendance records for this employee for the current month, sorted by time
+        // Use copy() to avoid modifying the original $targetDate object.
+        $startOfMonth = $targetDate->copy()->startOfMonth();
+        $endOfMonth = $targetDate->copy()->endOfMonth();
+
         $attendances = Attendance::where('employee_id', $employee->id)
             ->whereBetween('timestamp', [$startOfMonth, $endOfMonth])
             ->orderBy('timestamp', 'asc')
@@ -201,10 +210,12 @@ class EmployeeController extends Controller
 
         $chartData = $this->processAttendanceForChart($attendances);
 
+        // Pass the targetDate to the view for the navigation links.
         return view('employees.reports.monthly', [
             'employee' => $employee,
             'chartSeries' => $chartData['series'],
             'chartCategories' => $chartData['categories'],
+            'targetDate' => $targetDate, // Pass the date object to the view
         ]);
     }
 
@@ -214,106 +225,70 @@ class EmployeeController extends Controller
      */
     private function processAttendanceForChart($attendances)
     {
+        if ($attendances->isEmpty()) {
+            return ['series' => [], 'categories' => []];
+        }
+
+        // --- NEW FOOLPROOF SORTING LOGIC ---
+        // Step 1: Group all events by their Gregorian date.
+        $eventsByDate = $attendances->groupBy(function ($event) {
+            return Carbon::parse($event->timestamp)->format('Y-m-d');
+        });
+
+        // Step 2: Sort the groups chronologically by their date key.
+        $sortedEventsByDate = $eventsByDate->sortKeys();
+
         $seriesData = [
             'bars' => [],
             'entries' => [],
             'exits' => [],
         ];
-        $categories = [];
-        $processedDates = [];
-        $lastEntry = null;
 
-        foreach ($attendances as $event) {
-            $eventTime = Carbon::parse($event->timestamp);
+        // The categories are now guaranteed to be in the correct order.
+        $categories = $sortedEventsByDate->keys()->all();
 
-            // --- FIX #2: Create a combined Jalali and Gregorian date label ---
-            $jalaliDate = Jalalian::fromCarbon($eventTime)->format('Y/m/d');
-            $gregorianDate = $eventTime->format('Y-m-d');
-            $combinedDateLabel = $this->convertPersianNumbersToEnglish($jalaliDate) . "  ($gregorianDate)";
+        // Step 3: Process the events from the now-sorted groups.
+        foreach ($sortedEventsByDate as $dateCategory => $dailyEvents) {
+            $lastEntry = null;
 
-            if (!in_array($combinedDateLabel, $processedDates)) {
-                $categories[] = $combinedDateLabel;
-                $processedDates[] = $combinedDateLabel;
-            }
+            foreach ($dailyEvents as $event) {
+                $eventTime = Carbon::parse($event->timestamp);
+                $timeValue = Carbon::create(1970, 1, 1, $eventTime->hour, $eventTime->minute, $eventTime->second, 'UTC');
 
-            // --- FIX #1: Force the timestamp to be based on the year 1970 ---
-            $timeValue = Carbon::create(1970, 1, 1, $eventTime->hour, $eventTime->minute, $eventTime->second);
-
-            if ($event->event_type === 'entry') {
-                if ($lastEntry) {
-                    $lastEntryTime = Carbon::parse($lastEntry->timestamp);
-                    $entryTimeValue = Carbon::create(1970, 1, 1, $lastEntryTime->hour, $lastEntryTime->minute, $lastEntryTime->second);
-
-                    $jalaliEntryDate = Jalalian::fromCarbon($lastEntryTime)->format('Y/m/d');
-                    $gregorianEntryDate = $lastEntryTime->format('Y-m-d');
-                    $combinedEntryLabel = $this->convertPersianNumbersToEnglish($jalaliEntryDate) . "  ($gregorianEntryDate)";
-
-                    $seriesData['entries'][] = [
-                        'x' => $combinedEntryLabel,
-                        'y' => [
-                            $entryTimeValue->clone()->timestamp * 1000,
-                            $entryTimeValue->clone()->addSecond()->timestamp * 1000
-                        ],
-                    ];
+                if ($event->event_type === 'entry') {
+                    if ($lastEntry) {
+                        $lastEntryTime = Carbon::parse($lastEntry->timestamp);
+                        $entryTimeValue = Carbon::create(1970, 1, 1, $lastEntryTime->hour, $lastEntryTime->minute, $lastEntryTime->second, 'UTC');
+                        $seriesData['entries'][] = ['x' => $lastEntryTime->format('Y-m-d'), 'y' => [$entryTimeValue->timestamp * 1000, $entryTimeValue->clone()->addMinutes(5)->timestamp * 1000]];
+                    }
+                    $lastEntry = $event;
                 }
-                $lastEntry = $event;
-            }
 
-            if ($event->event_type === 'exit') {
-                if ($lastEntry) {
-                    $entryTime = Carbon::parse($lastEntry->timestamp);
-                    $entryTimeValue = Carbon::create(1970, 1, 1, $entryTime->hour, $entryTime->minute, $entryTime->second);
-
-                    $seriesData['bars'][] = [
-                        'x' => $combinedDateLabel,
-                        'y' => [
-                            $entryTimeValue->timestamp * 1000,
-                            $timeValue->timestamp * 1000
-                        ],
-                    ];
-                    $lastEntry = null;
-                } else {
-                    $seriesData['exits'][] = [
-                        'x' => $combinedDateLabel,
-                        'y' => [
-                            $timeValue->clone()->timestamp * 1000,
-                            $timeValue->clone()->addSecond()->timestamp * 1000
-                        ],
-                    ];
+                if ($event->event_type === 'exit') {
+                    if ($lastEntry) {
+                        $entryTime = Carbon::parse($lastEntry->timestamp);
+                        $entryTimeValue = Carbon::create(1970, 1, 1, $entryTime->hour, $entryTime->minute, $entryTime->second, 'UTC');
+                        $seriesData['bars'][] = ['x' => $dateCategory, 'y' => [$entryTimeValue->timestamp * 1000, $timeValue->timestamp * 1000]];
+                        $lastEntry = null;
+                    } else {
+                        $seriesData['exits'][] = ['x' => $dateCategory, 'y' => [$timeValue->timestamp * 1000, $timeValue->clone()->addMinutes(5)->timestamp * 1000]];
+                    }
                 }
             }
-        }
 
-        if ($lastEntry) {
-            $lastEntryTime = Carbon::parse($lastEntry->timestamp);
-            $entryTimeValue = Carbon::create(1970, 1, 1, $lastEntryTime->hour, $lastEntryTime->minute, $lastEntryTime->second);
-
-            $jalaliEntryDate = Jalalian::fromCarbon($lastEntryTime)->format('Y/m/d');
-            $gregorianEntryDate = $lastEntryTime->format('Y-m-d');
-            $combinedEntryLabel = $this->convertPersianNumbersToEnglish($jalaliEntryDate) . "  ($gregorianEntryDate)";
-
-            $seriesData['entries'][] = [
-                'x' => $combinedEntryLabel,
-                'y' => [
-                    $entryTimeValue->clone()->timestamp * 1000,
-                    $entryTimeValue->clone()->addSecond()->timestamp * 1000
-                ],
-            ];
+            if ($lastEntry) {
+                $lastEntryTime = Carbon::parse($lastEntry->timestamp);
+                $entryTimeValue = Carbon::create(1970, 1, 1, $lastEntryTime->hour, $lastEntryTime->minute, $lastEntryTime->second, 'UTC');
+                $seriesData['entries'][] = ['x' => $lastEntryTime->format('Y-m-d'), 'y' => [$entryTimeValue->timestamp * 1000, $entryTimeValue->clone()->addMinutes(5)->timestamp * 1000]];
+            }
         }
 
         $finalSeries = [
-            ['name' => 'ساعات کاری', 'data' => $seriesData['bars']],
-            ['name' => 'ورود', 'data' => $seriesData['entries']],
-            ['name' => 'خروج', 'data' => $seriesData['exits']],
+            ['name' => 'Working Hours', 'data' => $seriesData['bars']],
+            ['name' => 'Entry', 'data' => $seriesData['entries']],
+            ['name' => 'Exit', 'data' => $seriesData['exits']],
         ];
 
-        return ['series' => $finalSeries, 'categories' => array_unique($categories)];
-    }
-
-    private function convertPersianNumbersToEnglish($string)
-    {
-        $persian = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
-        $english = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
-        return str_replace($persian, $english, $string);
+        return ['series' => $finalSeries, 'categories' => $categories];
     }
 }
