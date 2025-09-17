@@ -6,7 +6,10 @@ use App\Models\Department;
 use App\Models\Employee;
 use App\Models\Group;
 use Illuminate\Http\Request;
+use App\Models\Attendance;
 use Illuminate\Support\Facades\Storage;
+use Morilog\Jalali\Jalalian;
+use Carbon\Carbon;
 
 class EmployeeController extends Controller
 {
@@ -183,5 +186,108 @@ class EmployeeController extends Controller
         $employee->update(['is_active' => true]);
         return redirect()->route('employees.index')
             ->with('success', __('Employee reactivated successfully.'));
+    }
+
+    public function showMonthlyReport(Employee $employee)
+    {
+        $startOfMonth = Carbon::now()->startOfMonth();
+        $endOfMonth = Carbon::now()->endOfMonth();
+
+        // Fetch all attendance records for this employee for the current month, sorted by time
+        $attendances = Attendance::where('employee_id', $employee->id)
+            ->whereBetween('timestamp', [$startOfMonth, $endOfMonth])
+            ->orderBy('timestamp', 'asc')
+            ->get();
+
+        $chartData = $this->processAttendanceForChart($attendances);
+
+        return view('employees.reports.monthly', [
+            'employee' => $employee,
+            'chartSeries' => $chartData['series'],
+            'chartCategories' => $chartData['categories'],
+        ]);
+    }
+
+    /**
+     * Processes raw attendance records into a format suitable for the ApexCharts timeline.
+     */
+    private function processAttendanceForChart($attendances)
+    {
+        $seriesData = [
+            'bars' => [],
+            'entries' => [],
+            'exits' => [],
+        ];
+        $categories = [];
+        $processedDates = [];
+
+        $lastEntry = null;
+
+        foreach ($attendances as $event) {
+            $eventTime = Carbon::parse($event->timestamp);
+            // Using Jalali date for the Y-axis category
+            $dateCategory = Jalalian::fromCarbon($eventTime)->format('Y/m/d');
+
+            // Add date to Y-axis categories if not already there
+            if (!in_array($dateCategory, $processedDates)) {
+                $categories[] = $dateCategory;
+                $processedDates[] = $dateCategory;
+            }
+
+            // Create a timestamp representing only the time of day for the chart's X-axis
+            // We use a fixed date (like 1970-01-01) so all times are on the same scale
+            $timeValue = Carbon::createFromTime($eventTime->hour, $eventTime->minute, $eventTime->second)->timestamp * 1000;
+
+            if ($event->event_type === 'entry') {
+                // If there was a previous entry without an exit, log it as a standalone entry
+                if ($lastEntry) {
+                    $lastEntryTime = Carbon::parse($lastEntry->timestamp);
+                    $seriesData['entries'][] = [
+                        'x' => Jalalian::fromCarbon($lastEntryTime)->format('Y/m/d'),
+                        'y' => Carbon::createFromTime($lastEntryTime->hour, $lastEntryTime->minute, $lastEntryTime->second)->timestamp * 1000,
+                    ];
+                }
+                $lastEntry = $event;
+            }
+
+            if ($event->event_type === 'exit') {
+                if ($lastEntry) {
+                    // We have a pair: entry and exit
+                    $entryTime = Carbon::parse($lastEntry->timestamp);
+                    $seriesData['bars'][] = [
+                        'x' => $dateCategory,
+                        'y' => [
+                            Carbon::createFromTime($entryTime->hour, $entryTime->minute, $entryTime->second)->timestamp * 1000,
+                            $timeValue // The exit time
+                        ],
+                    ];
+                    $lastEntry = null; // Reset after creating a pair
+                } else {
+                    // This is a standalone exit (no preceding entry in the timeframe)
+                    $seriesData['exits'][] = [
+                        'x' => $dateCategory,
+                        'y' => $timeValue,
+                    ];
+                }
+            }
+        }
+
+        // After the loop, check if there's a leftover entry that hasn't been paired
+        if ($lastEntry) {
+            $lastEntryTime = Carbon::parse($lastEntry->timestamp);
+            $seriesData['entries'][] = [
+                'x' => Jalalian::fromCarbon($lastEntryTime)->format('Y/m/d'),
+                'y' => Carbon::createFromTime($lastEntryTime->hour, $lastEntryTime->minute, $lastEntryTime->second)->timestamp * 1000,
+            ];
+        }
+
+        // Final structure for ApexCharts
+        $finalSeries = [
+            ['name' => 'ساعات کاری', 'data' => $seriesData['bars']],
+            ['name' => 'ورود', 'data' => $seriesData['entries']],
+            ['name' => 'خروج', 'data' => $seriesData['exits']],
+        ];
+
+        return ['series' => $finalSeries, 'categories' => array_unique($categories)];
     }
 }

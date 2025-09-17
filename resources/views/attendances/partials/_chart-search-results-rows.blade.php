@@ -3,7 +3,7 @@
     {{-- Actions Column --}}
     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
         <div class="flex space-x-2 rtl:space-x-reverse">
-            <a href="#" class="px-2 py-1 border border-indigo-600 text-indigo-600 rounded-md text-xs hover:bg-indigo-600 hover:text-white transition-colors duration-200">
+            <a href="{{ route('employees.reports.monthly', $employee->id) }}" class="px-2 py-1 border border-indigo-600 text-indigo-600 rounded-md text-xs hover:bg-indigo-600 hover:text-white transition-colors duration-200">
                 {{ __('Monthly Report') }}
             </a>
             <a href="#" class="px-2 py-1 border border-teal-600 text-teal-600 rounded-md text-xs hover:bg-teal-600 hover:text-white transition-colors duration-200">
@@ -16,13 +16,13 @@
     <td class="px-6 py-4 whitespace-nowrap">
         {{-- Logic now matches the main employees list for consistency --}}
         @if ($employee->photo_path)
-            <img src="{{ $employee->profilePhotoUrl }}"
-                 alt="{{ $employee->full_name }}"
-                 class="h-10 w-10 rounded-full object-cover transition-transform duration-300 transform hover:scale-150">
+        <img src="{{ $employee->profilePhotoUrl }}"
+            alt="{{ $employee->full_name }}"
+            class="h-10 w-10 rounded-full object-cover transition-transform duration-300 transform hover:scale-150">
         @else
-            <div class="h-10 w-10 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold text-lg transition-transform duration-300 transform hover:scale-150">
-                {{ mb_substr($employee->first_name, 0, 1) }}
-            </div>
+        <div class="h-10 w-10 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold text-lg transition-transform duration-300 transform hover:scale-150">
+            {{ mb_substr($employee->first_name, 0, 1) }}
+        </div>
         @endif
     </td>
 

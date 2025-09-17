@@ -55,6 +55,10 @@ Route::middleware(['auth', 'role:Roles.System Admin'])->group(function () {
     Route::resource('departments', DepartmentController::class);
 
     Route::resource('groups', GroupController::class);
+
+    // ROUTE FOR THE MONTHLY REPORT
+    Route::get('/employees/{employee}/reports/monthly', [EmployeeController::class, 'showMonthlyReport'])
+        ->name('employees.reports.monthly');
 });
 
 Route::middleware(['auth', 'role:Roles.System Admin'])->prefix('admin')->name('admin.')->group(function () {
