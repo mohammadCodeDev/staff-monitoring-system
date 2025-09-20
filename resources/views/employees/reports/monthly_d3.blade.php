@@ -108,6 +108,13 @@
                 left: 40
             };
 
+            // --- NEW: Helper function to convert decimal hours to HH:MM format ---
+            function decimalToHHMM(decimal) {
+                const hours = Math.floor(decimal);
+                const minutes = Math.round((decimal - hours) * 60);
+                return hours.toString().padStart(2, '0') + ':' + minutes.toString().padStart(2, '0');
+            }
+
             function updateChart() {
                 const width = chartDataElement.parentElement.clientWidth * 0.95;
                 const height = width * 2 / 4;
@@ -140,56 +147,41 @@
                 });
 
                 fullData.forEach(d => {
-                    // --- 1. Draw Working Hour Intervals (Black) ---
                     if (d.intervals) {
                         d.intervals.forEach(interval => {
-                            const color = "#000000"; // Black
                             g.append("line")
-                                .attr("class", "interval-line")
-                                .attr("x1", x(interval.start))
-                                .attr("x2", x(interval.end))
-                                .attr("y1", y(d.day) + y.bandwidth() / 2)
-                                .attr("y2", y(d.day) + y.bandwidth() / 2)
-                                .attr("stroke", color)
+                                .attr("class", "interval-line").attr("stroke", "#000000")
+                                .attr("x1", x(interval.start)).attr("x2", x(interval.end))
+                                .attr("y1", y(d.day) + y.bandwidth() / 2).attr("y2", y(d.day) + y.bandwidth() / 2)
                                 .on("mouseover", event => {
                                     tooltip.style("opacity", 1)
-                                        .html(`روز ${d.day} (ساعات کاری)<br>ساعت: ${interval.start.toFixed(2)} - ${interval.end.toFixed(2)}`)
+                                        .html(`روز ${d.day} (ساعات کاری)<br>ساعت: ${decimalToHHMM(interval.start)} - ${decimalToHHMM(interval.end)}`)
                                         .style("left", (event.pageX + 12) + "px").style("top", (event.pageY - 25) + "px");
                                 })
                                 .on("mouseout", () => tooltip.style("opacity", 0));
                         });
                     }
-
-                    // --- 2. Draw Standalone Entries (Green) ---
                     if (d.entries) {
                         d.entries.forEach(entryHour => {
-                            const color = "#28a745"; // Green
                             g.append("circle")
-                                .attr("cx", x(entryHour))
-                                .attr("cy", y(d.day) + y.bandwidth() / 2)
-                                .attr("r", 4) // Slightly larger radius for visibility
-                                .attr("fill", color)
+                                .attr("cx", x(entryHour)).attr("cy", y(d.day) + y.bandwidth() / 2)
+                                .attr("r", 4).attr("fill", "#28a745")
                                 .on("mouseover", event => {
                                     tooltip.style("opacity", 1)
-                                        .html(`روز ${d.day} (ورود تنها)<br>ساعت: ${entryHour.toFixed(2)}`)
+                                        .html(`روز ${d.day} (ورود)<br>ساعت: ${decimalToHHMM(entryHour)}`)
                                         .style("left", (event.pageX + 12) + "px").style("top", (event.pageY - 25) + "px");
                                 })
                                 .on("mouseout", () => tooltip.style("opacity", 0));
                         });
                     }
-
-                    // --- 3. Draw Standalone Exits (Red) ---
                     if (d.exits) {
                         d.exits.forEach(exitHour => {
-                            const color = "#dc3545"; // Red
                             g.append("circle")
-                                .attr("cx", x(exitHour))
-                                .attr("cy", y(d.day) + y.bandwidth() / 2)
-                                .attr("r", 4)
-                                .attr("fill", color)
+                                .attr("cx", x(exitHour)).attr("cy", y(d.day) + y.bandwidth() / 2)
+                                .attr("r", 4).attr("fill", "#dc3545")
                                 .on("mouseover", event => {
                                     tooltip.style("opacity", 1)
-                                        .html(`روز ${d.day} (خروج تنها)<br>ساعت: ${exitHour.toFixed(2)}`)
+                                        .html(`روز ${d.day} (خروج)<br>ساعت: ${decimalToHHMM(exitHour)}`)
                                         .style("left", (event.pageX + 12) + "px").style("top", (event.pageY - 25) + "px");
                                 })
                                 .on("mouseout", () => tooltip.style("opacity", 0));

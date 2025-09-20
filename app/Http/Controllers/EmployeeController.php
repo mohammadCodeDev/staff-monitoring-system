@@ -377,22 +377,20 @@ class EmployeeController extends Controller
     // Add this new private helper method to format data for D3
     private function processAttendanceForD3Chart($attendances)
     {
-        // First, group all events by the day they occurred on.
         $eventsByDate = $attendances->groupBy(function ($event) {
             return Carbon::parse($event->timestamp)->format('Y-m-d');
         });
 
         $finalData = [];
 
-        // Process each day's events individually.
         foreach ($eventsByDate as $date => $dailyEvents) {
             $dayOfMonth = Carbon::parse($date)->day;
 
             $dayData = [
                 'day' => $dayOfMonth,
                 'intervals' => [],
-                'entries' => [], // For standalone entries
-                'exits' => [],   // For standalone exits
+                'entries' => [],
+                'exits' => [],
             ];
 
             $lastEntry = null;
@@ -402,7 +400,6 @@ class EmployeeController extends Controller
                 $decimalHour = $eventTime->hour + ($eventTime->minute / 60);
 
                 if ($event->event_type === 'entry') {
-                    // If there was a previous entry without an exit, it's a standalone entry.
                     if ($lastEntry) {
                         $lastEntryTime = Carbon::parse($lastEntry->timestamp);
                         $dayData['entries'][] = $lastEntryTime->hour + ($lastEntryTime->minute / 60);
@@ -412,19 +409,24 @@ class EmployeeController extends Controller
 
                 if ($event->event_type === 'exit') {
                     if ($lastEntry) {
-                        // A pair is found. Create an interval.
                         $entryTime = Carbon::parse($lastEntry->timestamp);
                         $startHour = $entryTime->hour + ($entryTime->minute / 60);
+
+                        // --- THIS IS THE KEY CHANGE ---
+                        // 1. Add the interval for the black line.
                         $dayData['intervals'][] = ['start' => $startHour, 'end' => $decimalHour];
-                        $lastEntry = null; // Reset after pairing.
+
+                        // 2. ALSO add the start and end points to the dot arrays.
+                        $dayData['entries'][] = $startHour; // For the green dot
+                        $dayData['exits'][] = $decimalHour;   // For the red dot
+
+                        $lastEntry = null;
                     } else {
-                        // An exit without a preceding entry is a standalone exit.
                         $dayData['exits'][] = $decimalHour;
                     }
                 }
             }
 
-            // After checking all events for the day, if there's a leftover entry, it's standalone.
             if ($lastEntry) {
                 $lastEntryTime = Carbon::parse($lastEntry->timestamp);
                 $dayData['entries'][] = $lastEntryTime->hour + ($lastEntryTime->minute / 60);
