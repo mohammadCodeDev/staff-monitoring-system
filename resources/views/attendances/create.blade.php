@@ -59,7 +59,7 @@
                     show = false;      // Hide the message
                     search = '';       // Clear the search input
                     fetchEmployees();  // Clear the results list
-                }, 3000)"
+                }, 1000)"
                 x-show="show"
                 x-transition
                 class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">

@@ -68,7 +68,7 @@
                 const options = {
                     series: seriesData,
                     chart: {
-                        height: 400,
+                        height: 600,
                         type: 'rangeBar',
                         toolbar: {
                             show: true,

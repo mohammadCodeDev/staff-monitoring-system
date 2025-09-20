@@ -190,16 +190,12 @@ class EmployeeController extends Controller
 
     public function showMonthlyReport(Request $request, Employee $employee, $year = null, $month = null)
     {
-        // Determine the target month based on URL parameters, or default to the current month.
         if ($year && $month) {
-            // Create a Carbon instance from the provided year and month.
             $targetDate = Carbon::createFromDate($year, $month, 1);
         } else {
-            // Default to the current month if no parameters are provided.
             $targetDate = Carbon::now();
         }
 
-        // Use copy() to avoid modifying the original $targetDate object.
         $startOfMonth = $targetDate->copy()->startOfMonth();
         $endOfMonth = $targetDate->copy()->endOfMonth();
 
@@ -208,14 +204,22 @@ class EmployeeController extends Controller
             ->orderBy('timestamp', 'asc')
             ->get();
 
+        // --- NEW LOGIC: Generate a complete list of all days in the month ---
+        $allDaysOfMonth = [];
+        $currentDay = $startOfMonth->copy();
+        while ($currentDay->lte($endOfMonth)) {
+            $allDaysOfMonth[] = $currentDay->format('Y-m-d');
+            $currentDay->addDay();
+        }
+        // --- END OF NEW LOGIC ---
+
         $chartData = $this->processAttendanceForChart($attendances);
 
-        // Pass the targetDate to the view for the navigation links.
         return view('employees.reports.monthly', [
             'employee' => $employee,
             'chartSeries' => $chartData['series'],
-            'chartCategories' => $chartData['categories'],
-            'targetDate' => $targetDate, // Pass the date object to the view
+            'chartCategories' => $allDaysOfMonth, // Pass the complete list of days to the view
+            'targetDate' => $targetDate,
         ]);
     }
 
@@ -226,61 +230,52 @@ class EmployeeController extends Controller
     private function processAttendanceForChart($attendances)
     {
         if ($attendances->isEmpty()) {
-            return ['series' => [], 'categories' => []];
+            // Return an empty structure for the series.
+            return ['series' => [
+                ['name' => 'Working Hours', 'data' => []],
+                ['name' => 'Entry', 'data' => []],
+                ['name' => 'Exit', 'data' => []],
+            ]];
         }
-
-        // --- NEW FOOLPROOF SORTING LOGIC ---
-        // Step 1: Group all events by their Gregorian date.
-        $eventsByDate = $attendances->groupBy(function ($event) {
-            return Carbon::parse($event->timestamp)->format('Y-m-d');
-        });
-
-        // Step 2: Sort the groups chronologically by their date key.
-        $sortedEventsByDate = $eventsByDate->sortKeys();
 
         $seriesData = [
             'bars' => [],
             'entries' => [],
             'exits' => [],
         ];
+        $lastEntry = null;
 
-        // The categories are now guaranteed to be in the correct order.
-        $categories = $sortedEventsByDate->keys()->all();
+        // This simplified version no longer creates categories. It only processes events.
+        foreach ($attendances as $event) {
+            $eventTime = Carbon::parse($event->timestamp);
+            $dateCategory = $eventTime->format('Y-m-d');
+            $timeValue = Carbon::create(1970, 1, 1, $eventTime->hour, $eventTime->minute, $eventTime->second, 'UTC');
 
-        // Step 3: Process the events from the now-sorted groups.
-        foreach ($sortedEventsByDate as $dateCategory => $dailyEvents) {
-            $lastEntry = null;
-
-            foreach ($dailyEvents as $event) {
-                $eventTime = Carbon::parse($event->timestamp);
-                $timeValue = Carbon::create(1970, 1, 1, $eventTime->hour, $eventTime->minute, $eventTime->second, 'UTC');
-
-                if ($event->event_type === 'entry') {
-                    if ($lastEntry) {
-                        $lastEntryTime = Carbon::parse($lastEntry->timestamp);
-                        $entryTimeValue = Carbon::create(1970, 1, 1, $lastEntryTime->hour, $lastEntryTime->minute, $lastEntryTime->second, 'UTC');
-                        $seriesData['entries'][] = ['x' => $lastEntryTime->format('Y-m-d'), 'y' => [$entryTimeValue->timestamp * 1000, $entryTimeValue->clone()->addMinutes(5)->timestamp * 1000]];
-                    }
-                    $lastEntry = $event;
+            if ($event->event_type === 'entry') {
+                if ($lastEntry) {
+                    $lastEntryTime = Carbon::parse($lastEntry->timestamp);
+                    $entryTimeValue = Carbon::create(1970, 1, 1, $lastEntryTime->hour, $lastEntryTime->minute, $lastEntryTime->second, 'UTC');
+                    $seriesData['entries'][] = ['x' => $lastEntryTime->format('Y-m-d'), 'y' => [$entryTimeValue->timestamp * 1000, $entryTimeValue->clone()->addMinutes(5)->timestamp * 1000]];
                 }
-
-                if ($event->event_type === 'exit') {
-                    if ($lastEntry) {
-                        $entryTime = Carbon::parse($lastEntry->timestamp);
-                        $entryTimeValue = Carbon::create(1970, 1, 1, $entryTime->hour, $entryTime->minute, $entryTime->second, 'UTC');
-                        $seriesData['bars'][] = ['x' => $dateCategory, 'y' => [$entryTimeValue->timestamp * 1000, $timeValue->timestamp * 1000]];
-                        $lastEntry = null;
-                    } else {
-                        $seriesData['exits'][] = ['x' => $dateCategory, 'y' => [$timeValue->timestamp * 1000, $timeValue->clone()->addMinutes(5)->timestamp * 1000]];
-                    }
-                }
+                $lastEntry = $event;
             }
 
-            if ($lastEntry) {
-                $lastEntryTime = Carbon::parse($lastEntry->timestamp);
-                $entryTimeValue = Carbon::create(1970, 1, 1, $lastEntryTime->hour, $lastEntryTime->minute, $lastEntryTime->second, 'UTC');
-                $seriesData['entries'][] = ['x' => $lastEntryTime->format('Y-m-d'), 'y' => [$entryTimeValue->timestamp * 1000, $entryTimeValue->clone()->addMinutes(5)->timestamp * 1000]];
+            if ($event->event_type === 'exit') {
+                if ($lastEntry) {
+                    $entryTime = Carbon::parse($lastEntry->timestamp);
+                    $entryTimeValue = Carbon::create(1970, 1, 1, $entryTime->hour, $entryTime->minute, $entryTime->second, 'UTC');
+                    $seriesData['bars'][] = ['x' => $dateCategory, 'y' => [$entryTimeValue->timestamp * 1000, $timeValue->timestamp * 1000]];
+                    $lastEntry = null;
+                } else {
+                    $seriesData['exits'][] = ['x' => $dateCategory, 'y' => [$timeValue->timestamp * 1000, $timeValue->clone()->addMinutes(5)->timestamp * 1000]];
+                }
             }
+        }
+
+        if ($lastEntry) {
+            $lastEntryTime = Carbon::parse($lastEntry->timestamp);
+            $entryTimeValue = Carbon::create(1970, 1, 1, $lastEntryTime->hour, $lastEntryTime->minute, $lastEntryTime->second, 'UTC');
+            $seriesData['entries'][] = ['x' => $lastEntryTime->format('Y-m-d'), 'y' => [$entryTimeValue->timestamp * 1000, $entryTimeValue->clone()->addMinutes(5)->timestamp * 1000]];
         }
 
         $finalSeries = [
@@ -289,7 +284,8 @@ class EmployeeController extends Controller
             ['name' => 'Exit', 'data' => $seriesData['exits']],
         ];
 
-        return ['series' => $finalSeries, 'categories' => $categories];
+        // This method now only returns the series data.
+        return ['series' => $finalSeries];
     }
 
     public function showYearlyReport(Request $request, Employee $employee, $year = null)
