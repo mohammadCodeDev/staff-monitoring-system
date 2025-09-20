@@ -364,17 +364,29 @@ class EmployeeController extends Controller
             ->orderBy('timestamp', 'asc')
             ->get();
 
-        // Call the new helper to format data specifically for D3.js
         $d3ChartData = $this->processAttendanceForD3Chart($attendances);
+
+        // --- NEW: Create a list of all Gregorian months ---
+        $allGregorianMonths = [];
+        for ($m = 1; $m <= 12; $m++) {
+            // Create a Carbon instance for each month to get its name (e.g., "January")
+            $allGregorianMonths[$m] = Carbon::create(null, $m, 1)->format('F');
+        }
+
+        $currentYear = $targetDate->year;
+        $yearRange = range($currentYear - 5, $currentYear + 2);
 
         return view('employees.reports.monthly_d3', [
             'employee' => $employee,
             'd3ChartData' => $d3ChartData,
             'targetDate' => $targetDate,
+            'officeHours' => ['start' => 8.0, 'end' => 17.0],
+            'allMonths' => $allGregorianMonths, // Changed variable name for clarity
+            'yearRange' => $yearRange,
         ]);
     }
 
-    // Add this new private helper method to format data for D3
+    // private helper method to format data for D3
     private function processAttendanceForD3Chart($attendances)
     {
         $eventsByDate = $attendances->groupBy(function ($event) {
