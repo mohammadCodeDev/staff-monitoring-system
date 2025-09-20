@@ -377,38 +377,60 @@ class EmployeeController extends Controller
     // Add this new private helper method to format data for D3
     private function processAttendanceForD3Chart($attendances)
     {
-        $intervalsByDay = [];
-        $lastEntry = null;
+        // First, group all events by the day they occurred on.
+        $eventsByDate = $attendances->groupBy(function ($event) {
+            return Carbon::parse($event->timestamp)->format('Y-m-d');
+        });
 
-        foreach ($attendances as $event) {
-            if ($event->event_type === 'entry') {
-                $lastEntry = $event;
-            }
-
-            if ($event->event_type === 'exit' && $lastEntry) {
-                $entryTime = Carbon::parse($lastEntry->timestamp);
-                $exitTime = Carbon::parse($event->timestamp);
-
-                if ($entryTime->isSameDay($exitTime)) {
-                    $day = $entryTime->day;
-
-                    // Convert time to a decimal format (e.g., 08:30 becomes 8.5)
-                    $startHour = $entryTime->hour + ($entryTime->minute / 60);
-                    $endHour = $exitTime->hour + ($exitTime->minute / 60);
-
-                    if (!isset($intervalsByDay[$day])) {
-                        $intervalsByDay[$day] = [];
-                    }
-                    $intervalsByDay[$day][] = ['start' => $startHour, 'end' => $endHour];
-                }
-                $lastEntry = null;
-            }
-        }
-
-        // Convert the associative array to the final format D3 expects
         $finalData = [];
-        foreach ($intervalsByDay as $day => $intervals) {
-            $finalData[] = ['day' => $day, 'intervals' => $intervals];
+
+        // Process each day's events individually.
+        foreach ($eventsByDate as $date => $dailyEvents) {
+            $dayOfMonth = Carbon::parse($date)->day;
+
+            $dayData = [
+                'day' => $dayOfMonth,
+                'intervals' => [],
+                'entries' => [], // For standalone entries
+                'exits' => [],   // For standalone exits
+            ];
+
+            $lastEntry = null;
+
+            foreach ($dailyEvents as $event) {
+                $eventTime = Carbon::parse($event->timestamp);
+                $decimalHour = $eventTime->hour + ($eventTime->minute / 60);
+
+                if ($event->event_type === 'entry') {
+                    // If there was a previous entry without an exit, it's a standalone entry.
+                    if ($lastEntry) {
+                        $lastEntryTime = Carbon::parse($lastEntry->timestamp);
+                        $dayData['entries'][] = $lastEntryTime->hour + ($lastEntryTime->minute / 60);
+                    }
+                    $lastEntry = $event;
+                }
+
+                if ($event->event_type === 'exit') {
+                    if ($lastEntry) {
+                        // A pair is found. Create an interval.
+                        $entryTime = Carbon::parse($lastEntry->timestamp);
+                        $startHour = $entryTime->hour + ($entryTime->minute / 60);
+                        $dayData['intervals'][] = ['start' => $startHour, 'end' => $decimalHour];
+                        $lastEntry = null; // Reset after pairing.
+                    } else {
+                        // An exit without a preceding entry is a standalone exit.
+                        $dayData['exits'][] = $decimalHour;
+                    }
+                }
+            }
+
+            // After checking all events for the day, if there's a leftover entry, it's standalone.
+            if ($lastEntry) {
+                $lastEntryTime = Carbon::parse($lastEntry->timestamp);
+                $dayData['entries'][] = $lastEntryTime->hour + ($lastEntryTime->minute / 60);
+            }
+
+            $finalData[] = $dayData;
         }
 
         return $finalData;
