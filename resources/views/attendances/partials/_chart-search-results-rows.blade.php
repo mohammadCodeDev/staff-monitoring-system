@@ -3,7 +3,7 @@
     {{-- Actions Column --}}
     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
         <div class="flex space-x-2 rtl:space-x-reverse">
-            <a href="{{ route('employees.reports.monthly', $employee->id) }}" class="px-2 py-1 border border-indigo-600 text-indigo-600 rounded-md text-xs hover:bg-indigo-600 hover:text-white transition-colors duration-200">
+            <a href="{{ route('employees.reports.monthly_d3', $employee->id) }}" class="px-2 py-1 border border-indigo-600 text-indigo-600 rounded-md text-xs hover:bg-indigo-600 hover:text-white transition-colors duration-200">
                 {{ __('Monthly Report') }}
             </a>
             <a href="{{ route('employees.reports.yearly', $employee->id) }}" class="px-2 py-1 border border-teal-600 text-teal-600 rounded-md text-xs hover:bg-teal-600 hover:text-white transition-colors duration-200">

@@ -58,11 +58,15 @@ Route::middleware(['auth', 'role:Roles.System Admin'])->group(function () {
 
     // ROUTE FOR THE MONTHLY REPORT
     Route::get('/employees/{employee}/reports/monthly/{year?}/{month?}', [EmployeeController::class, 'showMonthlyReport'])
-    ->name('employees.reports.monthly');
+        ->name('employees.reports.monthly');
 
     // ROUTE FOR THE YEARLY REPORT
     Route::get('/employees/{employee}/reports/yearly/{year?}', [EmployeeController::class, 'showYearlyReport'])
         ->name('employees.reports.yearly');
+
+    // ROUTE FOR THE D3.JS MONTHLY REPORT
+    Route::get('/employees/{employee}/reports/monthly-d3/{year?}/{month?}', [EmployeeController::class, 'showMonthlyD3Report'])
+        ->name('employees.reports.monthly_d3');
 });
 
 Route::middleware(['auth', 'role:Roles.System Admin'])->prefix('admin')->name('admin.')->group(function () {

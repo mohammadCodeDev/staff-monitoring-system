@@ -346,4 +346,71 @@ class EmployeeController extends Controller
             'targetDate' => $targetDate,
         ]);
     }
+
+    // new public method for the D3 report page
+    public function showMonthlyD3Report(Request $request, Employee $employee, $year = null, $month = null)
+    {
+        if ($year && $month) {
+            $targetDate = Carbon::createFromDate($year, $month, 1)->startOfDay();
+        } else {
+            $targetDate = Carbon::now()->startOfDay();
+        }
+
+        $startOfMonth = $targetDate->copy()->startOfMonth();
+        $endOfMonth = $targetDate->copy()->endOfMonth();
+
+        $attendances = Attendance::where('employee_id', $employee->id)
+            ->whereBetween('timestamp', [$startOfMonth, $endOfMonth])
+            ->orderBy('timestamp', 'asc')
+            ->get();
+
+        // Call the new helper to format data specifically for D3.js
+        $d3ChartData = $this->processAttendanceForD3Chart($attendances);
+
+        return view('employees.reports.monthly_d3', [
+            'employee' => $employee,
+            'd3ChartData' => $d3ChartData,
+            'targetDate' => $targetDate,
+        ]);
+    }
+
+    // Add this new private helper method to format data for D3
+    private function processAttendanceForD3Chart($attendances)
+    {
+        $intervalsByDay = [];
+        $lastEntry = null;
+
+        foreach ($attendances as $event) {
+            if ($event->event_type === 'entry') {
+                $lastEntry = $event;
+            }
+
+            if ($event->event_type === 'exit' && $lastEntry) {
+                $entryTime = Carbon::parse($lastEntry->timestamp);
+                $exitTime = Carbon::parse($event->timestamp);
+
+                if ($entryTime->isSameDay($exitTime)) {
+                    $day = $entryTime->day;
+
+                    // Convert time to a decimal format (e.g., 08:30 becomes 8.5)
+                    $startHour = $entryTime->hour + ($entryTime->minute / 60);
+                    $endHour = $exitTime->hour + ($exitTime->minute / 60);
+
+                    if (!isset($intervalsByDay[$day])) {
+                        $intervalsByDay[$day] = [];
+                    }
+                    $intervalsByDay[$day][] = ['start' => $startHour, 'end' => $endHour];
+                }
+                $lastEntry = null;
+            }
+        }
+
+        // Convert the associative array to the final format D3 expects
+        $finalData = [];
+        foreach ($intervalsByDay as $day => $intervals) {
+            $finalData[] = ['day' => $day, 'intervals' => $intervals];
+        }
+
+        return $finalData;
+    }
 }
