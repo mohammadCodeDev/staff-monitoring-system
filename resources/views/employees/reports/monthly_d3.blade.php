@@ -7,7 +7,7 @@
 
     <style>
         .axis.y-axis text {
-            transform: translateX(-5px);
+            transform: translateX(-10px);
         }
 
         .d3-chart-container {
@@ -120,14 +120,15 @@
                     <div id="chart-data" class="hidden" data-events='@json($d3ChartData)' data-days-in-month="{{ $targetDate->daysInMonth }}" data-office-hours='@json($officeHours)'></div>
                 </div>
             </div>
+
             <div class="mt-6 bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-4 flex items-center justify-center space-x-6 rtl:space-x-reverse">
-                    <label class="flex items-center space-x-2 rtl:space-x-reverse text-gray-700 dark:text-gray-300">
-                        <input type="checkbox" id="officeHoursToggle" class="rounded dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-indigo-600 shadow-sm focus:ring-indigo-500 dark:focus:ring-indigo-600 dark:focus:ring-offset-gray-800" disabled>
+                    <label class="flex items-center space-x-2 rtl:space-x-reverse text-gray-700 dark:text-gray-300 cursor-pointer">
+                        <input type="checkbox" id="officeHoursToggle" class="rounded dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-indigo-600 shadow-sm focus:ring-indigo-500 dark:focus:ring-indigo-600 dark:focus:ring-offset-gray-800">
                         <span>تفکیک ساعات اداری</span>
                     </label>
-                    <label class="flex items-center space-x-2 rtl:space-x-reverse text-gray-700 dark:text-gray-300">
-                        <input type="checkbox" id="amPmToggle" class="rounded dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-indigo-600 shadow-sm focus:ring-indigo-500 dark:focus:ring-indigo-600 dark:focus:ring-offset-gray-800" disabled>
+                    <label class="flex items-center space-x-2 rtl:space-x-reverse text-gray-700 dark:text-gray-300 cursor-pointer">
+                        <input type="checkbox" id="amPmToggle" class="rounded dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-indigo-600 shadow-sm focus:ring-indigo-500 dark:focus:ring-indigo-600 dark:focus:ring-offset-gray-800">
                         <span>تفکیک صبح و عصر</span>
                     </label>
                 </div>
@@ -137,7 +138,6 @@
     </div>
 
     @push('scripts')
-    {{-- The script part remains unchanged from the previous version --}}
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -146,6 +146,10 @@
             const eventData = JSON.parse(chartDataElement.dataset.events);
             const daysInMonth = parseInt(chartDataElement.dataset.daysInMonth);
             const officeHours = JSON.parse(chartDataElement.dataset.officeHours);
+
+            // --- Get checkbox elements ---
+            const officeHoursToggle = document.getElementById('officeHoursToggle');
+            const amPmToggle = document.getElementById('amPmToggle');
 
             const tooltip = d3.select("#tooltip");
             const svg = d3.select("#chart");
@@ -162,6 +166,7 @@
                 return hours.toString().padStart(2, '0') + ':' + minutes.toString().padStart(2, '0');
             }
 
+            // --- Function to segment intervals based on coloring mode ---
             function segmentInterval(interval, coloringMode) {
                 const segments = [];
                 let {
@@ -173,9 +178,10 @@
                         s: start,
                         e: end,
                         color: "#000000"
-                    }];
+                    }]; // Default: black
                 }
-                const boundaries = (coloringMode === 'office') ? [officeHours.start, officeHours.end] : [12];
+                const boundaries = (coloringMode === 'office') ? [officeHours.start, officeHours.end] : [12]; // AM/PM split at noon (12:00)
+
                 let current = start;
                 boundaries.forEach(boundary => {
                     if (current < boundary && end > boundary) {
@@ -190,13 +196,14 @@
                     s: current,
                     e: end
                 });
+
                 return segments.map(seg => {
                     let color;
                     const midPoint = (seg.s + seg.e) / 2;
                     if (coloringMode === 'office') {
                         color = (midPoint >= officeHours.start && midPoint < officeHours.end) ? '#1f77b4' : '#ff7f0e';
-                    } else {
-                        color = (midPoint < 12) ? '#2ca02c' : '#d62728';
+                    } else { // ampm
+                        color = (midPoint < 12) ? '#4ed3ccff' : '#d627b0ff';
                     }
                     return {
                         ...seg,
@@ -206,7 +213,13 @@
             }
 
             function updateChart() {
-                const coloringMode = 'none';
+                // --- CHANGED: Read the state of the checkboxes to set coloring mode ---
+                const officeChecked = officeHoursToggle.checked;
+                const amPmChecked = amPmToggle.checked;
+                let coloringMode = 'none';
+                if (officeChecked) coloringMode = 'office';
+                else if (amPmChecked) coloringMode = 'ampm';
+
                 const width = chartDataElement.parentElement.clientWidth * 0.95;
                 const height = 500;
                 svg.attr("width", width).attr("height", height);
@@ -244,7 +257,14 @@
                                 g.append("line")
                                     .attr("class", "interval-line").attr("stroke", seg.color)
                                     .attr("x1", x(seg.s)).attr("x2", x(seg.e))
-                                    .attr("y1", y(d.day) + y.bandwidth() / 2).attr("y2", y(d.day) + y.bandwidth() / 2);
+                                    .attr("y1", y(d.day) + y.bandwidth() / 2).attr("y2", y(d.day) + y.bandwidth() / 2)
+                                    // --- FIX: Added mouse events back to the interval lines ---
+                                    .on("mouseover", event => {
+                                        tooltip.style("opacity", 1)
+                                            .html(`روز ${d.day} (ساعات کاری)<br>ساعت: ${decimalToHHMM(interval.start)} - ${decimalToHHMM(interval.end)}`)
+                                            .style("left", (event.pageX + 12) + "px").style("top", (event.pageY - 25) + "px");
+                                    })
+                                    .on("mouseout", () => tooltip.style("opacity", 0));
                             });
                         });
                     }
@@ -277,8 +297,25 @@
                 });
             }
 
+            // --- NEW: Add event listeners to the checkboxes ---
+            officeHoursToggle.addEventListener('change', () => {
+                if (officeHoursToggle.checked) {
+                    amPmToggle.checked = false; // Ensure only one is active
+                }
+                updateChart(); // Redraw the chart
+            });
+
+            amPmToggle.addEventListener('change', () => {
+                if (amPmToggle.checked) {
+                    officeHoursToggle.checked = false; // Ensure only one is active
+                }
+                updateChart(); // Redraw the chart
+            });
+
+            // Initial drawing of the chart
             updateChart();
             window.addEventListener("resize", updateChart);
+
         });
     </script>
     @endpush

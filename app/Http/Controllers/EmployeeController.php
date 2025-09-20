@@ -380,7 +380,7 @@ class EmployeeController extends Controller
             'employee' => $employee,
             'd3ChartData' => $d3ChartData,
             'targetDate' => $targetDate,
-            'officeHours' => ['start' => 8.0, 'end' => 17.0],
+            'officeHours' => ['start' => 6.0, 'end' => 13.0],
             'allMonths' => $allGregorianMonths, // Changed variable name for clarity
             'yearRange' => $yearRange,
         ]);
