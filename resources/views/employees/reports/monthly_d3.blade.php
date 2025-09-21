@@ -1,8 +1,15 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('Monthly Attendance Report for') }}: {{ $employee->full_name }}
-        </h2>
+        <div class="flex justify-between items-center">
+            <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+                {{ __('Monthly Attendance Report for') }}: {{ $employee->full_name }}
+            </h2>
+
+            <a href="{{ route('employees.reports.yearly', ['employee' => $employee->id, 'year' => $targetDate->year]) }}"
+                class="px-4 py-2 text-xs font-semibold text-white uppercase bg-gray-600 rounded-md hover:bg-gray-500 transition">
+                {{ __('View Yearly Report') }}
+            </a>
+        </div>
     </x-slot>
 
     <style>
@@ -59,7 +66,7 @@
         }
     </style>
 
-    <div class="py-12">
+    <div class="py-12" x-data="{ officeHoursChecked: false, amPmChecked: false }">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
             <div class="mb-6 bg-white dark:bg-gray-800 shadow-sm sm:rounded-lg">
@@ -110,6 +117,7 @@
 
                         <a href="{{ route('employees.reports.monthly_d3', ['employee' => $employee->id, 'year' => $nextMonth->year, 'month' => $nextMonth->month]) }}" class="px-3 py-1 text-sm bg-gray-200 dark:bg-gray-700 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 transition">&gt;</a>
                     </div>
+
                 </div>
             </div>
 
@@ -121,16 +129,29 @@
                 </div>
             </div>
 
+            {{-- --- Options Box with totals display --- --}}
             <div class="mt-6 bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-4 flex items-center justify-center space-x-6 rtl:space-x-reverse">
-                    <label class="flex items-center space-x-2 rtl:space-x-reverse text-gray-700 dark:text-gray-300 cursor-pointer">
-                        <input type="checkbox" id="officeHoursToggle" class="rounded dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-indigo-600 shadow-sm focus:ring-indigo-500 dark:focus:ring-indigo-600 dark:focus:ring-offset-gray-800">
-                        <span>تفکیک ساعات اداری</span>
-                    </label>
-                    <label class="flex items-center space-x-2 rtl:space-x-reverse text-gray-700 dark:text-gray-300 cursor-pointer">
-                        <input type="checkbox" id="amPmToggle" class="rounded dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-indigo-600 shadow-sm focus:ring-indigo-500 dark:focus:ring-indigo-600 dark:focus:ring-offset-gray-800">
-                        <span>تفکیک صبح و عصر</span>
-                    </label>
+                <div class="p-4 flex flex-col items-center justify-center space-y-4">
+                    <div class="flex items-center justify-center space-x-6 rtl:space-x-reverse">
+                        <label class="flex items-center space-x-2 rtl:space-x-reverse text-gray-700 dark:text-gray-300 cursor-pointer">
+                            <input type="checkbox" id="officeHoursToggle" x-model="officeHoursChecked" @change="if(officeHoursChecked) amPmChecked = false;" class="rounded dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-indigo-600 shadow-sm focus:ring-indigo-500 dark:focus:ring-indigo-600 dark:focus:ring-offset-gray-800">
+                            <span>تفکیک ساعات اداری</span>
+                        </label>
+                        <label class="flex items-center space-x-2 rtl:space-x-reverse text-gray-700 dark:text-gray-300 cursor-pointer">
+                            <input type="checkbox" id="amPmToggle" x-model="amPmChecked" @change="if(amPmChecked) officeHoursChecked = false;" class="rounded dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-indigo-600 shadow-sm focus:ring-indigo-500 dark:focus:ring-indigo-600 dark:focus:ring-offset-gray-800">
+                            <span>تفکیک صبح و عصر</span>
+                        </label>
+                    </div>
+
+                    <div x-show="officeHoursChecked" x-transition class="text-sm text-gray-600 dark:text-gray-400 flex space-x-4 rtl:space-x-reverse">
+                        <span>مجموع ساعات اداری: <strong id="officeTotal" class="text-blue-600 dark:text-blue-400"></strong></span>
+                        <span>مجموع ساعات غیراداری: <strong id="nonOfficeTotal" class="text-orange-600 dark:text-orange-400"></strong></span>
+                    </div>
+
+                    <div x-show="amPmChecked" x-transition class="text-sm text-gray-600 dark:text-gray-400 flex space-x-4 rtl:space-x-reverse">
+                        <span>مجموع ساعات صبح: <strong id="amTotal" class="text-green-600 dark:text-green-400"></strong></span>
+                        <span>مجموع ساعات عصر: <strong id="pmTotal" class="text-red-600 dark:text-red-400"></strong></span>
+                    </div>
                 </div>
             </div>
 
@@ -212,13 +233,55 @@
                 });
             }
 
+            // --- Function to calculate total hours for all categories ---
+            function calculateTotals(eventData) {
+                let totals = {
+                    office: 0,
+                    nonOffice: 0,
+                    am: 0,
+                    pm: 0
+                };
+                const amPmBoundary = 12;
+
+                eventData.forEach(day => {
+                    if (day.intervals) {
+                        day.intervals.forEach(interval => {
+                            const totalDuration = interval.end - interval.start;
+
+                            // Calculate Office/Non-Office Hours
+                            const overlapStart = Math.max(interval.start, officeHours.start);
+                            const overlapEnd = Math.min(interval.end, officeHours.end);
+                            const officeDuration = Math.max(0, overlapEnd - overlapStart);
+                            totals.office += officeDuration;
+                            totals.nonOffice += (totalDuration - officeDuration);
+
+                            // Calculate AM/PM Hours
+                            const amOverlapEnd = Math.min(interval.end, amPmBoundary);
+                            const amDuration = Math.max(0, amOverlapEnd - interval.start);
+                            totals.am += amDuration;
+                            totals.pm += (totalDuration - amDuration);
+                        });
+                    }
+                });
+                return totals;
+            }
+
             function updateChart() {
-                // --- CHANGED: Read the state of the checkboxes to set coloring mode ---
+                // --- Read the state of the checkboxes to set coloring mode ---
                 const officeChecked = officeHoursToggle.checked;
                 const amPmChecked = amPmToggle.checked;
                 let coloringMode = 'none';
                 if (officeChecked) coloringMode = 'office';
                 else if (amPmChecked) coloringMode = 'ampm';
+
+                // --- Calculate and display totals when a toggle is active ---
+                if (coloringMode !== 'none') {
+                    const totals = calculateTotals(eventData);
+                    document.getElementById('officeTotal').textContent = decimalToHHMM(totals.office);
+                    document.getElementById('nonOfficeTotal').textContent = decimalToHHMM(totals.nonOffice);
+                    document.getElementById('amTotal').textContent = decimalToHHMM(totals.am);
+                    document.getElementById('pmTotal').textContent = decimalToHHMM(totals.pm);
+                }
 
                 const width = chartDataElement.parentElement.clientWidth * 0.95;
                 const height = 500;
@@ -297,20 +360,16 @@
                 });
             }
 
-            // --- NEW: Add event listeners to the checkboxes ---
+            // Event listeners now just call updateChart
             officeHoursToggle.addEventListener('change', () => {
-                if (officeHoursToggle.checked) {
-                    amPmToggle.checked = false; // Ensure only one is active
-                }
-                updateChart(); // Redraw the chart
+                if (officeHoursToggle.checked) amPmToggle.checked = false;
+                updateChart();
+            });
+            amPmToggle.addEventListener('change', () => {
+                if (amPmToggle.checked) officeHoursToggle.checked = false;
+                updateChart();
             });
 
-            amPmToggle.addEventListener('change', () => {
-                if (amPmToggle.checked) {
-                    officeHoursToggle.checked = false; // Ensure only one is active
-                }
-                updateChart(); // Redraw the chart
-            });
 
             // Initial drawing of the chart
             updateChart();
