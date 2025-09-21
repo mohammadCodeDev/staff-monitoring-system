@@ -17,7 +17,7 @@
                 </a>
 
                 <span class="font-bold text-lg text-gray-800 dark:text-gray-200">
-                    {{ $useJalali ? Morilog\Jalali\Jalalian::fromCarbon($targetDate)->format('%Y') : $targetDate->year }}
+                    {{ $useJalali ? $jalaliYearDisplay : $targetDate->year }}
                 </span>
 
                 <a href="{{ route('employees.reports.yearly', ['employee' => $employee->id, 'year' => $nextYear->year]) }}"

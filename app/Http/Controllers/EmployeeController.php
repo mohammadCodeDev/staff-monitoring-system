@@ -294,11 +294,9 @@ class EmployeeController extends Controller
         Auth::user()->refresh();
         $useJalali = Auth::user()->date_format === 'jalali';
 
-        $targetYear = $year ?? ($useJalali ? Jalalian::now()->getYear() : Carbon::now()->year);
-
-        $targetDate = $useJalali
-            ? Jalalian::fromFormat('Y-m-d', "$targetYear-01-01")->toCarbon()
-            : Carbon::createFromDate($targetYear, 1, 1);
+        // Logic is simpler: always use Gregorian year.
+        $targetYear = $year ?? Carbon::now()->year;
+        $targetDate = Carbon::createFromDate($targetYear, 1, 1);
 
         $startOfYear = $targetDate->copy()->startOfYear();
         $endOfYear = $targetDate->copy()->endOfYear();
@@ -322,8 +320,7 @@ class EmployeeController extends Controller
 
                 if ($entryTime->isSameDay($exitTime)) {
                     $durationInSeconds = $entryTime->diffInSeconds($exitTime);
-                    $month = $entryTime->month;
-                    $monthlyTotals[$month] += $durationInSeconds;
+                    $monthlyTotals[$entryTime->month] += $durationInSeconds;
                 }
                 $lastEntry = null;
             }
@@ -344,12 +341,21 @@ class EmployeeController extends Controller
 
         $chartSeries = [['name' => 'Total Working Hours', 'data' => $monthlyHours]];
 
+        $jalaliYearDisplay = '';
+        if ($useJalali) {
+            $startJalaliYear = Jalalian::fromCarbon($startOfYear)->getYear();
+            $endJalaliYear = Jalalian::fromCarbon($endOfYear)->getYear();
+            // If the Gregorian year spans two Jalali years, show a range.
+            $jalaliYearDisplay = ($startJalaliYear === $endJalaliYear) ? $startJalaliYear : "{$startJalaliYear} - {$endJalaliYear}";
+        }
+
         return view('employees.reports.yearly', [
             'employee' => $employee,
             'chartSeries' => $chartSeries,
             'chartCategories' => $monthsList,
             'targetDate' => $targetDate,
             'useJalali' => $useJalali,
+            'jalaliYearDisplay' => $jalaliYearDisplay,
         ]);
     }
 
@@ -359,14 +365,12 @@ class EmployeeController extends Controller
         Auth::user()->refresh();
         $useJalali = Auth::user()->date_format === 'jalali';
 
+        // Logic is now simpler: always create the date from Gregorian parameters.
         if ($year && $month) {
-            $targetDate = $useJalali
-                ? Jalalian::fromFormat('Y-m-d', "$year-$month-01")->toCarbon()
-                : Carbon::createFromDate($year, $month, 1);
+            $targetDate = Carbon::createFromDate($year, $month, 1)->startOfDay();
         } else {
-            $targetDate = Carbon::now();
+            $targetDate = Carbon::now()->startOfDay();
         }
-        $targetDate->startOfDay();
 
         $startOfMonth = $targetDate->copy()->startOfMonth();
         $endOfMonth = $targetDate->copy()->endOfMonth();
@@ -378,9 +382,10 @@ class EmployeeController extends Controller
 
         $d3ChartData = $this->processAttendanceForD3Chart($attendances);
 
+        // The number of days is now correctly calculated based on the target Gregorian month.
         $daysInMonth = $useJalali ? Jalalian::fromCarbon($targetDate)->getMonthDays() : $targetDate->daysInMonth;
 
-        // --- THIS IS THE FIX: Use the reliable method for creating month names ---
+        // Generate the list of months for the dropdown (either Jalali or Gregorian names).
         $monthsList = [];
         for ($m = 1; $m <= 12; $m++) {
             $monthsList[$m] = $useJalali

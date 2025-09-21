@@ -77,7 +77,7 @@
                     $nextYear = $targetDate->copy()->addYear();
                     @endphp
                     <div class="flex items-center space-x-2 rtl:space-x-reverse">
-                        <a href="{{ route('employees.reports.monthly_d3', ['employee' => $employee->id, 'year' => $prevYear->year, 'month' => $targetDate->month]) }}" class="px-3 py-1 text-sm bg-gray-200 dark:bg-gray-700 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 transition">&lt;</a>
+                        <a href="{{ route('employees.reports.monthly_d3', ['employee' => $employee->id, 'year' => $prevYear->year, 'month' => $prevYear->month]) }}" class="px-3 py-1 text-sm bg-gray-200 dark:bg-gray-700 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 transition">&lt;</a>
                         <div x-data="{ open: false }" @click.away="open = false" class="relative">
                             <button @click="open = !open" class="font-bold text-lg text-gray-800 dark:text-gray-200 w-24 text-center hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md px-2">
                                 {{ $useJalali ? Morilog\Jalali\Jalalian::fromCarbon($targetDate)->format('%Y') : $targetDate->year }}
@@ -85,13 +85,14 @@
                             <div x-show="open" x-transition class="absolute z-10 mt-2 w-32 bg-white dark:bg-gray-700 rounded-md shadow-lg max-h-60 overflow-auto">
                                 @foreach ($yearRange as $year)
                                 <a href="{{ route('employees.reports.monthly_d3', ['employee' => $employee->id, 'year' => $year, 'month' => $targetDate->month]) }}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600">
-                                    {{ $year }}
+                                    {{ $useJalali ? Morilog\Jalali\Jalalian::fromCarbon(Carbon\Carbon::createFromDate($year, 1, 1))->format('%Y') : $year }}
                                 </a>
                                 @endforeach
                             </div>
                         </div>
-                        <a href="{{ route('employees.reports.monthly_d3', ['employee' => $employee->id, 'year' => $nextYear->year, 'month' => $targetDate->month]) }}" class="px-3 py-1 text-sm bg-gray-200 dark:bg-gray-700 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 transition">&gt;</a>
+                        <a href="{{ route('employees.reports.monthly_d3', ['employee' => $employee->id, 'year' => $nextYear->year, 'month' => $nextYear->month]) }}" class="px-3 py-1 text-sm bg-gray-200 dark:bg-gray-700 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 transition">&gt;</a>
                     </div>
+
                     <div class="flex items-center space-x-2 rtl:space-x-reverse">
                         <a href="{{ route('employees.reports.monthly_d3', ['employee' => $employee->id, 'year' => $prevMonth->year, 'month' => $prevMonth->month]) }}" class="px-3 py-1 text-sm bg-gray-200 dark:bg-gray-700 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 transition">&lt;</a>
                         <div x-data="{ open: false }" @click.away="open = false" class="relative">
