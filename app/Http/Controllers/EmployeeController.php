@@ -10,6 +10,7 @@ use App\Models\Attendance;
 use Illuminate\Support\Facades\Storage;
 use Morilog\Jalali\Jalalian;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class EmployeeController extends Controller
 {
@@ -290,8 +291,14 @@ class EmployeeController extends Controller
 
     public function showYearlyReport(Request $request, Employee $employee, $year = null)
     {
-        $targetYear = $year ?? Carbon::now()->year;
-        $targetDate = Carbon::createFromDate($targetYear, 1, 1);
+        Auth::user()->refresh();
+        $useJalali = Auth::user()->date_format === 'jalali';
+
+        $targetYear = $year ?? ($useJalali ? Jalalian::now()->getYear() : Carbon::now()->year);
+
+        $targetDate = $useJalali
+            ? Jalalian::fromFormat('Y-m-d', "$targetYear-01-01")->toCarbon()
+            : Carbon::createFromDate($targetYear, 1, 1);
 
         $startOfYear = $targetDate->copy()->startOfYear();
         $endOfYear = $targetDate->copy()->endOfYear();
@@ -327,34 +334,39 @@ class EmployeeController extends Controller
             $monthlyHours[] = round($seconds / 3600, 2);
         }
 
-        // --- REPLACED JALALI LOGIC WITH GREGORIAN ---
-        // Create standard English month names for the chart categories.
-        $gregorianMonths = [];
+        // --- THIS IS THE FIX: Use the reliable method for creating month names ---
+        $monthsList = [];
         for ($m = 1; $m <= 12; $m++) {
-            // Create a date for the given month and format it to the full month name (e.g., "January").
-            $gregorianMonths[] = Carbon::create(null, $m, 1)->format('F');
+            $monthsList[] = $useJalali
+                ? Jalalian::fromCarbon(Carbon::create(null, $m, 1))->format('%B')
+                : Carbon::create(null, $m, 1)->format('F');
         }
 
-        $chartSeries = [
-            ['name' => 'Total Working Hours', 'data' => $monthlyHours]
-        ];
+        $chartSeries = [['name' => 'Total Working Hours', 'data' => $monthlyHours]];
 
         return view('employees.reports.yearly', [
             'employee' => $employee,
             'chartSeries' => $chartSeries,
-            'chartCategories' => $gregorianMonths, // Pass Gregorian months to the view
+            'chartCategories' => $monthsList,
             'targetDate' => $targetDate,
+            'useJalali' => $useJalali,
         ]);
     }
 
     // new public method for the D3 report page
     public function showMonthlyD3Report(Request $request, Employee $employee, $year = null, $month = null)
     {
+        Auth::user()->refresh();
+        $useJalali = Auth::user()->date_format === 'jalali';
+
         if ($year && $month) {
-            $targetDate = Carbon::createFromDate($year, $month, 1)->startOfDay();
+            $targetDate = $useJalali
+                ? Jalalian::fromFormat('Y-m-d', "$year-$month-01")->toCarbon()
+                : Carbon::createFromDate($year, $month, 1);
         } else {
-            $targetDate = Carbon::now()->startOfDay();
+            $targetDate = Carbon::now();
         }
+        $targetDate->startOfDay();
 
         $startOfMonth = $targetDate->copy()->startOfMonth();
         $endOfMonth = $targetDate->copy()->endOfMonth();
@@ -366,11 +378,14 @@ class EmployeeController extends Controller
 
         $d3ChartData = $this->processAttendanceForD3Chart($attendances);
 
-        // --- NEW: Create a list of all Gregorian months ---
-        $allGregorianMonths = [];
+        $daysInMonth = $useJalali ? Jalalian::fromCarbon($targetDate)->getMonthDays() : $targetDate->daysInMonth;
+
+        // --- THIS IS THE FIX: Use the reliable method for creating month names ---
+        $monthsList = [];
         for ($m = 1; $m <= 12; $m++) {
-            // Create a Carbon instance for each month to get its name (e.g., "January")
-            $allGregorianMonths[$m] = Carbon::create(null, $m, 1)->format('F');
+            $monthsList[$m] = $useJalali
+                ? Jalalian::fromCarbon(Carbon::create(null, $m, 1))->format('%B')
+                : Carbon::create(null, $m, 1)->format('F');
         }
 
         $currentYear = $targetDate->year;
@@ -380,9 +395,11 @@ class EmployeeController extends Controller
             'employee' => $employee,
             'd3ChartData' => $d3ChartData,
             'targetDate' => $targetDate,
-            'officeHours' => ['start' => 6.0, 'end' => 13.0],
-            'allMonths' => $allGregorianMonths, // Changed variable name for clarity
+            'officeHours' => ['start' => 6.0, 'end' => 14.0],
+            'allMonths' => $monthsList,
             'yearRange' => $yearRange,
+            'daysInMonth' => $daysInMonth,
+            'useJalali' => $useJalali,
         ]);
     }
 

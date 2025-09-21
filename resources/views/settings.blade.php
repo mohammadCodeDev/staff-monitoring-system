@@ -57,6 +57,41 @@
         </div>
     </div>
 
+    {{-- CARD FOR DATE FORMAT SETTINGS --}}
+    <div class="py-12 pt-0">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6 text-gray-900 dark:text-gray-100">
+                    <h3 class="text-lg font-medium">{{ __('Date Format Settings') }}</h3>
+                    <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                        {{ __('Choose how dates are displayed throughout the application.') }}
+                    </p>
+
+                    <form method="POST" action="{{ route('settings.dateformat.update') }}" class="mt-6">
+                        @csrf
+                        <div class="mt-2 space-y-2">
+                            <div>
+                                <label class="inline-flex items-center">
+                                    <input type="radio" name="date_format" value="gregorian" onchange="this.form.submit()" {{ Auth::user()->date_format == 'gregorian' ? 'checked' : '' }} class="form-radio text-indigo-600">
+                                    <span class="ml-2">{{ __('Gregorian') }}</span>
+                                </label>
+                            </div>
+                            <div>
+                                <label class="inline-flex items-center">
+                                    <input type="radio" name="date_format" value="jalali" onchange="this.form.submit()" {{ Auth::user()->date_format == 'jalali' ? 'checked' : '' }} class="form-radio text-indigo-600">
+                                    <span class="ml-2">{{ __('Jalali (Shamsi)') }}</span>
+                                </label>
+                            </div>
+                        </div>
+                        @if (session('status') === 'date-format-updated')
+                        <p x-data="{ show: true }" x-show="show" x-transition x-init="setTimeout(() => show = false, 2000)" class="text-sm mt-2 text-green-600 dark:text-green-400">{{ __('Date format updated.') }}</p>
+                        @endif
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     {{-- ADD THE FONT SIZE SETTINGS BLOCK HERE --}}
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">

@@ -74,4 +74,17 @@ class SettingsController extends Controller
         // 3. Redirect back with a success message
         return Redirect::route('settings')->with('status', 'font-size-updated');
     }
+
+    public function updateDateFormat(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'date_format' => ['required', 'string', 'in:gregorian,jalali'],
+        ]);
+
+        $user = $request->user();
+        $user->date_format = $request->date_format;
+        $user->save();
+
+        return Redirect::route('settings')->with('status', 'date-format-updated');
+    }
 }

@@ -206,5 +206,11 @@
     "Monthly Report": "گزارش ماهانه",
     "Yearly Report": "گزارش سالانه",
     "N/A": "تعریف نشده",
-    "Monthly Attendance Report for": "گزارش تردد ماهیانه برای کارمند"
+    "Monthly Attendance Report for": "گزارش تردد ماهیانه برای کارمند",
+    "Date Format Settings": "تنظیمات قالب تاریخ",
+    "Choose how dates are displayed throughout the application.": "نحوه نمایش تاریخ‌ها در سراسر برنامه را انتخاب کنید.",
+    "Yearly Attendance Report for": "گزارش حضور سالانه برای",
+    "View Yearly Report": "مشاهده گزارش سالانه",
+    "Gregorian": "میلادی",
+    "Jalali (Shamsi)": "شمسی"
 }

@@ -23,6 +23,8 @@ Route::get('/settings', function () {
     return view('settings');
 })->middleware(['auth'])->name('settings');
 
+Route::post('/settings/date-format', [SettingsController::class, 'updateDateFormat'])->name('settings.dateformat.update');
+
 //POST route for updating the locale
 Route::post('/settings/locale', [SettingsController::class, 'updateLocale'])->name('settings.locale.update');
 

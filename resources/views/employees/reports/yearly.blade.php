@@ -17,7 +17,7 @@
                 </a>
 
                 <span class="font-bold text-lg text-gray-800 dark:text-gray-200">
-                    {{ $targetDate->year }}
+                    {{ $useJalali ? Morilog\Jalali\Jalalian::fromCarbon($targetDate)->format('%Y') : $targetDate->year }}
                 </span>
 
                 <a href="{{ route('employees.reports.yearly', ['employee' => $employee->id, 'year' => $nextYear->year]) }}"
@@ -74,7 +74,7 @@
                             const monthNumber = monthIndex + 1;
 
                             // We create a URL template using Blade, with a placeholder for the month
-                            let urlTemplate = "{{ route('employees.reports.monthly', ['employee' => $employee->id, 'year' => $targetDate->year, 'month' => '__MONTH__']) }}";
+                            let urlTemplate = "{{ route('employees.reports.monthly_d3', ['employee' => $employee->id, 'year' => $targetDate->year, 'month' => '__MONTH__']) }}";
 
                             // Replace the placeholder with the actual month number
                             let finalUrl = urlTemplate.replace('__MONTH__', monthNumber);

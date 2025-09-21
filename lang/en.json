@@ -206,5 +206,11 @@
     "Monthly Report": "Monthly Report",
     "Yearly Report": "Yearly Report",
     "N/A": "Not Available",
-    "Monthly Attendance Report for": "Monthly Attendance Report for"
+    "Monthly Attendance Report for": "Monthly Attendance Report for",
+    "Date Format Settings": "Date Format Settings",
+    "Choose how dates are displayed throughout the application.": "Choose how dates are displayed throughout the application.",
+    "Yearly Attendance Report for": "Yearly Attendance Report for",
+    "View Yearly Report": "View Yearly Report",
+    "Gregorian": "Gregorian",
+    "Jalali (Shamsi)": "Jalali (Shamsi)"
 }

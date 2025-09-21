@@ -29,6 +29,7 @@ class User extends Authenticatable
         'locale',
         'theme',
         'font_size',
+        'date_format',
     ];
 
     /**
